@@ -7,13 +7,13 @@
 
 if [ "$1" = "upgrade" ]; then
 
- . /usr/share/linuxmuster/config/dist.conf || exit 1
+ . /usr/share/oss-linbo/config/dist.conf || exit 1
  
  # remove obsolete examples link
  [ -L "$LINBODIR/examples" ] && rm "$LINBODIR/examples"
  
  # remove obsolete examples dir
- [ -d /usr/share/doc/linuxmuster-linbo/examples ] && rm -rf /usr/share/doc/linuxmuster-linbo/examples
+ [ -d /usr/share/doc/packages/oss-linbo/examples ] && rm -rf /usr/share/doc/packages/oss-linbo/examples
 
  # add bittorrent user if not present
  if ! id bittorrent &> /dev/null; then

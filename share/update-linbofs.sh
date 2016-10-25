@@ -10,7 +10,7 @@
 #
 
 # read linuxmuster environment
-. /usr/share/linuxmuster/config/dist.conf || exit 1
+. /usr/share/oss-linbo/config/dist.conf || exit 1
 . $HELPERFUNCTIONS || exit 1
 
 if [ ! -e "$INSTALLED" ]; then

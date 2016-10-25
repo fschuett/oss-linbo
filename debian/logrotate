@@ -1,4 +1,4 @@
-/var/log/linuxmuster/linbo/*.log {
+/var/log/oss-linbo/*.log {
      rotate 30
      weekly
      compress

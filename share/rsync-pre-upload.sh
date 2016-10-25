@@ -11,7 +11,7 @@
 #
 
 # read in paedml specific environment
-[ -e /usr/share/linuxmuster/config/dist.conf ] && . /usr/share/linuxmuster/config/dist.conf
+[ -e /usr/share/oss-linbo/config/dist.conf ] && . /usr/share/oss-linbo/config/dist.conf
 
 LOGFILE=rsync-pre-upload.log
 if [ -n "$LINBODIR" ]; then

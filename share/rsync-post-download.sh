@@ -6,7 +6,7 @@
 #
 
 # read in paedml specific environment
-. /usr/share/linuxmuster/config/dist.conf || exit 1
+. /usr/share/oss-linbo/config/dist.conf || exit 1
 . $HELPERFUNCTIONS || exit 1
 
 LOGFILE="$LINBODIR/log/rsync-post-download.log"
@@ -152,7 +152,7 @@ case $EXT in
 
  upgrade)
   # update old 2.2 clients
-  LINBOFSCACHE="/var/cache/linuxmuster-linbo/linbofs"
+  LINBOFSCACHE="/var/cache/oss-linbo/linbofs"
   linbo-ssh "$RSYNC_HOST_NAME" 'echo -e "#!/bin/sh\necho \"Processing LINBO upgrade ... waiting for reboot ...\"\nsleep 120\n/sbin/reboot" > /linbo.sh'
   linbo-ssh "$RSYNC_HOST_NAME" chmod +x /linbo.sh
   linbo-scp --exclude start.conf --exclude linbo.sh -a "$LINBOFSCACHE/" "${RSYNC_HOST_NAME}:/"
