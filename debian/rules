@@ -12,7 +12,7 @@ BUILDROOT=$(CURDIR)/buildroot
 BUILDDIR=$(CURDIR)/build
 BUILD32=$(BUILDDIR)/build-i386
 BUILD64=$(BUILDDIR)/build-x86_64
-LINBO_VERSION=$(shell dpkg-parsechangelog -SVersion)
+LINBO_VERSION=$(shell head -n 1 debian/changelog | sed 's/.*\([0-9]\{1,2\}\.[0-9]\{1,2\}\.[0-9]\{1,2\}\-[0-9]\{1,2\}\).*/\1/')
 
 GRUBNAME=grub-2.02~beta2
 GRUBCFG=--disable-nls --disable-efiemu --disable-mm-debug --disable-cache-stats \
@@ -33,6 +33,7 @@ override_dh_clean:
 
 .PHONY: build
 build:
+	echo "LINBO $(LINBO_VERSION)"
 	echo "LINBO $(LINBO_VERSION)" > $(BUILDROOT)-external/board/rootfs_overlay/etc/linbo-version
 	cd $(BUILDROOT); make O=$(BUILD32) BR2_EXTERNAL=$(BUILDROOT)-external linbo-i386_defconfig
 	cd $(BUILDROOT); make O=$(BUILD64) BR2_EXTERNAL=$(BUILDROOT)-external linbo-x86_64_defconfig
@@ -51,10 +52,10 @@ ifeq ("$(wildcard $(BUILDDIR)/boot)","")
 	$(GRUB_MKNETDIR) --modules="$(GRUB_COMMON_MODULES) $(GRUB_EFI_MODULES)" -d $(BUILDDIR)/grub-efi-x86_64/grub-core
 endif
 ifeq ("$(wildcard $(BUILDDIR)/ipxe.efi)","")
-	wget -O $(BUILDDIR)/ipxe.efi https://boot.ipxe.org/ipxe.efi
+	wget -O $(BUILDDIR)/ipxe.efi https://ipxe.org/ipxe.efi
 endif
 ifeq ("$(wildcard $(BUILDDIR)/ipxe.lkrn)","")
-	wget -O $(BUILDDIR)/ipxe.lkrn https://boot.ipxe.org/ipxe.lkrn
+	wget -O $(BUILDDIR)/ipxe.lkrn https://ipxe.org/ipxe.lkrn
 endif
 
 binary:
