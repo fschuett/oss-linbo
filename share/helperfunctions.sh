@@ -7,11 +7,8 @@
 
 # return active images
 active_images() {
- # check for workstation data
- [ -z "$WIMPORTDATA" ] && return 1
- [ -s "$WIMPORTDATA" ] || return 1
  # get active groups
- local actgroups="$(grep ^[-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789] $WIMPORTDATA | awk -F\; '{ print $3 }' | sort -u)"
+ local actgroups="$(ldapsearch -x  objectClass=SchoolWorkstation dhcpOption | grep 'dhcpOption: extensions-path' | gawk '{ printf "%s\n", $3 }'| sort -u)"
  [ -z "$actgroups" ] && return 0
  # compute images used by active groups
  local tmpfile=/var/tmp/active_images.$$

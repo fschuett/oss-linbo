@@ -4,11 +4,8 @@
 # to enable set this to "1"
 START_BITTORRENT=0
 
-# where the linbo stuff is located
-LINBODIR=/var/linbo
-
 # path to file with workstation data
-WIMPORTDATA=/etc/linuxmuster/workstations
+WIMPORTDATA=/srv/tftp/workstations
 
 # set portnum as the minimum port to listen on,
 # counts up if unavailable (default 6881)

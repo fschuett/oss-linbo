@@ -56,15 +56,15 @@ case $EXT in
   if [ -s "$imagemacct" -a -n "$basedn" ]; then
    echo "Machine account file: $imagemacct"
    echo "Host: $compname"
-   echo "Writing samba machine password hashes to ldap account:"
-   sed -e "s|@@compname@@|$compname|" "$imagemacct" | "$LDAPMODIFY" -x -y "$ldapsec" -D "cn=admin,$basedn" -h localhost
-   # check for success
-   sambaNTpwhash_cur="$("$LDAPSEARCH" -y "$ldapsec" -D cn=admin,$basedn -x -h localhost "(uid=$compname$)" sambaNTPassword | grep ^sambaNTPassword: | awk '{ print $2 }')"
-   sambaNTpwhash_new="$(grep ^sambaNTPassword: "$imagemacct" | awk '{ print $2 }')"
-   if [ "$sambaNTpwhash_new" != "$sambaNTpwhash_cur" ]; then
-    echo "Not successfull, once again:"
-    sed -e "s|@@compname@@|$compname|" "$imagemacct" | "$LDAPMODIFY" -x -y "$ldapsec" -D "cn=admin,$basedn" -h localhost
-   fi
+   echo "Not writing samba machine password hashes to ldap account:"
+#   sed -e "s|@@compname@@|$compname|" "$imagemacct" | "$LDAPMODIFY" -x -y "$ldapsec" -D "cn=admin,$basedn" -h localhost
+#   # check for success
+#   sambaNTpwhash_cur="$("$LDAPSEARCH" -y "$ldapsec" -D cn=admin,$basedn -x -h localhost "(uid=$compname$)" sambaNTPassword | grep ^sambaNTPassword: | awk '{ print $2 }')"
+#   sambaNTpwhash_new="$(grep ^sambaNTPassword: "$imagemacct" | awk '{ print $2 }')"
+#   if [ "$sambaNTpwhash_new" != "$sambaNTpwhash_cur" ]; then
+#    echo "Not successfull, once again:"
+#    sed -e "s|@@compname@@|$compname|" "$imagemacct" | "$LDAPMODIFY" -x -y "$ldapsec" -D "cn=admin,$basedn" -h localhost
+#   fi
   fi
  ;;
 

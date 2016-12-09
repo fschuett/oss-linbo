@@ -20,14 +20,14 @@
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DESC="BitTorrent service for"
-DAEMON=/usr/share/linuxmuster-linbo/linbo-torrenthelper.sh
+DAEMON=/usr/share/oss-linbo/linbo-torrenthelper.sh
 
 # Gracefully exit if the package has been removed.
 test -x $DAEMON || exit 0
 
 # read necessary functions and constants
-. /usr/share/linuxmuster-linbo/helperfunctions.sh || exit 1
-[ -e /usr/share/linuxmuster/config/dist.conf ] && . /usr/share/linuxmuster/config/dist.conf
+. /usr/share/oss-linbo/helperfunctions.sh || exit 1
+[ -e /usr/share/oss-linbo/config/dist.conf ] && . /usr/share/oss-linbo/config/dist.conf
 . /lib/lsb/init-functions
 
 # read cmdline
@@ -55,10 +55,10 @@ MAX_SLICE_LENGTH=131072
 CLIENT_CONFIG="torrent-client.conf"
 
 # read defaults
-[ -e /etc/default/linbo-bittorrent ] || exit 1
-. /etc/default/linbo-bittorrent
+[ -e /etc/sysconfig/linbo-bittorrent ] || exit 1
+. /etc/sysconfig/linbo-bittorrent
 [ "$START_BITTORRENT" = "1" ] || exit 0
-. /etc/default/bittorrent || exit 1
+. /etc/sysconfig/bittorrent || exit 1
 [ "$START_BTTRACK" = "1" ] || exit 0
 
 cd $LINBODIR
@@ -133,11 +133,11 @@ start(){
   [ -e "$tfile" ] || continue
 
   # start daemon stuff
-  log_daemon_msg "Starting $DESC" "$i"
+  echo -n "Starting $DESC" "$i"
 
   if screen -list | grep -q "$tname"; then
    echo
-   log_failure_msg "Torrent for $i is already running. Skipped!"
+   echo "Torrent for $i is already running. Skipped!"
    continue
   fi
 
@@ -150,24 +150,27 @@ start(){
            --max_initiate $MAX_INITIATE \
            --keepalive_interval $KEEPALIVE_INTERVAL \
            --download_slice_size $DOWNLOAD_SLICE_SIZE \
-           --request_backlog $REQUEST_BACKLOG \
            --max_message_length $MAX_MESSAGE_LENGTH \
-           --timeout $TIMEOUT \
            --timeout_check_interval $TIMEOUT_CHECK_INTERVAL \
            --max_rate_period $MAX_RATE_PERIOD \
-           --upload_rate_fudge $UPLOAD_RATE_FUDGE \
            --display_interval $DISPLAY_INTERVAL \
            --max_slice_length $MAX_SLICE_LENGTH \
-           --check_hashes 0 \
-           --saveas $i"
+           --check_hashes 0"
+
+# following options not supported
+#           --timeout $TIMEOUT \
+#           --request_backlog $REQUEST_BACKLOG \
+#           --upload_rate_fudge $UPLOAD_RATE_FUDGE \
+#           --saveas $i
+
   screen -dmS "$tname" $DAEMON $OPTIONS
   sleep 1
   if ! screen -list | grep -q "$tname"; then
    echo -n " "
-   log_failure_msg "failed!"
+   echo " failed!"
   else
    RC=0
-   log_end_msg "$RC"
+   echo " OK."
   fi
  done
 }
@@ -178,18 +181,26 @@ stop(){
  local pid=""
  for i in $images; do
   if screen -list | grep -q "$(basename $i.torrent)"; then
-    log_daemon_msg "Stopping $DESC" "$i"
+    echo -n "Stopping $DESC" "$i"
     pid="$(screen -list | grep "$(basename $i.torrent)" | awk -F\. '{ print $1 }' | awk '{ print $1 }')"
     kill $pid ; RC="$?"
-    log_end_msg "$RC"
+    if [ "$RC" = "0" ]; then
+      echo " OK." 
+    else 
+      echo " failed($RC)!" 
+    fi
   fi
  done
  if [ -z "$omit_killall" ]; then
   local pids="$(screen -list | grep torrent | awk -F\. '{ print $1 }' | awk '{ print $1 }')"
   if [ -n "$pids" ]; then
-   log_daemon_msg "Sending all remaining linbo-bittorrent processes the TERM signal."
+   echo -n "Sending all remaining linbo-bittorrent processes the TERM signal."
    kill $pids ; RC="$?"
-   log_end_msg "$RC"
+   if [ "$RC" = "0" ]; then 
+     echo " OK." 
+   else 
+     echo " failed($RC)!" 
+   fi
   fi
  fi
 }
@@ -201,7 +212,7 @@ status(){
    local status=""
    local c=0
    local d=""
-   screen -wipe | grep -w .torrent | while read line; do
+   screen -wipe | grep '.torrent\b' | while read line; do
     let c+=1
     pid="$(echo $line | awk -F\. '{ print $1 }' | awk '{ print $1 }')"
     screen="$(echo $line | awk '{ print $1 }')"

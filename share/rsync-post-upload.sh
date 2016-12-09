@@ -90,9 +90,9 @@ case "$FTYPE" in
   if [ -n "$RSYNC_HOST_NAME" -a -n "$LDAPSEARCH" -a -s "$ldapsec" -a -n "$NETWORKSETTINGS" ]; then
    #  fetch samba nt password hash from ldap machine account
    . $NETWORKSETTINGS # read basedn
-   sambaNTpwhash="$("$LDAPSEARCH" -y "$ldapsec" -D cn=admin,$basedn -x -h localhost "(uid=$compname$)" sambaNTPassword | grep ^sambaNTPassword: | awk '{ print $2 }')"
+#   sambaNTpwhash="$("$LDAPSEARCH" -y "$ldapsec" -D cn=admin,$basedn -x -h localhost "(uid=$compname$)" sambaNTPassword | grep ^sambaNTPassword: | awk '{ print $2 }')"
    if [ -n "$sambaNTpwhash" ]; then
-    echo "Writing samba password hash file for image $image."
+    echo "Not writing samba password hash file for image $image."
     template="$LINBOTPLDIR/machineacct"
     imagemacct="$LINBODIR/$image.macct"
     sed -e "s|@@basedn@@|$basedn|
