@@ -88,11 +88,11 @@ start() {
    if [ -s "$file" ]; then
     # start daemon stuff
     #[ "$port" = "$PORTBASE" ] || echo
-    log_daemon_msg "Starting $DESC" "$file"
+    echo -n "Starting $DESC" "$file"
 
     if screen -list | grep -q "$file.mcast"; then
      echo
-     log_failure_msg "Multicast for $file is already running. Skipped!"
+     echo "Multicast for $file is already running. Skipped!"
      continue
     fi
 
@@ -101,11 +101,10 @@ start() {
     screen -dmS "$file.mcast" "$DAEMON" "$INTERFACE" "$port" "$MINCLIENTS" "$MINSECONDS" "$MAXSECONDS" "$file" "$LOGFILE"
     sleep 1
     if ! screen -list | grep -q "$file.mcast"; then
-     echo -n " "
-     log_failure_msg "failed!"
+     echo " failed!"
     else
      RC=0
-     log_end_msg "$RC"
+     echo " OK."
     fi
 
    fi
@@ -119,17 +118,25 @@ stop(){
  local pid=""
  for i in $images; do
   if screen -list | grep -q "$i.mcast"; then
-    log_daemon_msg "Stopping $DESC" "$i"
+    echo -n "Stopping $DESC" "$i"
     pid="$(screen -list | grep "$i.mcast" | awk -F\. '{ print $1 }' | awk '{ print $1 }')"
     kill $pid ; RC="$?"
-    log_end_msg "$RC"
+    if [ "$RC" = "0" ]; then
+      echo " OK."
+    else
+      echo " failed($RC)!"
+    fi
   fi
  done
  local pids="$(screen -list | grep mcast | awk -F\. '{ print $1 }' | awk '{ print $1 }')"
  if [ -n "$pids" ]; then
-  log_daemon_msg "Sending all remaining linbo-multicast processes the TERM signal."
+  echo -n "Sending all remaining linbo-multicast processes the TERM signal."
   kill $pids ; RC="$?"
-  log_end_msg "$RC"
+  if [ "$RC" = "0" ]; then
+    echo " OK."
+  else
+    echo " failed($RC)!"
+  fi
  fi
 }
 
