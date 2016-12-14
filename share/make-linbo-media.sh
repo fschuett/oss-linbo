@@ -8,7 +8,7 @@
 #
 
 # read linuxmuster environment
-. /usr/share/linuxmuster/config/dist.conf || exit 1
+. /usr/share/oss-linbo/config/dist.conf || exit 1
 . $HELPERFUNCTIONS || exit 1
 
 # usage info
@@ -116,7 +116,7 @@ fi
 # check groups
 if [ -n "$GRPS" ]; then
  GRPS=" ${GRPS//,/ } "
- GRPS_SYS=`grep -v ^# /etc/linuxmuster/workstations | awk -F\; '{ print $3 }' | sort -u`
+ GRPS_SYS="$(ldapsearch -x  objectClass=SchoolWorkstation dhcpOption | grep 'dhcpOption: extensions-path' | gawk '{ printf "%s\n", $3 }'| sort -u)"
  for i in $GRPS; do
   if [ "$i" = "default" ]; then
    if [ -n "$GRPS_CHECKED" ]; then
@@ -127,7 +127,7 @@ if [ -n "$GRPS" ]; then
    continue
   fi
   if echo $GRPS_SYS | grep -q -w $i; then
-   if [ -e "$LINBODIR/pxelinux.cfg/$i" -a -e "$LINBODIR/start.conf.$i" ]; then
+   if [ -e "$LINBODIR/boot/grub/$i.cfg" -a -e "$LINBODIR/start.conf.$i" ]; then
     if [ -n "$GRPS_CHECKED" ]; then
      GRPS_CHECKED="$GRPS_CHECKED $i"
     else
@@ -141,8 +141,8 @@ fi
 [ -z "$GRPS_CHECKED" ] && GRPS_CHECKED=default
 
 LOGFILE=$LOGDIR/linbo/make-linbo-media.log
-BINDIR=/usr/lib/linuxmuster-linbo
-SHAREDIR=/usr/share/linuxmuster-linbo
+BINDIR=/usr/lib/oss-linbo
+SHAREDIR=/usr/share/oss-linbo
 
 GERMANKBD=$BINDIR/german.kbd
 SYSLINUX=$BINDIR/syslinux

@@ -5,7 +5,7 @@
 # 08.03.2016
 #
 
-# read in linuxmuster.net specific environment
+# read in oss-linbo specific environment
 . /usr/share/oss-linbo/config/dist.conf || exit 1
 . $HELPERFUNCTIONS || exit 1
 
@@ -24,11 +24,11 @@ echo "$FILE" > "$PIDFILE"
 
 compname="$(echo $RSYNC_HOST_NAME | awk -F\. '{ print $1 }')"
 
-# recognize upload of windows activation tokens
-stringinstring "winact.tar.gz.upload" "$FILE" && EXT="winact-upload"
-
 # recognize download request of local grub.cfg
 stringinstring ".grub.cfg" "$FILE" && EXT="grub-local"
+
+# recognize download request of start.conf-ip
+[[ ${FILE##$RSYNC_MODULE_PATH/} =~ start\.conf-[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]] && EXT="start.conf.gruppe"
 
 echo "HOSTNAME: $RSYNC_HOST_NAME"
 echo "RSYNC_REQUEST: $RSYNC_REQUEST"
@@ -37,36 +37,6 @@ echo "PIDFILE: $PIDFILE"
 echo "EXT: $EXT"
 
 case $EXT in
-
- # handle machine account password
-# *.mpw)
-  # set machine account password
-#  MACHINEPW="12345678"
-#  echo -e "${MACHINEPW}\n${MACHINEPW}\n" | smbpasswd -e -s "$compname$"
-#  MACHINEPW="$(pwgen -s 10 1)"
-#  if ! sophomorix-passwd --force --user "$compname$" --pass "$MACHINEPW" | grep -qi "error"; then
-#   echo "$MACHINEPW" > "$FILE"
-#  fi
- *.macct)
-  LDAPMODIFY="$(which ldapmodify)"
-  LDAPSEARCH="$(which ldapsearch)"
-  imagemacct="$LINBODIR/${RSYNC_REQUEST##*/}"
-  ldapsec="/etc/ldap.secret"
-  # upload samba machine password hashes to host's machine account
-  if [ -s "$imagemacct" -a -n "$basedn" ]; then
-   echo "Machine account file: $imagemacct"
-   echo "Host: $compname"
-   echo "Not writing samba machine password hashes to ldap account:"
-#   sed -e "s|@@compname@@|$compname|" "$imagemacct" | "$LDAPMODIFY" -x -y "$ldapsec" -D "cn=admin,$basedn" -h localhost
-#   # check for success
-#   sambaNTpwhash_cur="$("$LDAPSEARCH" -y "$ldapsec" -D cn=admin,$basedn -x -h localhost "(uid=$compname$)" sambaNTPassword | grep ^sambaNTPassword: | awk '{ print $2 }')"
-#   sambaNTpwhash_new="$(grep ^sambaNTPassword: "$imagemacct" | awk '{ print $2 }')"
-#   if [ "$sambaNTpwhash_new" != "$sambaNTpwhash_cur" ]; then
-#    echo "Not successfull, once again:"
-#    sed -e "s|@@compname@@|$compname|" "$imagemacct" | "$LDAPMODIFY" -x -y "$ldapsec" -D "cn=admin,$basedn" -h localhost
-#   fi
-  fi
- ;;
 
  # fetch logfiles from client
  *.log)
@@ -84,73 +54,6 @@ case $EXT in
   touch "$FILE"
  ;;
 
- # provide host's opsi key for download
- *.opsikey)
-  # invoked by linbo_cmd on postsync
-  # if opsi server is configured and host is opsimanaged
-  if ([ -n "$opsiip" ] && opsimanaged "$compname"); then
-   echo "Opsi key file $(basename $FILE) requested."
-   key="$(grep ^"$RSYNC_HOST_NAME" "$LINBOOPSIKEYS" | awk -F\: '{ print $2 }')"
-   if [ -n "$key" ]; then
-    echo "Opsi key for $RSYNC_HOST_NAME found, providing key file."
-    echo "$key" > "$FILE"
-    chmod 644 "$FILE"
-   fi
-  fi
- ;;
-
- # handle windows product key request
- *.winkey)
-  # get key from workstations and write it to temporary file
-  if [ -n "$compname" ]; then
-   winkey="$(grep ^[a-zA-Z0-9] $WIMPORTDATA | awk -F\; '{ print $2 " " $7 }' | grep -w $compname | awk '{ print $2 }' | tr a-z A-Z)"
-   officekey="$(grep ^[a-zA-Z0-9] $WIMPORTDATA | awk -F\; '{ print $2 " " $6 }' | grep -w $compname | awk '{ print $2 }' | tr a-z A-Z)"
-   [ -n "$winkey" ] && echo "winkey=$winkey" > "$FILE"
-   [ -n "$officekey" ] && echo "officekey=$officekey" >> "$FILE"
-  fi
- ;;
-
- # handle windows activation tokens archive
- winact-upload)
-  RC=0
-  FILE="${FILE%.upload}"
-  # fetch archive from client
-  echo "Upload request for windows activation tokens archive."
-  linbo-scp "${RSYNC_HOST_NAME}:/cache/$(basename $FILE)" "${FILE}.tmp" || RC="1"
-  # if archive file already exists try to merge old and new archives
-  if [ -s "$FILE" -a "$RC" = "0" ]; then
-   echo "Updating existing archive $FILE."
-   tmpdir="/var/tmp/winact-upload.$$"
-   curdir="$(pwd)"
-   mkdir -p "$tmpdir"
-   # extract old archive to tmpdir
-   tar xf "$FILE" -C "$tmpdir" || RC="1"
-   if [ "$RC" = "0" ]; then
-    # extract uploaded archive over old archive in tmpdir
-    tar xf "${FILE}.tmp" -C "$tmpdir" || RC="1"
-   fi
-   if [ "$RC" = "0" ]; then
-    rm -f "${FILE}.tmp"
-    cd "$tmpdir"
-    # pack content of tmpdir to temporary archive
-    tar czf "${FILE}.tmp" * || RC="1"
-    cd "$curdir"
-   fi
-   rm -rf "$tmpdir"
-  fi
-  # move uploaded file in place
-  if [ "$RC" = "0" ]; then
-   rm -f "$FILE"
-   mv "${FILE}.tmp" "$FILE" || RC="1"
-  fi
-  if [ "$RC" = "0" ]; then
-   echo "Upload of $FILE successfully finished."
-  else
-   echo "Sorry. Upload of $FILE failed."
-  fi
-  rm -f "$PIDFILE"
- ;;
-
  # prepare download of local grub.cfg
  grub-local)
   grubcfg_tpl="$LINBOTPLDIR/grub.cfg.local"
@@ -158,6 +61,13 @@ case $EXT in
   startconf="$LINBODIR/start.conf.$group"
   append="$(linbo_kopts "$startconf") localboot"
   sed -e "s|linux \$linbo_kernel .*|linux \$linbo_kernel $append|g" "$grubcfg_tpl" > "$FILE"
+ ;;
+
+ # create download link start.conf-ip
+ start.conf.gruppe)
+  group="$(oss_ldapsearch "cn=$compname" dhcpOption |grep '^dhcpOption: extensions-path ' | awk '{ print $3 }')"
+  echo "Gruppe: $group create link to $FILE"
+  [[ -n $group ]] && ln -sf "$LINBODIR/start.conf.$group" "$FILE"
  ;;
 
  *) ;;

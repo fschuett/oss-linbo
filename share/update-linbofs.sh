@@ -13,11 +13,6 @@
 . /usr/share/oss-linbo/config/dist.conf || exit 1
 . $HELPERFUNCTIONS || exit 1
 
-if [ ! -e "$INSTALLED" ]; then
- echo "linuxmuster.net is not configured! Aborting!"
- exit 1
-fi
-
 # check & set lockfile
 locker=/tmp/.update-linbofs.lock
 if [ -e "$locker" ]; then
@@ -45,9 +40,6 @@ bailout() {
  exit 1
 }
 
-# this script makes only sense if imaging=linbo
-[ "$imaging" != "linbo" ] && bailout "Imaging system is $imaging and not linbo!"
-
 update_linbofs() {
  local _64=$1
  local linbofscachedir="/var/cache/linuxmuster-linbo/linbofs$_64"
@@ -63,8 +55,6 @@ update_linbofs() {
  if [ -z "$linbo_passwd" ]; then
   bailout "Cannot read linbo password from /etc/rsyncd.secrets!"
  else
-  sophomorix-passwd --user linbo --pass "$linbo_passwd" &> /dev/null ; RC="$?"
-  [ "$RC" != "0" ] && echo "WARNING: Sophomorix failed to set linbo password! Expect problems with the user db!"
   # md5sum of linbo password goes into ramdisk
   linbo_md5passwd=`echo -n $linbo_passwd | md5sum | awk '{ print $1 }'`
  fi
@@ -103,9 +93,9 @@ update_linbofs() {
 
 # create download links for linbo kernel and initrd so it can be downloaded per http
 create_www_links(){
- [ -d /var/www ] || return
+ [ -d /srv/www ] || return
  for i in linbo linbo64 linbofs.lz linbofs64.lz; do
-  ln -sf "$LINBODIR/$i" /var/www/
+  ln -sf "$LINBODIR/$i" /srv/www/
  done
 }
 

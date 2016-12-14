@@ -61,7 +61,6 @@ if [ -s "$BACKUP" ]; then
      if [ -e "${FILE}.$i" ];then
       mv -fv "${FILE}.$i" "${ARCHIVE}.$i"
       echo "$(basename ${ARCHIVE}.$i) created."
-      chmod 600 "${ARCHIVE}.$i"
      fi
     done
    ;;
@@ -82,39 +81,6 @@ case "$FTYPE" in
   # restart multicast service if image file was uploaded.
   echo "Image file $image detected. Restarting multicast service if enabled." >&2
   /etc/init.d/linbo-multicast restart >&2
-
-  # save samba passwords of host we made the new image
-  LDAPSEARCH="$(which ldapsearch)"
-  ldapsec="/etc/ldap.secret"
-  compname="$(echo $RSYNC_HOST_NAME | awk -F\. '{ print $1 }')"
-  if [ -n "$RSYNC_HOST_NAME" -a -n "$LDAPSEARCH" -a -s "$ldapsec" -a -n "$NETWORKSETTINGS" ]; then
-   #  fetch samba nt password hash from ldap machine account
-   . $NETWORKSETTINGS # read basedn
-#   sambaNTpwhash="$("$LDAPSEARCH" -y "$ldapsec" -D cn=admin,$basedn -x -h localhost "(uid=$compname$)" sambaNTPassword | grep ^sambaNTPassword: | awk '{ print $2 }')"
-   if [ -n "$sambaNTpwhash" ]; then
-    echo "Not writing samba password hash file for image $image."
-    template="$LINBOTPLDIR/machineacct"
-    imagemacct="$LINBODIR/$image.macct"
-    sed -e "s|@@basedn@@|$basedn|
-            s|@@sambaNTpwhash@@|$sambaNTpwhash|" "$template" > "$imagemacct"
-    chmod 600 "$imagemacct"
-   fi
-  fi
-
-  # update opsi settings if host is managed
-  if ([ -n "$opsiip" ] && opsimanaged "$compname"); then
-   clientini="${opsiip}:$OPSICLIENTDIR/${RSYNC_HOST_NAME}.ini"
-   imageini="$LINBODIR/$image.opsi"
-   rsync "$clientini" "$imageini" ; RC="$?"
-   if [ "$RC" = "0" ]; then
-    chmod 600 "$imageini"
-    echo "$(basename "$clientini") successfully downloaded to $(basename "$imageini")."
-   else
-    rm -f "$imageini"
-    echo "Download of $(basename "$clientini") to $(basename "$imageini") failed!"
-   fi
-  fi
-
  ;;
 
  *.torrent)
@@ -122,6 +88,7 @@ case "$FTYPE" in
   echo "Torrent file ${FILE##*/} detected. Restarting bittorrent service." >&2
   /etc/init.d/linbo-bittorrent restart >&2
  ;;
+
  *.new)
   # add new host data to workstations file
   ROW="$(cat $FILE)"
@@ -143,4 +110,3 @@ echo "RC: $RSYNC_EXIT_STATUS"
 echo "### rsync post upload end: $(date) ###"
 
 exit $RSYNC_EXIT_STATUS
-

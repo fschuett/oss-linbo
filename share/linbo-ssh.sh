@@ -9,8 +9,8 @@
 # last change: 08.12.2009
 #
 
-# read linuxmuster environment
-. /usr/share/linuxmuster/config/dist.conf || exit 1
+# read oss-linbo environment
+. /usr/share/oss-linbo/config/dist.conf || exit 1
 
 SSH_CONFIG="$SYSCONFDIR/linbo/ssh_config"
 
