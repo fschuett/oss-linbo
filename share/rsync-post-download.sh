@@ -10,7 +10,7 @@
 . /etc/sysconfig/schoolserver || exit 1
 . $HELPERFUNCTIONS || exit 1
 
-LOGFILE="$LINBODIR/log/rsync-post-download.log"
+LOGFILE="$LINBOLOGDIR/rsync-post-download.log"
 
 # Debug
 exec >>$LOGFILE 2>&1
@@ -30,11 +30,6 @@ PIDFILE="/tmp/rsync.$RSYNC_PID"
 FILE="$(<$PIDFILE)"
 EXT="$(echo $FILE | grep -o '\.[^.]*$')"
 
-echo "HOSTNAME: $RSYNC_HOST_NAME"
-echo "FILE: $FILE"
-echo "PIDFILE: $PIDFILE"
-echo "EXT: $EXT"
-
 pcname="$(echo $RSYNC_HOST_NAME | awk -F \. '{ print $1 }')"
 
 # handle request for obsolete menu.lst
@@ -49,6 +44,11 @@ stringinstring ".grub.cfg" "$FILE" && EXT="grub-local"
 
 # recognize download request of start.conf-ip
 [[ ${FILE##$RSYNC_MODULE_PATH/} =~ start\.conf-[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]] && EXT="start.conf.gruppe"
+
+echo "HOSTNAME: $RSYNC_HOST_NAME"
+echo "FILE: $FILE"
+echo "PIDFILE: $PIDFILE"
+echo "EXT: $EXT"
 
 case $EXT in
 

@@ -8,7 +8,7 @@
 #
 
 # read linuxmuster environment
-. /usr/share/linuxmuster/config/dist.conf || exit 1
+. /usr/share/oss-linbo/config/dist.conf || exit 1
 . $HELPERFUNCTIONS || exit 1
 
 KNOWNCMDS="partition format initcache sync start create_cloop create_rsync upload_cloop upload_rsync reboot halt"
@@ -303,15 +303,15 @@ if [ -n "$IP" ]; then
   IP="$RET"
  fi
  # test for pxe flag
- pxe="$(grep -i ^[a-z0-9] $WIMPORTDATA | grep -w "$IP" | awk -F\; '{ print $11 }')"
- [ "$pxe" = "0" ] && usage
+ pxe="$(oss_ldapsearch "cn=$IP" dhcpOption | grep '^dhcpOption: extensions-path ' | awk '{ print $3 }')"
+ [ -z "$pxe" ] && usage
 
 elif [ -n "$GROUP" ]; then # hosts in group with pxe flag set
- IP="$(grep -i ^[a-z0-9] $WIMPORTDATA | awk -F\; '{ print $3, $5, $11 }' | grep ^"$GROUP " | grep -v " 0" | awk '{ print $2 }')"
+ IP="$(oss_ldapsearch "(&(objectclass=SchoolWorkstation)(dhcpStatements=HW=$GROUP))" dhcpStatements | grep '^dhcpStatements: fixed-address ' | awk '{ print $3 }')"
  [ -z "$IP" ] && usage
 
 else # hosts in room with pxe flag set
- IP="$(grep -i ^[a-z0-9] $WIMPORTDATA | awk -F\; '{ print $1, $5, $11 }' | grep ^"$ROOM " | grep -v " 0"  | awk '{ print $2 }')"
+ IP="$(oss_ldapsearch "(&(objectclass=SchoolWorkstation)(cn:dn:=$GROUP))" dhcpStatements | grep '^dhcpStatements: fixed-address ' | awk '{ print $3 }')"
  [ -z "$IP" ] && usage
 fi
 

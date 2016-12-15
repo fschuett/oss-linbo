@@ -1,15 +1,13 @@
 #!/bin/bash
 #
 # creating/updating linbofs.lz with linbo password and ssh keys
-# has to be invoked during linuxmuster-setup,  package upgrade or
-# linbo password change in /etc/rsyncd.secrets.
 # 
 # thomas@linuxmuster.net
 # GPL V3
 # 08.03.2016
 #
 
-# read linuxmuster environment
+# read environment
 . /usr/share/oss-linbo/config/dist.conf || exit 1
 . $HELPERFUNCTIONS || exit 1
 
@@ -42,7 +40,7 @@ bailout() {
 
 update_linbofs() {
  local _64=$1
- local linbofscachedir="/var/cache/linuxmuster-linbo/linbofs$_64"
+ local linbofscachedir="/var/cache/oss-linbo/linbofs$_64"
  rm -rf "$linbofscachedir"
  mkdir -p "$linbofscachedir"
 
