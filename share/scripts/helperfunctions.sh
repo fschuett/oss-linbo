@@ -262,28 +262,16 @@ get_mac() {
   return 0
 }
 
-# extract hostname from file $WIMPORTDATA
+# extract hostname from ldap
 get_hostname() {
   unset RET
-  [ -f "$WIMPORTDATA" ] || return 1
   local pattern="$1"
   if validip "$pattern"; then
-   pattern="${pattern//./\\.}"
-   RET=`grep -v ^# $WIMPORTDATA | awk -F\; '{ print $5 " " $2 }' | grep ^"$pattern " | awk '{ print $2 }'` &> /dev/null
+   RET="$(oss_ldapsearch "(&(objectclass=DHCPEntry)(aRecord=$pattern))" relativeDomainName | grep '^relativeDomainName: ' | awk '{ print $2 }')"
   elif validmac "$pattern"; then
-   RET=`grep -v ^# $WIMPORTDATA awk -F\; '{ print $4 " " $2 }' | grep -i ^"$pattern " | awk '{ print $2 }'` &> /dev/null
+   RET="$(oss_ldapsearch "(&(objectclass=SchoolWorkstation)(cn:dn:=Room72))" dhcpHWAddress | awk '(NR%3){ print p " " $0}{p=$0}' | awk '{ print $2 }' | sed -e 's@^cn=@@' -e 's@,.*@@')"
   else # assume hostname
-   local result=`grep -v ^# $WIMPORTDATA | tr A-Z a-z | awk -F\; '{ print $2 }' | grep -wi ^"$pattern"` &> /dev/null
-   local i
-   # iterate over results, get exact match
-   for i in $result; do
-    if [ "xxx${i}xxx" = "xxx${pattern}xxx" ]; then
-     RET="$i"
-     break
-    else
-     RET=""
-    fi
-   done
+   RET="$(oss_ldapsearch "(&(objectclass=DHCPEntry)(relativeDomainName=$pattern))" relativeDomainName | grep '^relativeDomainName: '| awk '{ print $2 }')"
   fi
   [ -n "$RET" ] && tolower "$RET"
   return 0
