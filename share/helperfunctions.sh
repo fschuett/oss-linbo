@@ -8,7 +8,7 @@
 # return active images
 active_images() {
  # get active groups
- local actgroups="$(ldapsearch -x  objectClass=SchoolWorkstation dhcpOption | grep 'dhcpOption: extensions-path' | gawk '{ printf "%s\n", $3 }'| sort -u)"
+ local actgroups="$(oss_ldapsearch "(&(objectClass=SchoolConfiguration)(configurationValue=TYPE=HW))" description | grep '^description: ' | awk '{ print $2 }'| sort -u)"
  [ -z "$actgroups" ] && return 0
  # compute images used by active groups
  local tmpfile=/var/tmp/active_images.$$
@@ -58,7 +58,7 @@ create_torrent() {
  local serverip="$2"
  local port="$3"
  echo "Creating $image.torrent ..."
- btmakemetafile "$image" http://${serverip}:${port}/announce ; RC="$?"
+ btmaketorrent http://${serverip}:${port}/announce "$image" ; RC="$?"
  return "$RC"
 }
 
@@ -101,4 +101,11 @@ kernelfstype(){
    ;;
  esac
  echo "$kernelfstype"
+}
+
+get_hwconf_group(){
+ local host="$1"
+ local hwconf="$(oss_ldapsearch "(&(objectclass=SchoolWorkstation)(cn=$1))" configurationValue | grep '^configurationValue: HW=' | sed 's/configurationValue: HW=//')"
+ local group="$(oss_ldapsearch "(&(objectclass=SchoolConfiguration)(configurationKey=$hwconf))" description | grep '^description: ' | sed 's/description: //')"
+ echo "$group"
 }

@@ -306,7 +306,7 @@ create_linbofs() {
   fi
   # pack linbofs.lz
   mkdir -p $MNTPNT/$g
-  find . | cpio --quiet -o -H newc | lzma -zcv > $MNTPNT/$g/linbofs.lz ; RC="$?" || exit 1
+  find . | cpio --quiet -o -H newc | xz -zcv > $MNTPNT/$g/linbofs.lz ; RC="$?" || exit 1
   echo "Ok!"
  done
  cd $curdir

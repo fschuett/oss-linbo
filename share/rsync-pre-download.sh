@@ -8,6 +8,7 @@
 # read in oss-linbo specific environment
 . /usr/share/oss-linbo/config/dist.conf || exit 1
 . $HELPERFUNCTIONS || exit 1
+. /usr/share/oss-linbo/helperfunctions.sh || exit 1
 
 LOGFILE="$LINBOLOGDIR/rsync-pre-download.log"
 
@@ -65,7 +66,7 @@ case $EXT in
 
  # create download link start.conf-ip
  start.conf.gruppe)
-  group="$(oss_ldapsearch "cn=$compname" dhcpOption |grep '^dhcpOption: extensions-path ' | awk '{ print $3 }')"
+  group="$(get_hwconf_group $compname)"
   echo "Gruppe: $group create link to $FILE"
   [[ -n $group ]] && ln -sf "$LINBODIR/start.conf.$group" "$FILE"
  ;;
