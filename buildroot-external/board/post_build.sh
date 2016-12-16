@@ -3,6 +3,8 @@
 set -e
 shopt -s extglob
 
+mkdir -p /cache
+
 sed -i '/\/dev\/root/d' "${TARGET_DIR}"/etc/fstab
 
 rm -fv "${TARGET_DIR}"/usr/lib/fonts/!(DejaVuSans.ttf)
