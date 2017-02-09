@@ -5,6 +5,195 @@ linuxmuster-linbo (3.0.0-1) babo-testing; urgency=medium
 
  -- Christian Buschau <christian.buschau@mailbox.org>  Fri, 03 Jun 2016 11:00:18 +0200
 
+linuxmuster-linbo (2.3.16-0) babo62; urgency=low
+
+  * linbo_cmd, set_efibootorder: improved recognition of efi network devices.
+  * added grub-pc-bin and libcgmanager0 to build-deps.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Wed, 07 Dec 2016 21:22:48 +0100
+
+linuxmuster-linbo (2.3.15-0) babo62; urgency=low
+
+  * update-linbofs.sh:
+    - avoid multiple invokation of sophomorix-passwd.
+    - add root's rsa keys.
+  * added new ci graphics.
+  * added udev qemu rules for mmcblk devices to linbofs.
+  * linbo_cmd:
+    - syncl(): disk fix (affects only mmcblk0 devices).
+    - get_partition_size(): fixed size for devices which are symlinks.
+    - get_partition_size(): handle wrong invokation by linbo_gui for mmcblk0 devices.
+  * Kernel: add surface 3 touchscreen driver.
+  * Fix #657 - update-linbofs copies id_dsa.pub only.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Wed, 07 Dec 2016 21:22:48 +0100
+
+linuxmuster-linbo (2.3.14-0) babo62; urgency=low
+
+  * kernel updated to 4.8.10:
+    - added surface 3 support for 64bit kernel.
+    - removed experimental sata drivers.
+    - removed btrfs driver.
+  * cloop 4.8 update, fetched from http://debian-knoppix.alioth.debian.org/packages/linux-source-4.7.3/ and modified for kernel 4.8.10 (see https://lists.debian.org/debian-knoppix/2016/10/msg00001.html).
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Mon, 21 Nov 2016 15:32:36 +0100
+
+linuxmuster-linbo (2.3.13-0) babo62; urgency=low
+
+  * control file improvements.
+  * linbo_cmd, update_win(): removed automated installation of linuxmuster
+    start tasks on windows systems (closes #648).
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Fri, 18 Nov 2016 14:38:34 +0100
+
+linuxmuster-linbo (2.3.12-2) babo62; urgency=low
+
+  * linuxmuster-linbo7:
+    - removed atftpd configuration setup.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Fri, 11 Nov 2016 11:08:12 +0100
+
+linuxmuster-linbo (2.3.12-1) babo62; urgency=low
+
+  * linuxmuster-linbo7:
+    - changed depends to linuxmuster-base7.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Wed, 09 Nov 2016 18:23:17 +0100
+
+linuxmuster-linbo (2.3.12-0) babo62; urgency=low
+
+  * fixed patch_registry script filename.
+  * further more package consolidation, moving postinst stuff to linuxmuster-linbo-common.
+  * fallback to file sync in case of ntfsclone's cluster referenced twice error.
+  * excluded partition table from mbr backup and restore of windows systems (another attempt to fix #637).
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Wed, 26 Oct 2016 11:37:05 +0200
+
+linuxmuster-linbo (2.3.11-0) babo62; urgency=low
+
+  * splitted package in linuxmuster-linbo, which contains the scripts,
+    and linuxmuster-linbo-common, which contains the kernel and the grub
+    configuration.
+  * added supplemental package linuxmuster-linbo7 for lmn7 stuff.
+  * reworked source package structure.
+  * preinst fix to make pkg installable in lmn7.
+  * removed obsolete bios/efi dirs in /var/linbo.
+  * added ntpd to busybox (closes #638).
+  * build dependencies fixes.
+  * moved back to fifo patched tftpd-hpa.
+  * added rtc support to linbo kernel.
+  * kernel update to 4.4.26.
+  * get partition size from /proc/partitions instead of parted (#637).
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Sun, 23 Oct 2016 13:47:48 +0200
+
+linuxmuster-linbo (2.3.10-0) babo62; urgency=low
+
+  * /dev/mmcblk disknumber fix (closes #626 partially).
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Thu, 15 Sep 2016 08:59:39 +0200
+
+linuxmuster-linbo (2.3.9-0) babo62; urgency=low
+
+  * added linbo.iso to www_links.
+  * minor example fixes.
+  * make different grub cd/usb and net boot images for i386-efi and x86_64-efi
+    to reduce size for netboot images.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Mon, 12 Sep 2016 10:54:50 +0200
+
+linuxmuster-linbo (2.3.8-0) babo62; urgency=low
+
+  * added and fixed several example files.
+  * fixed security query for ntfsresize (closes #622).
+  * reverted useless postsync download fix.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Tue, 30 Aug 2016 15:39:20 +0200
+
+linuxmuster-linbo (2.3.7-0) babo62; urgency=low
+
+  * removed hostname sanitation in busyboxes udhcpc (closes #621).
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Thu, 25 Aug 2016 11:07:43 +0200
+
+linuxmuster-linbo (2.3.6-1) babo62; urgency=low
+
+  * rebuild with fixed kernel config.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Fri, 05 Aug 2016 13:27:09 +0200
+
+linuxmuster-linbo (2.3.6-0) babo62; urgency=low
+
+  * Kernel:
+    - added more usb host and network drivers.
+    - optimized powermanagement configuration.
+  * linbo_cmd.sh:
+    - fixed boot sector backup and restore for windows 10 uefi systems.
+    - removed german umlauts.
+  * fixed missing linbo_wallpaper.png link in /var/linbo/icons.
+  * remove unifont from grub configuration.
+  * reworked make-linbo-iso.sh, fixed bios cdrom compatibility hopefully.
+  * moved isolinux/syslinux dependencies from build depends to package depends.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Fri, 05 Aug 2016 12:29:12 +0200
+
+linuxmuster-linbo (2.3.5-0) babo62; urgency=low
+
+  * iso boot media creation: fixed usb boot support (#611).
+  * kernel update to 4.4.16.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Mon, 01 Aug 2016 22:19:17 +0200
+
+linuxmuster-linbo (2.3.4-0) babo62; urgency=low
+
+  * linbo_cmd.sh
+    - upload(): added postsync to uploadable file extensions.
+    - update(): improved linbo md5 download check.
+    - do_opsi(): save opsi host key for offline use in cache.
+    - prepare_fs(), syncl(): save and restore more bytes of windows mbr.
+    - syncl(): fixed hostname in offline mode (closes #616).
+  * init.sh: improved net interface recognition (closes #617).
+  * linbofs: added several utils needed by udev.
+  * removed umlauts from start.conf examples.
+  * removed backports alx module.
+  * added debug entry to iso boot menu.
+  * make-linbo-isos.sh: use isolinux files from xenial build system placed
+    under /var/linbo/boot/isolinux.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Fri, 29 Jul 2016 17:04:23 +0200
+
+linuxmuster-linbo (2.3.3-0) babo62; urgency=low
+
+  * added md5sum linbo download check to avoid corrupt linbo downloads.
+  * added alx module from backports again.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Wed, 27 Jul 2016 13:29:21 +0200
+
+linuxmuster-linbo (2.3.2-0) babo62; urgency=low
+
+  * init.sh: fixed trying to mount cache partition if no partition is available yet.
+  * linbo_cmd.sh, prepare_fs(), fixed win mbr restore.
+  * added ntfsfix to linbofs.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Tue, 26 Jul 2016 17:04:25 +0200
+
+linuxmuster-linbo (2.3.1-1) babo62; urgency=low
+
+  * fixed missing i386 grub stuff in linbo64.
+  * linbo_cmd.sh:
+    - added global TERM variable in linbo_cmd and init.sh (needed for bvi).
+    - update(), moved download of opsi key file to /tmp.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Tue, 26 Jul 2016 09:45:17 +0200
+
+linuxmuster-linbo (2.3.1-0) babo62; urgency=low
+
+  * added linbo iso file creation (closes #611).
+  * added non pae kernel (closes #417).
+  * fixed recognition of windows efi systems (closes #609 & #612).
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Mon, 25 Jul 2016 21:34:26 +0200
+
 linuxmuster-linbo (2.3.0-38) babo62; urgency=low
 
   * added several new start icons.
@@ -418,7 +607,7 @@ linuxmuster-linbo (2.2.12-0) babo; urgency=low
   * linbo-remote:
     - using wakeonlan instead of etherwake for linbo-remote's wol functions (closes #399).
     - added handling of linbo-clients which are already online (see #391).
-    - fixed standalone usage of -w (closes #400). 
+    - fixed standalone usage of -w (closes #400).
   * init.sh: added disabling of AutoInitCache to noauto kernel option (see #391).
   * rsync-pre-download.sh: fixed machine account password update (closes #396).
   * linbo_cmd (restore_winact), rsync-pre-download.sh:
@@ -443,7 +632,7 @@ linuxmuster-linbo (2.2.10-1) babo; urgency=low
 
 linuxmuster-linbo (2.2.10-0) babo; urgency=low
 
-  * linbo-remote, wake-on-lan: added client boot success test and removement of 
+  * linbo-remote, wake-on-lan: added client boot success test and removement of
     pxe boot files of not booted clients (closes #390).
 
  -- Thomas Schmitt <thomas@linuxmuster.net>  Fri, 10 Oct 2014 20:21:38 +0000
@@ -695,7 +884,7 @@ linuxmuster-linbo (2.1.0-0) precise; urgency=low
   * removed deprecated linbo kernel parameter useide.
   * linbo_cmd.sh:
     * applied jonnys 4k-partitioning patch (closes #31).
-    * restore(), cp_cloop(): forced restore now uses format and rsync for fat 
+    * restore(), cp_cloop(): forced restore now uses format and rsync for fat
       and ntfsclone for ntfs filesystems instead of extract_compressed_fs.
     * added cp_cloop_ntfs() function for full restore of ntfs partitions with
       ntfsresize to expand filesystem to partition size if necessary.
@@ -734,7 +923,7 @@ linuxmuster-linbo (2.0.10-0) precise; urgency=low
 
   * Bugfix: bittorrent log directory and files are not owned by bittorrent user
     (closes #19).
-  * Bugfix: on a linuxmuster.net 6 system config file /etc/default/tftpd-hpa 
+  * Bugfix: on a linuxmuster.net 6 system config file /etc/default/tftpd-hpa
     was not switched to the appropriate ubuntu version (closes #17).
   * postinst creates bittorrent system user if not there (closes #9).
 
@@ -940,7 +1129,7 @@ linuxmuster-linbo (1.99.40-0) unstable; urgency=low
       o added code to restore windows 7 bcd group file as saved by prepare_fs().
       o removed "mountcache -r" at the end.
   * linbo-bittorrent: starting torrent processes also for iso images.
-  * syslinux: 
+  * syslinux:
     - updated to 4.03,
     - added syslinux64.exe, memdisk and gpelinux.0 to package,
   * updated and added example files for Windows 7, removed examples for Win98/Win2k.
@@ -1173,7 +1362,7 @@ linuxmuster-linbo (1.99.18-0) unstable; urgency=low
   * linbo_gui:
     - merge knopper.net revision 376.
   * linbofs:
-    - linbo_cmd.sh, syncl(): fixed setting of wlan hostname. 
+    - linbo_cmd.sh, syncl(): fixed setting of wlan hostname.
     - init.sh, copytocache(): saving hostname to /cache/hostname for offline
       use, moved from linbo_cmd.sh, syncl().
 
@@ -1328,7 +1517,7 @@ linuxmuster-linbo (1.99.14-0) unstable; urgency=low
         is found (see below).
     - init.sh: resets auto values in start.conf if remote control mode is detected.
     - linbo_wrapper.sh: new wrapper to easily control linbo_cmd on the linbo client
-      console, used as backend for linbo-remote script. 
+      console, used as backend for linbo-remote script.
   * server side scripting:
     - update-linbofs.sh: added ssh key creation. Keys are placed in linbofs under /etc/dropbear
       (dropbear format, used by LINBO's dropbear) and /etc/ssh (for the openssh server on linux clients).
@@ -1596,7 +1785,7 @@ linuxmuster-linbo (1.99.2-0) unstable; urgency=low
     - setting default nls back to iso8859-1
   * linbofs:
     - moved from self compiled mkntfs to Ubuntu's mkntfs
-    - patch_registry: 
+    - patch_registry:
       o some code cleanup
       o improved test_key function
       o added test_value function to patch only values which have changed
@@ -1612,7 +1801,7 @@ linuxmuster-linbo (1.99.2-0) unstable; urgency=low
       o new version 1.14.2
       o removed few unneeded applets
     - rsync: added Knopper's xattr patch
- 
+
  -- Thomas Schmitt <schmitt@lmz-bw.de>  Tue, 27 Jul 2009 17:06:11 +0200
 
 linuxmuster-linbo (1.99.1-0) unstable; urgency=low
@@ -1620,7 +1809,7 @@ linuxmuster-linbo (1.99.1-0) unstable; urgency=low
   * minor modfication in registry patch example file
   * linbofs:
     - minor fix in patch_registry.
- 
+
  -- Thomas Schmitt <schmitt@lmz-bw.de>  Sun, 19 Jul 2009 16:47:16 +0200
 
 linuxmuster-linbo (1.99.0-0) unstable; urgency=low
@@ -1640,13 +1829,13 @@ linuxmuster-linbo (1.2.0-0) unstable; urgency=low
     - using ntfs-3g development version 2009.4.4AC.14.
     - enabled rsync imaging for ntfs in linbo_cmd.sh.
     - modified ntfs mount options (streams_interface=xattr).
-      
+
  -- Thomas Schmitt <schmitt@lmz-bw.de>  Fri, 10 Jul 2009 06:37:08 +0200
 
 linuxmuster-linbo (1.1.22-1) unstable; urgency=low
 
   * kernel: new upstream version 2.6.30.1
-      
+
  -- Thomas Schmitt <schmitt@lmz-bw.de>  Thu, 09 Jul 2009 08:41:44 +0200
 
 linuxmuster-linbo (1.1.21-1) unstable; urgency=low
@@ -1663,7 +1852,7 @@ linuxmuster-linbo (1.1.21-1) unstable; urgency=low
       o improved linux client fstab patching:
         fstab will be patched only on synchronized start not on every start,
         if fstype of root partition differs it will be corrected.
-      
+
  -- Thomas Schmitt <schmitt@lmz-bw.de>  Wed, 08 Jul 2009 21:46:09 +0200
 
 linuxmuster-linbo (1.1.20-1) unstable; urgency=low
@@ -2711,6 +2900,5 @@ linuxmuster-linbo (1.0-2) unstable; urgency=low
 linuxmuster-linbo (1.0-1) unstable; urgency=low
 
   * Initial release.
-	
- -- Klaus Knopper <knoppix@knopper.net>  Sat, 22 Sep 2007 16:00:00 +0200
 
+ -- Klaus Knopper <knoppix@knopper.net>  Sat, 22 Sep 2007 16:00:00 +0200

@@ -1,7 +1,7 @@
 #
 # default grub.cfg, local boot version (placed in linbo cache)
 # thomas@linuxmuster.net
-# 12.02.2016
+# 20160804
 #
 
 set default=0
@@ -11,7 +11,7 @@ set timeout=0
 set gfxmode=auto
 set gfxpayload=keep
 
-loadfont "$prefix/unicode.pf2"
+#loadfont "$prefix/unicode.pf2"
 if [ "$grub_platform" = "pc" ]; then
  insmod biosdisk
  insmod ntldr
@@ -44,7 +44,7 @@ insmod test
 if search --set root --file /start.conf; then
  set linboroot="${root}"
 
- loadfont $prefix/fonts/unicode.pf2
+ #loadfont $prefix/fonts/unicode.pf2
 
  terminal_output gfxterm
  background_image $prefix/linbo_wallpaper.png
@@ -83,9 +83,13 @@ menuentry 'OS localboot' {
     linux /vmlinuz $reboot_append
     initrd /initrd.img
     boot
-    elif [ -e /vmlinuz -a -e /initrd ]; then
+   elif [ -e /vmlinuz -a -e /initrd ]; then
     linux /vmlinuz $reboot_append
     initrd /initrd
+    boot
+   elif [ -e /boot/vmlinuz -a -e /boot/initrd ]; then
+    linux /boot/vmlinuz $reboot_append
+    initrd /boot/initrd
     boot
    elif [ -s /boot/grub/grub.cfg ] ; then
     configfile /boot/grub/grub.cfg

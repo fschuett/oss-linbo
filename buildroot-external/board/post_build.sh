@@ -23,4 +23,3 @@ rm -fv "${TARGET_DIR}"/usr/bin/pcretest
 
 # benötigte Verzeichnisse erstellen
 mkdir -p "${TARGET_DIR}"/cache
-

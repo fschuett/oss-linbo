@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-# postinst script for linuxmuster
+# postinst script for linuxmuster-linbo7
 # thomas@linuxmuster.net
 # GPL v3
-# 28.06.2016
+# 20161025
 #
 
 set -e
@@ -25,13 +25,19 @@ set -e
 
 #db_version 2.0
 
-DISTCONF=/usr/share/oss-linbo/config/dist.conf
 
+  # read constants & setup values
+    DISTCONF=/usr/share/oss-linbo/config/dist.conf
+    source "$DISTCONF"
+    source "$HELPERFUNCTIONS"
+    [ -e "$INSTALLED" ] || exit 0
+
+    update-linbofs
+ 
  # init script
  insserv linbo-multicast
  insserv linbo-bittorrent
 
- # linuxmuster related stuff
  if [ -e "$DISTCONF" ]; then
   . $DISTCONF
   . $HELPERFUNCTIONS
@@ -129,26 +135,17 @@ SystemType = bios" -i "$conf"
   rclinbo-bittorrent start
  fi
 
- # create atftpd configs if necessary
- conf="/etc/default/atftpd"
- tpl="$LINBOTPLDIR/atftpd.default"
- grep -q "$LINBODIR" "$conf" || update_config=yes
- if [ -n "$update_config" ]; then
+ # create tftpd configs if necessary
+ conf="/etc/default/tftpd-hpa"
+ if ! grep -q "$LINBODIR" "$conf"; then
   echo "Patching $conf."
   cp "$conf" "$conf".dpkg-bak
-  sed -e "s|@@linbodir@@|$LINBODIR|
-          s|@@serverip@@|$serverip|" "$tpl" > "$conf"
+  sed -i "s|^TFTP_DIRECTORY=.*|TFTP_DIRECTORY=\"$LINBODIR\"|" "$conf"
   tftpd_restart=yes
  fi
  if [ -n "$tftpd_restart" ]; then
-  # check for tftp in inetd.conf
-  if grep -q ^tftp /etc/inetd.conf; then
-   echo "Deactivating tftp in /etc/inetd.conf."
-   cp /etc/inetd.conf /etc/inetd.conf.dpkg-bak
-   sed -e 's|^tftp|#tftp|' -i /etc/inetd.conf
-   service openbsd-inetd restart
-  fi
-  service atftpd restart
+  service tftpd-hpa stop &> /dev/null
+  service tftpd-hpa start
  fi
 
  # update rsyncd.conf
@@ -180,11 +177,19 @@ SystemType = bios" -i "$conf"
   rcbittorrent restart || true
  fi
 
+ # remove deprecated iso files
+ if [ -d "$LINBODIR/isos" ]; then
+  [ -e "$LINBODIR/isos/linbo32.iso" ] && rm -f "$LINBODIR/isos/linbo32.iso"
+  [ -e "$LINBODIR/isos/linbo64.iso" ] && rm -f "$LINBODIR/isos/linbo64.iso"
+  check_empty_dir "$LINBODIR/isos" && rm -rf "$LINBODIR/isos"
+ fi
+
  # provide grub menu background
+ [ -e "$LINBODIR/icons/linbo_wallpaper.png" ] || ln -sf linbo_wallpaper_800x600.png "$LINBODIR/icons/linbo_wallpaper.png"
  [ -e "$LINBODIR/boot/grub/linbo_wallpaper.png" ] || ln -sf ../../icons/linbo_wallpaper_800x600.png "$LINBODIR/boot/grub/linbo_wallpaper.png"
  ln -sf ../../linbo_wallpaper.png "$LINBODIR/boot/grub/themes/linbo/linbo_wallpaper.png"
 
- # update linbofs.lz
+ # update linbofs
  $LINBOUPDATE
 
 # dh_installdeb will replace this with shell code automatically
@@ -195,4 +200,3 @@ SystemType = bios" -i "$conf"
 #db_stop
 
 exit 0
-

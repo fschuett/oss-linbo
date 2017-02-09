@@ -1,6 +1,6 @@
 # group specific grub.cfg template for linbo net boot, should work with linux and windows operating systems
 # thomas@linuxmuster.net
-# 11.02.2016
+# 20160804
 #
 
 # start "@@osname@@" directly
@@ -15,6 +15,9 @@ menuentry '@@osname@@ (Start)' --class @@ostype@@_start {
  elif [ -e /vmlinuz -a -e /initrd ]; then
   linux /vmlinuz root=@@partition@@ @@append@@
   initrd /initrd
+ elif [ -e /boot/vmlinuz -a -e /boot/initrd ]; then
+  linux /boot/vmlinuz root=@@partition@@ @@append@@
+  initrd /boot/initrd
  elif [ -e /@@kernel@@ -a -e /@@initrd@@ ]; then
   linux /@@kernel@@ root=@@partition@@ @@append@@
   initrd /@@initrd@@

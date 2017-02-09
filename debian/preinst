@@ -2,13 +2,13 @@
 #
 # preinst script for linuxmuster
 # thomas@linuxmuster.net
-# 05.02.2014
+# 20160916
 #
 
-if [ "$1" = "upgrade" ]; then
 
- . /usr/share/oss-linbo/config/dist.conf || exit 1
- 
+DISTCONF=/usr/share/oss-linbo/config/dist.conf
+[ -e "$DISTCONF" ] || exit 0
+
  # remove obsolete examples link
  [ -L "$LINBODIR/examples" ] && rm "$LINBODIR/examples"
  
@@ -23,8 +23,6 @@ if [ "$1" = "upgrade" ]; then
   chown bittorrent:nogroup /var/lib/bittorrent -R
   chown bittorrent:nogroup /var/log/bittorrent -R
  fi
-
-fi
 
 exit 0
 
