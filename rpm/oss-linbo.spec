@@ -96,7 +96,7 @@ Source76:	kmod-22.tar.xz
 Source77:	libxkbcommon-0.6.1.tar.xz
 Source78:	Python-2.7.11.tar.xz
 
-BuildRequires:	unzip openschool-base md5sum
+BuildRequires:	unzip openschool-base coreutils
 BuildRequires:	gcc48 gcc48-32bit gcc48-c++ glibc glibc-32bit glibc-devel glibc-devel-32bit
 BuildRequires:	autoconf >= 2.69 automake >= 1.15 bc bison openssl-certs cpio
 BuildRequires:	flex gettext git freetype2-devel libtool 
