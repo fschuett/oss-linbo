@@ -14,14 +14,10 @@ Distribution:	SLE11
 Packager:	fschuett@gymhim.de
 Group:		Productivity/
 Source:		%{name}-%{version}.tar.gz
-Source111:	bittorrent.init
-Source112:	sysconfig.bittorrent
 Source121:	grub-2.02~beta3.tar.gz
 Source122:	ipxe.efi
 Source123:	ipxe.lkrn
 Source131:	netbsd-queue-1.70.h
-# script to put sources into spec file
-Source103:	list_sources.sh
 # source archives, because build cannot download them
 Source1:	rsync-3.1.2.tar.gz
 Source2:	libpthread-stubs-0.3.tar.bz2
@@ -122,6 +118,7 @@ Authors:
 
 %prep
 %setup -D
+patch -p1 <rpm/oss-linbo.patch
 ln -sf /usr/bin/gcc-4.8 %{_builddir}/gcc
 ln -sf /usr/bin/gcc-ar-4.8 %{_builddir}/gcc-ar
 ln -sf /usr/bin/gcc-nm-4.8 %{_builddir}/gcc-nm
