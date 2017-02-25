@@ -14,7 +14,7 @@ Distribution:	SLE11
 Packager:	fschuett@gymhim.de
 Group:		Productivity/
 Source:		%{name}-%{version}.tar.gz
-Source121:	grub-2.02~beta3.tar.gz
+Source121:	grub-2.02~rc1.tar.gz
 Source122:	ipxe.efi
 Source123:	ipxe.lkrn
 Source131:	netbsd-queue-1.70.h
