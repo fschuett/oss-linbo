@@ -118,7 +118,6 @@ Authors:
 
 %prep
 %setup -D
-patch -p1 <rpm/oss-linbo.patch
 ln -sf /usr/bin/gcc-4.8 %{_builddir}/gcc
 ln -sf /usr/bin/gcc-ar-4.8 %{_builddir}/gcc-ar
 ln -sf /usr/bin/gcc-nm-4.8 %{_builddir}/gcc-nm
