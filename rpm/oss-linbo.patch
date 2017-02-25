@@ -1,0 +1,74 @@
+diff --git a/share/rsync-post-download.sh b/share/rsync-post-download.sh
+index a0b9e50..6d7a762 100755
+--- a/share/rsync-post-download.sh
++++ b/share/rsync-post-download.sh
+@@ -6,7 +6,7 @@
+ #
+ 
+ # read in paedml specific environment
+-. /usr/share/linuxmuster/config/dist.conf || exit 1
++. /usr/share/oss-linbo/config/dist.conf || exit 1
+ . $HELPERFUNCTIONS || exit 1
+ 
+ LOGFILE="$LINBODIR/log/rsync-post-download.log"
+@@ -152,7 +152,7 @@ case $EXT in
+ 
+  upgrade)
+   # update old 2.2 clients
+-  LINBOFSCACHE="/var/cache/linuxmuster-linbo/linbofs"
++  LINBOFSCACHE="/var/cache/oss-linbo/linbofs"
+   linbo-ssh "$RSYNC_HOST_NAME" 'echo -e "#!/bin/sh\necho \"Processing LINBO upgrade ... waiting for reboot ...\"\nsleep 120\n/sbin/reboot" > /linbo.sh'
+   linbo-ssh "$RSYNC_HOST_NAME" chmod +x /linbo.sh
+   linbo-scp --exclude start.conf --exclude linbo.sh -a "$LINBOFSCACHE/" "${RSYNC_HOST_NAME}:/"
+diff --git a/share/rsync-post-upload.sh b/share/rsync-post-upload.sh
+index 4ca6018..7892857 100755
+--- a/share/rsync-post-upload.sh
++++ b/share/rsync-post-upload.sh
+@@ -10,7 +10,7 @@
+ #
+ 
+ # read in paedml specific environment
+-. /usr/share/linuxmuster/config/dist.conf || exit 1
++. /usr/share/oss-linbo/config/dist.conf || exit 1
+ . $HELPERFUNCTIONS || exit 1
+ 
+ LOGFILE=rsync-post-upload.log
+diff --git a/share/rsync-pre-download.sh b/share/rsync-pre-download.sh
+index 5b08fc7..e2669e6 100755
+--- a/share/rsync-pre-download.sh
++++ b/share/rsync-pre-download.sh
+@@ -6,7 +6,7 @@
+ #
+ 
+ # read in linuxmuster.net specific environment
+-. /usr/share/linuxmuster/config/dist.conf || exit 1
++. /usr/share/oss-linbo/config/dist.conf || exit 1
+ . $HELPERFUNCTIONS || exit 1
+ 
+ LOGFILE="$LINBOLOGDIR/rsync-pre-download.log"
+diff --git a/share/rsync-pre-upload.sh b/share/rsync-pre-upload.sh
+index 6e42207..2e8f5f9 100755
+--- a/share/rsync-pre-upload.sh
++++ b/share/rsync-pre-upload.sh
+@@ -11,7 +11,7 @@
+ #
+ 
+ # read in paedml specific environment
+-[ -e /usr/share/linuxmuster/config/dist.conf ] && . /usr/share/linuxmuster/config/dist.conf
++[ -e /usr/share/oss-linbo/config/dist.conf ] && . /usr/share/oss-linbo/config/dist.conf
+ 
+ LOGFILE=rsync-pre-upload.log
+ if [ -n "$LINBODIR" ]; then
+diff --git a/share/update-linbofs.sh b/share/update-linbofs.sh
+index 7d3ac8b..f616a8c 100755
+--- a/share/update-linbofs.sh
++++ b/share/update-linbofs.sh
+@@ -10,7 +10,7 @@
+ #
+ 
+ # read linuxmuster environment
+-. /usr/share/linuxmuster/config/dist.conf || exit 1
++. /usr/share/oss-linbo/config/dist.conf || exit 1
+ . $HELPERFUNCTIONS || exit 1
+ 
+ if [ ! -e "$INSTALLED" ]; then

@@ -26,14 +26,13 @@ set -e
 #db_version 2.0
 
 
-  # read constants & setup values
-    DISTCONF=/usr/share/oss-linbo/config/dist.conf
-    source "$DISTCONF"
-    source "$HELPERFUNCTIONS"
-    [ -e "$INSTALLED" ] || exit 0
+case "$1" in
 
-    update-linbofs
- 
+ configure)
+
+ # read constants & setup values
+ DISTCONF=/usr/share/oss-linbo/config/dist.conf
+
  # init script
  insserv linbo-multicast
  insserv linbo-bittorrent
@@ -42,6 +41,7 @@ set -e
   . $DISTCONF
   . $HELPERFUNCTIONS
   [ -e "$INSTALLED" ] || exit 0
+  update-linbofs
  else
   exit 0
  fi
