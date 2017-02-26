@@ -128,21 +128,9 @@ ln -sf /usr/bin/cpp-4.8 %{_builddir}/cpp
 ln -sf /usr/bin/gcov-4.8 %{_builddir}/gcov
 
 pushd %{_builddir}/%{name}-%{version}
-mkdir -p buildroot/dl
-cp %{S:1} %{S:2} %{S:3} %{S:4} %{S:5} %{S:7} %{S:8} %{S:9} \
-   %{S:10} %{S:11} %{S:12} %{S:13} %{S:14} %{S:15} %{S:16} %{S:17} %{S:18} %{S:19} \
-   %{S:20} %{S:21} %{S:22} %{S:23} %{S:24} %{S:25} %{S:26} %{S:27} %{S:28} %{S:29} \
-   %{S:30} %{S:31} %{S:32} %{S:33} %{S:34} %{S:35} %{S:36} %{S:37} %{S:38} %{S:39} \
-   %{S:40} %{S:41} %{S:42} %{S:43} %{S:44} %{S:45} %{S:46} %{S:47} %{S:48} %{S:49} \
-   %{S:50} %{S:51} %{S:52} %{S:53} %{S:54} %{S:55} %{S:56} %{S:57} %{S:58} %{S:59} \
-   %{S:60} %{S:61} %{S:62} %{S:63} %{S:64} %{S:65} %{S:66} %{S:67} %{S:68} %{S:69} \
-   %{S:70} %{S:71} %{S:72} %{S:74} %{S:75} %{S:76} %{S:77} \
-   buildroot/dl
- special file name, no archive
 # put grub stuff in place
 mkdir -p build
 cp %{S:121} %{S:122} %{S:123} build
-
 popd
 
 
@@ -150,7 +138,7 @@ popd
 
 OPATH=$PATH
 export PATH=%{_builddir}:${OPATH%:.}
-
+export BR2_DL_DIR=../../SOURCES
 make -f debian/rules build
 
 export PATH=$OPATH
