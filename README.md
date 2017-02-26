@@ -1,5 +1,5 @@
-linuxmuster-linbo
-=================
+oss-linbo
+==========
 
 GNU/Linux Network Boot  
 Lizenz: GNU General Public License Version 2
