@@ -79,7 +79,7 @@ update_linbofs() {
  cp -f $LINBODIR/start.conf .
 
  # pack default linbofs${suffix}.lz again
- find . | cpio --quiet -o -H newc -F $LINBODIR/linbofs${suffix} | xz -zv $LINBODIR/linbofs${suffix}.lz ; RC="$?"
+ find . | cpio --quiet -o -H newc | lzma -zcv > "$linbofs" ; RC="$?"
  [ $RC -ne 0 ] && bailout "failed!"
  # create md5sum file
  md5sum "$linbofs"  | awk '{ print $1 }' > "$linbofs_md5"

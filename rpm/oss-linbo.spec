@@ -96,7 +96,7 @@ Source75:	xtrans-1.3.5.tar.bz2
 Source76:	xz-5.2.2.tar.bz2
 Source77:	zlib-1.2.8.tar.xz
 
-BuildRequires:	unzip openschool-base coreutils
+BuildRequires:	unzip openschool-base
 BuildRequires:	gcc48 gcc48-32bit gcc48-c++ glibc glibc-32bit glibc-devel glibc-devel-32bit
 BuildRequires:	autoconf >= 2.69 automake >= 1.15 bc bison openssl-certs cpio
 BuildRequires:	flex gettext git freetype2-devel libtool 
@@ -174,13 +174,13 @@ install debian/linbo-bittorrent.init %{buildroot}/etc/init.d/linbo-bittorrent
 install debian/linbo-multicast.init %{buildroot}/etc/init.d/linbo-multicast
 install share/templates/grub.cfg.pxe %{buildroot}/srv/tftp/boot/grub/grub.cfg
 install build/build-i386/images/bzImage %{buildroot}/srv/tftp/linbo
-md5sum %{buildroot}/srv/tftp/linbo >%{buildroot}/srv/tftp/linbo.md5
+install build/build-i386/images/bzImage.md5 %{buildroot}/srv/tftp/linbo.md5
 install build/build-i386/images/rootfs.cpio.lz %{buildroot}/srv/tftp/linbofs.lz
-md5sum %{buildroot}/srv/tftp/linbofs.lz >%{buildroot}/srv/tftp/linbofs.lz.md5
+install build/build-i386/images/rootfs.cpio.lz.md5 %{buildroot}/srv/tftp/linbofs.lz.md5
 install build/build-x86_64/images/bzImage %{buildroot}/srv/tftp/linbo64
-md5sum %{buildroot}/srv/tftp/linbo64 >%{buildroot}/srv/tftp/linbo64.md5
+install build/build-x86_64/images/bzImage.md5 %{buildroot}/srv/tftp/linbo64.md5
 install build/build-x86_64/images/rootfs.cpio.lz %{buildroot}/srv/tftp/linbofs64.lz
-md5sum %{buildroot}/srv/tftp/linbofs64.lz >%{buildroot}/srv/tftp/linbofs64.lz.md5
+install build/build-x86_64/images/rootfs.cpio.lz.md5 %{buildroot}/srv/tftp/linbofs64.lz.md5
 mkdir -p %{buildroot}/srv/tftp/boot/grub/fonts
 install buildroot-external/board/rootfs_overlay/usr/share/grub/unicode.pf2 %{buildroot}/srv/tftp/boot/grub/fonts
 mkdir -p %{buildroot}/var/log/oss-linbo
@@ -192,7 +192,6 @@ pushd %{buildroot}/usr/sbin/
 ln -sf ../share/oss-linbo/linbo-ssh.sh linbo-ssh
 ln -sf ../share/oss-linbo/linbo-scp.sh linbo-scp
 ln -sf ../share/oss-linbo/linbo-remote.sh linbo-remote
-ln -sf ../share/oss-linbo/make-linbo-media.sh make-linbo-media
 ln -sf ../share/oss-linbo/update-linbofs.sh update-linbofs
 popd
 mkdir -p %{buildroot}/usr/share/doc/packages/oss-linbo
@@ -323,7 +322,6 @@ exit 0
 /usr/sbin/linbo-ssh
 /usr/sbin/linbo-scp
 /usr/sbin/linbo-remote
-/usr/sbin/make-linbo-media
 /usr/sbin/update-linbofs
 
 %changelog
