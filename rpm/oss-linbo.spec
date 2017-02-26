@@ -138,7 +138,7 @@ popd
 
 OPATH=$PATH
 export PATH=%{_builddir}:${OPATH%:.}
-export BR2_DL_DIR=../../SOURCES
+export BR2_DL_DIR=%{_sourcedir}
 make -f debian/rules build
 
 export PATH=$OPATH
