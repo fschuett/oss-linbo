@@ -6,7 +6,7 @@
 # Required-Stop:     $network $local_fs
 # Should-Start:      
 # Should-Stop:       
-# Default-Start:     2 3 4 5
+# Default-Start:     2 3 5
 # Default-Stop:      0 1 6
 # Short-Description: Starts per image multicast sessions
 # Description:       Starts a multicast session for each LINBO image
