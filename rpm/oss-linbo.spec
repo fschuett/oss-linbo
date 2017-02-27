@@ -252,17 +252,26 @@ then
    fi
    if [ ! -s "/etc/sysconfig/linbo/ssh_host_dsa_key" ]; then
      ssh-keygen -t dsa -N "" -f /etc/sysconfig/linbo/ssh_host_dsa_key
-     dropbearconvert openssh dropbear /etc/sysconfig/linbo/ssh_host_dsa_key /etc/sysconfig/linbo/dropbear_dss_host_key
+     dropbearconvert openssh dropbear /etc/sysconfig/linbo/ssh_host_dsa_key /etc/sysconfig/linbo/dropbear_dsa_host_key
+   fi
+   if [ ! -s "/etc/sysconfig/linbo/ssh_host_ecdsa_key" ]; then
+     ssh-keygen -t ecdsa -N "" -f /etc/sysconfig/linbo/ssh_host_ecdsa_key
+     dropbearconvert openssh dropbear /etc/sysconfig/linbo/ssh_host_ecdsa_key /etc/sysconfig/linbo/dropbear_ecdsa_host_key
+   fi
+   # create missing ecdsa ssh key
+   rootkey="/root/.ssh/id_ecdsa"
+   if [ ! -e "$rootkey" ]; then
+     echo -n "Creating ssh key $rootkey ... "
+     ssh-keygen -N "" -q -t ecdsa -f "$rootkey"
+     echo "Done!"
    fi
    update-linbofs
 fi
-
 %fillup_only
 %{fillup_and_insserv -yn bittorrent}
 %{fillup_and_insserv -yn linbo-bittorrent}
 %{fillup_and_insserv -f -y linbo-multicast}
 %{fillup_and_insserv -f -y rsyncd}
-exit 0
 
 %postun
 %restart_on_update bittorrent linbo-bittorrent linbo-multicast rsyncd
