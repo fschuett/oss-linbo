@@ -25,6 +25,9 @@ GRUB_ISO_MODULES=iso9660 usb
 GRUB_PC_MODULES=biosdisk ntldr pxe
 GRUB_EFI_MODULES=efi_gop efi_uga efinet tftp
 GRUB_MKNETDIR=$(BUILDDIR)/grub-pc-i386/grub-mknetdir --net-directory=$(BUILDDIR) --subdir=/boot/grub
+ifeq ("$(BR2_DL_DIR)","")
+	BR2_DL_DIR=$(BUILDROOT)/dl
+endif
 
 clean:
 	dh clean
@@ -32,19 +35,17 @@ clean:
 override_dh_clean:
 	dh_clean build/
 
-.PHONY: build
-build:
+.PHONY: build-linbo build-grub build
+build-linbo:
 	echo "LINBO $(LINBO_VERSION)"
 	echo "LINBO $(LINBO_VERSION)" > $(BUILDROOT)-external/board/rootfs_overlay/etc/linbo-version
 	cd $(BUILDROOT); make O=$(BUILD32) BR2_EXTERNAL=$(BUILDROOT)-external linbo-i386_defconfig
 	cd $(BUILDROOT); make O=$(BUILD64) BR2_EXTERNAL=$(BUILDROOT)-external linbo-x86_64_defconfig
 	cd $(BUILDROOT); make O=$(BUILD32)
 	cd $(BUILDROOT); make O=$(BUILD64)
-ifeq ("$(wildcard $(BUILDDIR)/$(GRUBNAME))","")
-	wget -O $(BUILDDIR)/$(GRUBNAME).tar.xz http://alpha.gnu.org/gnu/grub/$(GRUBNAME).tar.xz
-endif
-ifeq ("$(wildcard $(BUILDDIR)/boot)","")
-	cd $(BUILDDIR); tar xf $(GRUBNAME).tar.xz; cp -a $(GRUBNAME) grub-pc-i386; cp -a $(GRUBNAME) grub-efi-i386; cp -a $(GRUBNAME) grub-efi-x86_64
+
+build-grub:
+	cd $(BUILDDIR); tar xf $(BR2_DL_DIR)/$(GRUBNAME).tar.gz; cp -a $(GRUBNAME) grub-pc-i386; cp -a $(GRUBNAME) grub-efi-i386; cp -a $(GRUBNAME) grub-efi-x86_64
 	cd $(BUILDDIR)/grub-pc-i386; ./configure $(GRUBCFG) --with-platform=pc --target=i386; make
 	cd $(BUILDDIR)/grub-efi-i386; ./configure $(GRUBCFG) --with-platform=efi --target=i386; make
 	cd $(BUILDDIR)/grub-efi-x86_64; ./configure $(GRUBCFG) --with-platform=efi --target=x86_64; make
@@ -57,13 +58,8 @@ ifeq ("$(wildcard $(BUILDDIR)/boot)","")
 	# make core.efi
 	$(GRUB_MKNETDIR) --modules="$(GRUB_COMMON_MODULES) $(GRUB_EFI_MODULES)" -d $(BUILDDIR)/grub-efi-i386/grub-core
 	$(GRUB_MKNETDIR) --modules="$(GRUB_COMMON_MODULES) $(GRUB_EFI_MODULES)" -d $(BUILDDIR)/grub-efi-x86_64/grub-core
-endif
-ifeq ("$(wildcard $(BUILDDIR)/ipxe.efi)","")
-	wget -O $(BUILDDIR)/ipxe.efi https://ipxe.org/ipxe.efi
-endif
-ifeq ("$(wildcard $(BUILDDIR)/ipxe.lkrn)","")
-	wget -O $(BUILDDIR)/ipxe.lkrn https://ipxe.org/ipxe.lkrn
-endif
+
+build: build-linbo build-grub
 
 binary:
 	dh_testdir

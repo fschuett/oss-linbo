@@ -14,9 +14,8 @@ Distribution:	SLE11
 Packager:	fschuett@gymhim.de
 Group:		Productivity/
 Source:		%{name}-%{version}.tar.gz
-Source121:	grub-2.02~rc1.tar.gz
-Source122:	ipxe.efi
-Source123:	ipxe.lkrn
+Source121:	ipxe.efi
+Source122:	ipxe.lkrn
 # source archives, because build cannot download them created by list_sources.sh
 Source1:	acl-2.2.52.src.tar.gz
 Source2:	attr-2.4.47.src.tar.gz
@@ -127,13 +126,6 @@ ln -sf /usr/bin/g++-4.8 %{_builddir}/g++
 ln -sf /usr/bin/cpp-4.8 %{_builddir}/cpp
 ln -sf /usr/bin/gcov-4.8 %{_builddir}/gcov
 
-pushd %{_builddir}/%{name}-%{version}
-# put grub stuff in place
-mkdir -p build
-cp %{S:121} %{S:122} %{S:123} build
-popd
-
-
 %build
 
 OPATH=$PATH
@@ -161,11 +153,11 @@ ln -sf ../../icons/linbo_wallpaper_800x600.png linbo_wallpaper.png
 popd
 install buildroot-external/board/rootfs_overlay/etc/linbo-version %{buildroot}/srv/tftp
 mkdir -p %{buildroot}/srv/tftp/boot/grub
-install build/ipxe.lkrn %{buildroot}/srv/tftp/boot/grub/
-install build/ipxe.efi %{buildroot}/srv/tftp/boot/grub/
+install %{S:121} %{buildroot}/srv/tftp/boot/grub/
+install %{S:122} %{buildroot}/srv/tftp/boot/grub/
+cp -r build/boot/grub/* %{buildroot}/srv/tftp/boot/grub/
 mkdir -p %{buildroot}/usr/share/oss-linbo
 cp -r share/* %{buildroot}/usr/share/oss-linbo/
-cp -r build/boot/grub/* %{buildroot}/srv/tftp/boot/grub/
 mkdir -p %{buildroot}/var/cache/oss-linbo
 mkdir -p %{buildroot}/var/adm/fillup-templates
 install -m 644 -o root -g root debian/linbo-bittorrent.default %{buildroot}/var/adm/fillup-templates/sysconfig.linbo-bittorrent
