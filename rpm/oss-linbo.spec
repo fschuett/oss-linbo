@@ -271,7 +271,7 @@ fi
 %{fillup_and_insserv -yn bittorrent}
 %{fillup_and_insserv -yn linbo-bittorrent}
 %{fillup_and_insserv -f -y linbo-multicast}
-%{fillup_and_insserv -f -y rsyncd}
+%{fillup_and_insserv -f -Y rsyncd}
 
 %postun
 %restart_on_update bittorrent linbo-bittorrent linbo-multicast rsyncd
