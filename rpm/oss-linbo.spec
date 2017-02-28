@@ -138,7 +138,7 @@ export PATH=$OPATH
 %install
 # install files and directories
 mkdir -p %{buildroot}/var/adm/fillup-templates
-install -m 644 -o root -g root rpm/sysconfig.oss-linbo %{buildroot}/var/adm/fillup-templates/sysconfig.oss-linbo
+install rpm/sysconfig.oss-linbo %{buildroot}/var/adm/fillup-templates/sysconfig.oss-linbo
 mkdir -p %{buildroot}/etc/sysconfig/linbo
 install etc/ssh_config %{buildroot}/etc/sysconfig/linbo/ssh_config
 install etc/start.conf.default.in %{buildroot}/etc/sysconfig/linbo/start.conf.default.in
@@ -160,7 +160,7 @@ mkdir -p %{buildroot}/usr/share/oss-linbo
 cp -r share/* %{buildroot}/usr/share/oss-linbo/
 mkdir -p %{buildroot}/var/cache/oss-linbo
 mkdir -p %{buildroot}/var/adm/fillup-templates
-install -m 644 -o root -g root debian/linbo-bittorrent.default %{buildroot}/var/adm/fillup-templates/sysconfig.linbo-bittorrent
+install debian/linbo-bittorrent.default %{buildroot}/var/adm/fillup-templates/sysconfig.linbo-bittorrent
 mkdir -p %{buildroot}/etc/init.d
 install debian/linbo-bittorrent.init %{buildroot}/etc/init.d/linbo-bittorrent
 install debian/linbo-multicast.init %{buildroot}/etc/init.d/linbo-multicast
@@ -195,12 +195,12 @@ install debian/logrotate %{buildroot}/etc/logrotate.d/oss-linbo
 mkdir -p %{buildroot}/srv/tftp/{linbocmd,torrentadds,winact,tmp,backup}
 mkdir -p %{buildroot}/srv/tftp/boot/grub/spool
 # rsyncd conf
-install -m 0640 -o root -g root etc/rsyncd.conf.in %{buildroot}/etc/rsyncd.conf.in
-install -m 0600 -o root -g root etc/rsyncd.secrets.in %{buildroot}/etc/rsyncd.secrets.in
+install etc/rsyncd.conf.in %{buildroot}/etc/rsyncd.conf.in
+install etc/rsyncd.secrets.in %{buildroot}/etc/rsyncd.secrets.in
 # bittorrent
-install -m 755 -o root -g root rpm/bittorrent.init %{buildroot}/etc/init.d/bittorrent
+install rpm/bittorrent.init %{buildroot}/etc/init.d/bittorrent
 mkdir -p %{buildroot}/var/adm/fillup-templates
-install -m 644 -o root -g root rpm/sysconfig.bittorrent %{buildroot}/var/adm/fillup-templates/sysconfig.bittorrent
+install rpm/sysconfig.bittorrent %{buildroot}/var/adm/fillup-templates/sysconfig.bittorrent
 mkdir -p %{buildroot}/var/lib/bittorrent
 mkdir -p %{buildroot}/var/log/bittorrent
 
@@ -289,9 +289,9 @@ fi
 %attr(0755,bittorrent,-) /var/lib/bittorrent
 %attr(0755,bittorrent,-) /var/log/bittorrent
 /etc/init.d/bittorrent
-/var/adm/fillup-templates/sysconfig.bittorrent
-/var/adm/fillup-templates/sysconfig.linbo-bittorrent
-/var/adm/fillup-templates/sysconfig.oss-linbo
+%attr(0644,root,root) /var/adm/fillup-templates/sysconfig.bittorrent
+%attr(0644,root,root) /var/adm/fillup-templates/sysconfig.linbo-bittorrent
+%attr(0644,root,root) /var/adm/fillup-templates/sysconfig.oss-linbo
 /etc/init.d/linbo-bittorrent
 /etc/init.d/linbo-multicast
 %attr(0640,root,root) /etc/rsyncd.conf.in
