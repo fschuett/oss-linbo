@@ -143,13 +143,9 @@ mkdir -p %{buildroot}/etc/sysconfig/linbo
 install etc/ssh_config %{buildroot}/etc/sysconfig/linbo/ssh_config
 install etc/start.conf.default.in %{buildroot}/etc/sysconfig/linbo/start.conf.default.in
 mkdir -p %{buildroot}/srv/tftp
-rm -f var/boot/grub/themes/linbo/linbo_wallpaper.png
 cp -r var/* %{buildroot}/srv/tftp
-pushd %{buildroot}/srv/tftp/boot/grub/themes/linbo/
-ln -sf ../../../../icons/linbo_wallpaper_800x600.png linbo_wallpaper.png
-popd
 pushd %{buildroot}/srv/tftp/boot/grub/
-ln -sf ../../icons/linbo_wallpaper_800x600.png linbo_wallpaper.png
+ln -sf ../../icons/linbo_wallpaper_1024x768.png linbo_wallpaper.png
 popd
 install buildroot-external/board/rootfs_overlay/etc/linbo-version %{buildroot}/srv/tftp
 mkdir -p %{buildroot}/srv/tftp/boot/grub
