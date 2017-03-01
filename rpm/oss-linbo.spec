@@ -271,7 +271,7 @@ fi
 %config /etc/sysconfig/linbo/ssh_config
 %config /etc/sysconfig/linbo/start.conf.default.in
 %config /etc/logrotate.d/oss-linbo
-%attr(-,nobody,-) %dir /var/log/oss-linbo
+%attr(-,nobody,root) %dir /var/log/oss-linbo
 %dir /var/cache/oss-linbo
 %dir /srv/tftp
 %dir /srv/tftp/log
@@ -282,8 +282,8 @@ fi
 %dir /srv/tftp/boot/grub/spool
 %dir /srv/tftp/tmp
 %dir /srv/tftp/backup
-%attr(0755,bittorrent,-) /var/lib/bittorrent
-%attr(0755,bittorrent,-) /var/log/bittorrent
+%attr(0755,bittorrent,root) /var/lib/bittorrent
+%attr(0755,bittorrent,root) /var/log/bittorrent
 /etc/init.d/bittorrent
 %attr(0644,root,root) /var/adm/fillup-templates/sysconfig.bittorrent
 %attr(0644,root,root) /var/adm/fillup-templates/sysconfig.linbo-bittorrent
