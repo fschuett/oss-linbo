@@ -57,6 +57,7 @@ std::map<QString, Command::CmdValue> Command::s_mapCommand
 // parse Warpper command
 QStringList Command::parseWrapperCommand(const QString& input)
 {
+    qDebug() << "parseWrapperCommand: " << input;
     QString s = input;
     QStringList parts = s.split(":");
     QString cmd = QString(""), param = QString(""), msg = QString(""), customimage = QString("");
