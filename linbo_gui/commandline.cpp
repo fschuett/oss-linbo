@@ -51,7 +51,8 @@ CommandLine::CommandLine(): args(),autostart(-1),extraconf(),server(),cache()
         }
     }
     //TEST
-     linbocmds = QString("partition,format,initcache:torrent,sync:1,start:1");
+    // linbocmds = QString("partition,format,initcache:torrent,sync:1,start:1");
+    //TEST-ENDE
     // read wrapper commands from downloaded file and remove file
     QFile linbocmdfile("/linbocmd");
     if(!linbocmdfile.open(QIODevice::ReadOnly)){
