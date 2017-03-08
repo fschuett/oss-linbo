@@ -98,7 +98,7 @@ Source77:	zlib-1.2.8.tar.xz
 BuildRequires:	unzip openschool-base
 BuildRequires:	gcc48 gcc48-32bit gcc48-c++ glibc glibc-32bit glibc-devel glibc-devel-32bit
 BuildRequires:	autoconf >= 2.69 automake >= 1.15 bc bison cpio
-%if 0{?sles_version} == 11
+%if 0%{?sles_version} == 11
 BuildRequires:  openssl-certs
 %endif
 BuildRequires:	flex gettext git freetype2-devel libtool 
