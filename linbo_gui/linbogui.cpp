@@ -28,6 +28,7 @@
 #include "linboMulticastBox.h"
 #include "autostart.h"
 #include "linboremote.h"
+#include "filterregex.h"
 
 LinboGUI::LinboGUI(QWidget *parent): QMainWindow(parent),
     conf(),command(), process(new QProcess(this)),
@@ -384,10 +385,10 @@ void LinboGUI::doWrapperCommands()
     }
 }
 
-int LinboGUI::doCommand(const QStringList& command, bool interruptible, const QString& titel, Aktion aktion, bool* details)
+int LinboGUI::doCommand(const QStringList& command, bool interruptible, const QString& titel, Aktion aktion, bool* details, Filter* filter)
 {
     QStringList *cmd = new QStringList(command);
-    progress = new FortschrittDialog( this, true, cmd, logConsole, titel, aktion, details );
+    progress = new FortschrittDialog( this, true, cmd, logConsole, titel, aktion, details, filter );
     progress->setShowCancelButton( interruptible );
     return progress->exec();
 }
@@ -493,7 +494,10 @@ void LinboGUI::doCreate(int nr, const QString& imageName, const QString& descrip
     if( upload ){
         title += "(und hochladen)";
     }
-    doCommand(command->mkcreatecommand(nr, imageName, baseImage), true, title, aktion, &details);
+    FilterRegex *fc = new FilterRegex(Command::mapMaxPattern[Command::create_cloop],
+            Command::mapValPattern[Command::create_cloop]);
+    doCommand(command->mkcreatecommand(nr, imageName, baseImage), true, title, aktion, &details, fc);
+    delete fc;
     if(isnew){
         os_item os = conf->elements[nr];
         image_item new_image;

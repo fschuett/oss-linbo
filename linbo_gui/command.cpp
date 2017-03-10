@@ -15,6 +15,42 @@ const QString Command::DESCEXT = ".desc";
 const QString Command::TMPDIR = "/tmp/";
 const QString Command::LINBOCMDSEP = ",";
 
+std::map<Command::CmdValue, QString> Command::mapMaxPattern
+= {
+      {linbo,"DONT MATCH"},
+      {partition,"DONT MATCH"},
+      {format,"DONT MATCH"},
+      {initcache,"DONT MATCH"},
+      {create_cloop,"Block size (\\d+), expected number of blocks: (\\d+)"},
+      {upload_cloop,"DONT MATCH"},
+      {create_rsync,"DONT MATCH"},
+      {upload_rsync,"DONT MATCH"},
+      {sync,"DONT MATCH"},
+      {start,"DONT MATCH"},
+      {update,"DONT MATCH"},
+      {reboot,"DONT MATCH"},
+      {halt,"DONT MATCH"},
+      {poweroff,"DONT MATCH"}
+};
+
+std::map<Command::CmdValue, QString> Command::mapValPattern
+= {
+      {linbo,"DONT MATCH"},
+      {partition,"DONT MATCH"},
+      {format,"DONT MATCH"},
+      {initcache,"DONT MATCH"},
+      {create_cloop,"Blk#\\s+(\\d+),"},
+      {upload_cloop,"DONT MATCH"},
+      {create_rsync,"DONT MATCH"},
+      {upload_rsync,"DONT MATCH"},
+      {sync,"DONT MATCH"},
+      {start,"DONT MATCH"},
+      {update,"DONT MATCH"},
+      {reboot,"DONT MATCH"},
+      {halt,"DONT MATCH"},
+      {poweroff,"DONT MATCH"}
+};
+
 // this appends a quoted space in case item is empty and resolves
 // problems with linbo_cmd's weird "shift"-usage
 void Command::saveappend( QStringList& command, const QString& item ) {

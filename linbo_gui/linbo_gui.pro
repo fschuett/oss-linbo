@@ -38,8 +38,8 @@ SOURCES += main.cpp\
     ip4validator.cpp \
     linboremote.cpp \
     filter.cpp \
-    filtercreate.cpp \
-    filtertime.cpp
+    filtertime.cpp \
+    filterregex.cpp
 
 HEADERS  += linbogui.h\
     registrierungsdialog.h \
@@ -64,8 +64,8 @@ HEADERS  += linbogui.h\
     ip4validator.h \
     linboremote.h \
     filter.h \
-    filtercreate.h \
-    filtertime.h
+    filtertime.h \
+    filterregex.h
 
 FORMS    += linbogui.ui\
     registrierungsdialog.ui \

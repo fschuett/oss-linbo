@@ -3,17 +3,27 @@
 
 FilterTime::FilterTime(QTimeEdit *new_timer = NULL):timer(new_timer)
 {
+    return;
+}
+
+FilterTime::~FilterTime(){
 
 }
 
-int FilterTime::maximum(const QByteArray& output)
+void FilterTime::filter(const QByteArray &output)
 {
-    qDebug() << output << "\n";
+    return;
+}
+
+int FilterTime::maximum()
+{
     return 100;
 }
 
-int FilterTime::value(const QByteArray& output)
+int FilterTime::value()
 {
-    qDebug() << output << "\n";
-    return 0;
+    if(timer != 0)
+        return timer->time().second()*10/6;
+    else
+        return 0;
 }

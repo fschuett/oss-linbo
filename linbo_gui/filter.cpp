@@ -5,12 +5,21 @@ Filter::Filter()
 
 }
 
-int Filter::maximum(const QByteArray& output)
+Filter::~Filter(){
+
+}
+
+void Filter::filter(const QByteArray &output)
+{
+    return;
+}
+
+int Filter::maximum()
 {
     return 100;
 }
 
-int Filter::value(const QByteArray& output)
+int Filter::value()
 {
     return 0;
 }

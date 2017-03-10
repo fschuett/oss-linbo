@@ -10,6 +10,7 @@
 
 #include "linboLogConsole.h"
 #include "aktion.h"
+#include "filter.h"
 
 namespace Ui {
 class FortschrittDialog;
@@ -28,18 +29,15 @@ private:
     bool connected;
     linboLogConsole *logConsole, *logDetails;
     int timerId;
-    int (*maximum)(const QByteArray& output);
-    int (*value)(const QByteArray& output);
+    Filter *filter;
 
 public:
     explicit FortschrittDialog(QWidget *parent = 0, bool new_active = true, QStringList* command = 0, linboLogConsole *new_log = 0,
                                const QString& titel  = NULL, Aktion aktion = Aktion::None,
                                bool* newDetails = NULL,
-                               int (*new_maximum)(const QByteArray& output) = NULL,
-                               int (*new_value)(const QByteArray& output) = NULL);
+                               Filter *new_filter = 0);
     ~FortschrittDialog();
 
-    void setProgress(int i);
     void setShowCancelButton(bool show);
     void setProcess(QProcess *new_process);
     void keyPressEvent(QKeyEvent *);

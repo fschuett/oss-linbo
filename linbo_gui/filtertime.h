@@ -10,8 +10,10 @@ class FilterTime : public Filter
 
 public:
     FilterTime(QTimeEdit *new_timer);
-    int maximum(const QByteArray& output);
-    int value(const QByteArray& output);
+    virtual ~FilterTime();
+    virtual void filter(const QByteArray &output);
+    virtual int maximum();
+    virtual int value();
 };
 
 #endif // FILTERTIME_H

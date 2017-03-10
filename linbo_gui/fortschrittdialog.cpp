@@ -1,3 +1,5 @@
+#include <typeinfo>
+
 #include <qdebug.h>
 #include <unistd.h>
 #include <QDesktopWidget>
@@ -9,6 +11,7 @@
 #include "linboLogConsole.h"
 #include "aktion.h"
 #include "linboremote.h"
+#include "filtertime.h"
 #include "fortschrittdialog.h"
 #include "ui_fortschrittdialog.h"
 
@@ -21,13 +24,13 @@
  * @param titel
  * @param aktion
  * @param newDetails
+ * @param new_filter
  */
 FortschrittDialog::FortschrittDialog(QWidget* parent, bool new_active, QStringList* command, linboLogConsole* new_log,
                                      const QString& titel, Aktion aktion, bool* newDetails,
-                                     int (*new_maximum)(const QByteArray& output),
-                                     int (*new_value)(const QByteArray& output)):
+                                     Filter *new_filter):
     QDialog(parent), active(new_active), details(newDetails), process((new_active?new QProcess(this):NULL)), logConsole(new_log), logDetails(),
-    timerId(0), maximum(new_maximum), value(new_value),
+    timerId(0), filter(new_filter),
     ui(new Ui::FortschrittDialog)
 {
     ui->setupUi(this);
@@ -62,14 +65,20 @@ FortschrittDialog::FortschrittDialog(QWidget* parent, bool new_active, QStringLi
         const QStringList cargs = args;
         process->start(cmd, args, QIODevice::ReadWrite );
     }
-    ui->progressBar->setMinimum( 0 );
-    ui->progressBar->setMaximum( 100 );
-    ui->progressBar->setValue(0);
+    if(filter == 0){
+        filter = new FilterTime(ui->processTime);
+    }
+    ui->progressBar->setMaximum(filter->maximum());
+    ui->progressBar->setValue(filter->value());
     timerId = startTimer( 1000 );
 }
 
 FortschrittDialog::~FortschrittDialog()
 {
+    if(filter != 0)
+        if(typeid(*filter) == typeid(FilterTime)){
+            delete filter;
+        }
     delete ui;
 }
 
@@ -87,9 +96,8 @@ void FortschrittDialog::killLinboCmd() {
 void FortschrittDialog::timerEvent(QTimerEvent *event) {
     if(event->timerId() == timerId){
         ui->processTime->setTime(ui->processTime->time().addSecs(1));
-        if( maximum == NULL || value == NULL ){
-            // die Automatik benötigt 60 Sekunden für 1x 100%
-            ui->progressBar->setValue(ui->processTime->time().second()*10/6);
+        if(typeid(*filter) == typeid(FilterTime)){
+            ui->progressBar->setValue(filter->value());
         }
         if(!active && !LinboRemote::is_running()){
             close();
@@ -103,10 +111,10 @@ void FortschrittDialog::processReadyReadStandardOutput()
         return;
     }
     QByteArray data = process->readAllStandardOutput();
-    if( maximum != NULL && value != NULL ){
-        ui->progressBar->setMaximum(maximum(data));
-        ui->progressBar->setValue(value(data));
-    }
+    filter->filter(data);
+    if(filter->maximum() != ui->progressBar->maximum())
+        ui->progressBar->setMaximum(filter->maximum());
+    ui->progressBar->setValue(filter->value());
     logDetails->writeStdOut(data);
     if(logConsole != NULL)
         logConsole->writeStdOut(data);
@@ -134,11 +142,6 @@ void FortschrittDialog::processFinished( int exitCode, QProcess::ExitStatus exit
         logConsole->writeResult(exitCode, exitStatus, exitCode);
     }
     this->close();
-}
-
-void FortschrittDialog::setProgress(int i)
-{
-    ui->progressBar->setValue(i);
 }
 
 void FortschrittDialog::keyPressEvent(QKeyEvent *event)
