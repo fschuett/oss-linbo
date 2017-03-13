@@ -17,6 +17,16 @@ void Configuration::read_qstring( QString& tmp ) {
     tmp = QString::fromUtf8( line, -1 ).trimmed();
 }
 
+void Configuration::quote(QString& unquoted){
+    if(unquoted == NULL)
+        return;
+    if(! unquoted.contains(" "))
+        return;
+    unquoted = (unquoted.startsWith("\"")? QString("") : QString("\""))
+           + unquoted
+           + (unquoted.endsWith("\"")? QString("") : QString("\""));
+}
+
 void Configuration::read_bool(bool& tmp) {
     char line[500];
     input.getline(line,500,'\n');
@@ -83,6 +93,7 @@ void Configuration::read_os( os_item& tmp_os, image_item& tmp_image ) {
         else if(key.compare("kernel") == 0)       tmp_image.set_kernel(value);
         else if(key.compare("initrd") == 0)       tmp_image.set_initrd(value);
         else if(key.compare("append") == 0) {
+            quote(value);
             tmp_image.set_append(value);
         }
         else if(key.compare("syncenabled") == 0)  tmp_image.set_syncbutton(toBool(value));
@@ -252,6 +263,11 @@ Configuration::Configuration(): commandline()
             }
         }
     }
+}
+
+Configuration::~Configuration()
+{
+
 }
 
 CommandLine Configuration::getCommandLine()

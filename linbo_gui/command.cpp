@@ -15,14 +15,15 @@ const QString Command::DESCEXT = ".desc";
 const QString Command::TMPDIR = "/tmp/";
 const QString Command::LINBOCMDSEP = ",";
 
+//Pattern mit genau einer heraus gefilterten ganzen Zahl
 std::map<Command::CmdValue, QString> Command::mapMaxPattern
 = {
       {linbo,"DONT MATCH"},
       {partition,"DONT MATCH"},
       {format,"DONT MATCH"},
-      {initcache,"DONT MATCH"},
-      {create_cloop,"Block size (\\d+), expected number of blocks: (\\d+)"},
-      {upload_cloop,"DONT MATCH"},
+      {initcache,"Total\\:\\s+(\\d+)\\s+MB"},
+      {create_cloop,"Block size \\d+, expected number of blocks: (\\d+)"},
+      {upload_cloop,"DONT MATCH"}, //es bleibt bei der Prozentanzeige
       {create_rsync,"DONT MATCH"},
       {upload_rsync,"DONT MATCH"},
       {sync,"DONT MATCH"},
@@ -33,14 +34,15 @@ std::map<Command::CmdValue, QString> Command::mapMaxPattern
       {poweroff,"DONT MATCH"}
 };
 
+// Pattern mit genau einer heraus gefilterten ganzen Zahl
 std::map<Command::CmdValue, QString> Command::mapValPattern
 = {
       {linbo,"DONT MATCH"},
       {partition,"DONT MATCH"},
       {format,"DONT MATCH"},
-      {initcache,"DONT MATCH"},
+      {initcache,"\\d+\\]\\s+(\\d+)MB,"},
       {create_cloop,"Blk#\\s+(\\d+),"},
-      {upload_cloop,"DONT MATCH"},
+      {upload_cloop,"\\s+(\\d+)%\\s+"},
       {create_rsync,"DONT MATCH"},
       {upload_rsync,"DONT MATCH"},
       {sync,"DONT MATCH"},
@@ -481,6 +483,7 @@ QString Command::doSimpleCommand(const QString& cmd, const QString& arg)
         qWarning() << "Der Prozess " << cmd << " wurde nicht korrekt durchgeführt.";
      }
     QString result = QString(process->readAllStandardOutput());
+    delete process;
     result.remove(QRegExp("\\t"));
     result.remove(QRegExp("[\\n\\r]{1,2}$"));
     return result;
@@ -497,9 +500,11 @@ bool Command::doAuthenticateCommand(const QString &password)
     while( !process->waitForFinished(10000)) {}
     if( process->exitCode() == 0 ) {
         this->password = password;
+        delete process;
         return true;
     } else {
         this->password = "";
+        delete process;
         return false;
     }
 }
@@ -513,6 +518,7 @@ void Command::doReadfileCommand(const QString &source, const QString &destinatio
     QProcess *process = new QProcess();
     process->start( command.join(" ") );
     while( !process->waitForFinished(10000)) {}
+    delete process;
 }
 
 void Command::doWritefileCommand(const QString &source, const QString &destination)
@@ -524,11 +530,17 @@ void Command::doWritefileCommand(const QString &source, const QString &destinati
     QProcess *process = new QProcess();
     process->start( command.join(" ") );
     while( !process->waitForFinished(10000)) {}
+    delete process;
 }
 
 Command::Command(Configuration *conf)
 {
     this->conf = conf;
+}
+
+Command::~Command()
+{
+
 }
 
 void Command::clearPassword()

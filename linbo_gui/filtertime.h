@@ -2,18 +2,23 @@
 #define FILTERTIME_H
 
 #include <QTimeEdit>
+#include <QTime>
+#include <QObject>
+#include <QString>
+
 #include "filter.h"
 
 class FilterTime : public Filter
 {
+
+private:
     QTimeEdit *timer;
+private slots:
+    void timeChanged(const QTime& time);
 
 public:
-    FilterTime(QTimeEdit *new_timer);
-    virtual ~FilterTime();
     virtual void filter(const QByteArray &output);
-    virtual int maximum();
-    virtual int value();
+    FilterTime(QObject *parent, QTimeEdit *new_timer);
 };
 
 #endif // FILTERTIME_H

@@ -1,29 +1,17 @@
 #include "filtertime.h"
 #include <QDebug>
 
-FilterTime::FilterTime(QTimeEdit *new_timer = NULL):timer(new_timer)
+FilterTime::FilterTime(QObject *parent, QTimeEdit *new_timer):
+    Filter(parent), timer(new_timer)
 {
-    return;
+    if(timer != 0){
+        connect(timer,&QTimeEdit::timeChanged,this,&FilterTime::timeChanged);
+    }
 }
 
-FilterTime::~FilterTime(){
-
-}
-
-void FilterTime::filter(const QByteArray &output)
+void FilterTime::timeChanged(const QTime& time)
 {
-    return;
+    valueChanged(time.second()*10/6);
 }
 
-int FilterTime::maximum()
-{
-    return 100;
-}
-
-int FilterTime::value()
-{
-    if(timer != 0)
-        return timer->time().second()*10/6;
-    else
-        return 0;
-}
+void FilterTime::filter(const QByteArray &output){}

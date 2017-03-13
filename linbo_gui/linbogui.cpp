@@ -30,6 +30,7 @@
 #include "linboremote.h"
 #include "filterregex.h"
 
+
 LinboGUI::LinboGUI(QWidget *parent): QMainWindow(parent),
     conf(),command(), process(new QProcess(this)),
     logConsole(new linboLogConsole),batteryTimer(new QTimer(this)),
@@ -68,7 +69,7 @@ LinboGUI::LinboGUI(QWidget *parent): QMainWindow(parent),
 
     showInfos();
 
-    connect(batteryTimer, SIGNAL(timeout()), this, SLOT(showBatteryInfo()));
+    connect(batteryTimer, &QTimer::timeout, this, &LinboGUI::showBatteryInfo);
     batteryTimer->start(10000);
 
     showOSs();
@@ -106,6 +107,12 @@ LinboGUI::LinboGUI(QWidget *parent): QMainWindow(parent),
 
 LinboGUI::~LinboGUI()
 {
+    delete conf;
+    delete command;
+    delete process;
+    delete logConsole;
+    delete batteryTimer;
+    delete remoteTimer;
     delete ui;
 }
 
@@ -157,9 +164,9 @@ void LinboGUI::showRemoteCommand()
     }
     progress = new FortschrittDialog( this, false, &infos, logConsole,
                                       ( infos.length() > 2 ?
-                                        QString("Linbo-Remote: "+infos.at(1)+" "+infos.at(2)) :
-                                        QString("Linbo-Remote: ...")
-                                      ), Aktion::None, &details );
+                                            QString("Linbo-Remote: "+infos.at(1)+" "+infos.at(2)) :
+                                            QString("Linbo-Remote: ...")
+                                            ), Aktion::None, &details );
     progress->setShowCancelButton( false );
     progress->exec();
 }
@@ -209,9 +216,9 @@ void LinboGUI::on_reboot_clicked()
 
 void LinboGUI::on_update_clicked()
 {
-      logConsole->writeStdOut( QString("update entered") );
-      QStringList cmd = command->mklinboupdatecommand();
-      doCommand( cmd, false, QString("Linbo wird aktualisiert"), Aktion::None, &details );
+    logConsole->writeStdOut( QString("update entered") );
+    QStringList cmd = command->mklinboupdatecommand();
+    doCommand( cmd, false, QString("Linbo wird aktualisiert"), Aktion::None, &details );
 }
 
 void LinboGUI::on_systeme_currentChanged(int index)
@@ -387,8 +394,8 @@ void LinboGUI::doWrapperCommands()
 
 int LinboGUI::doCommand(const QStringList& command, bool interruptible, const QString& titel, Aktion aktion, bool* details, Filter* filter)
 {
-    QStringList *cmd = new QStringList(command);
-    progress = new FortschrittDialog( this, true, cmd, logConsole, titel, aktion, details, filter );
+    QStringList cmd = QStringList(command);
+    progress = new FortschrittDialog( this, true, &cmd, logConsole, titel, aktion, details, filter );
     progress->setShowCancelButton( interruptible );
     return progress->exec();
 }
@@ -436,7 +443,18 @@ void LinboGUI::on_partition_clicked()
 void LinboGUI::on_setup_clicked()
 {
     doCommand( command->mkpartitioncommand(), true, QString("Einrichten - Partitionieren"), Aktion::None, &details);
-    doCommand( command->mkcacheinitcommand(false, conf->config.get_downloadtype()), true, QString("Einrichten - Cache aktualisieren"), Aktion::None, &details);
+    switch(conf->config.get_downloadtype()){
+    case Torrent:
+    {
+        FilterRegex *fc = new FilterRegex(this, Command::mapMaxPattern[Command::initcache],
+                Command::mapValPattern[Command::initcache]);
+        doCommand( command->mkcacheinitcommand(false, conf->config.get_downloadtype()), true, QString("Einrichten - Cache aktualisieren"), Aktion::None, &details,fc);
+        break;
+    }
+    default:
+        doCommand( command->mkcacheinitcommand(false, conf->config.get_downloadtype()), true, QString("Einrichten - Cache aktualisieren"), Aktion::None, &details);
+        break;
+    }
     for(unsigned int osnr = 0;osnr < conf->elements.size(); osnr++){
         doCommand( command->mksynccommand(osnr), true, QString("Einrichten - Synchronisieren OS Nr."+osnr), Aktion::None, &details);
     }
@@ -457,14 +475,14 @@ void LinboGUI::doInfoDialog(int nr)
     QFile* file = new QFile( filename );
     // read content
     if( !file->open( QIODevice::ReadOnly ) ) {
-      logConsole->writeStdErr( QString("Keine passende Beschreibung im Cache.") );
+        logConsole->writeStdErr( QString("Keine passende Beschreibung im Cache.") );
     }
     else {
-      QTextStream ts( file );
-      description = ts.readAll();
-      file->close();
+        QTextStream ts( file );
+        description = ts.readAll();
+        file->close();
     }
-
+    delete file;
     linboInfoBrowser* dlg = new linboInfoBrowser( this, filename, description, !isRoot());
     dlg->exec();
 }
@@ -494,10 +512,10 @@ void LinboGUI::doCreate(int nr, const QString& imageName, const QString& descrip
     if( upload ){
         title += "(und hochladen)";
     }
-    FilterRegex *fc = new FilterRegex(Command::mapMaxPattern[Command::create_cloop],
-            Command::mapValPattern[Command::create_cloop]);
+    QString cTitlePattern = QString("^Erzeuge Image '([\\-\\.\\w]+)'");
+    FilterRegex *fc = new FilterRegex(this, Command::mapValPattern[Command::create_cloop],
+            Command::mapMaxPattern[Command::create_cloop], cTitlePattern);
     doCommand(command->mkcreatecommand(nr, imageName, baseImage), true, title, aktion, &details, fc);
-    delete fc;
     if(isnew){
         os_item os = conf->elements[nr];
         image_item new_image;
@@ -520,7 +538,10 @@ void LinboGUI::doCreate(int nr, const QString& imageName, const QString& descrip
     command->doWritefileCommand(tmpName, destination);
 
     if( upload ){
-        doCommand(command->mkuploadcommand(imageName), true, QString("Image hochladen"), aktion, &details);
+        QString uTitlePattern = QString("^Lade ([\\-\\.\\w]+) zu");
+        FilterRegex *fu = new FilterRegex(this, Command::mapValPattern[Command::upload_cloop],
+                Command::mapMaxPattern[Command::upload_cloop], uTitlePattern);
+        doCommand(command->mkuploadcommand(imageName), true, QString("Image hochladen"), aktion, &details, fu);
     }
     if(aktion == Aktion::Reboot)
         system("busybox reboot");
@@ -530,7 +551,9 @@ void LinboGUI::doCreate(int nr, const QString& imageName, const QString& descrip
 
 void LinboGUI::doUpload(const QString &imageName, Aktion aktion)
 {
-    doCommand( command->mkuploadcommand( imageName), true, QString("Image hochladen"), aktion, &details);
+    FilterRegex *fu = new FilterRegex(this, Command::mapMaxPattern[Command::upload_cloop],
+            Command::mapValPattern[Command::upload_cloop]);
+    doCommand( command->mkuploadcommand( imageName), true, QString("Image hochladen"), aktion, &details, fu);
 
     if (aktion == Aktion::Shutdown) {
         system("busybox poweroff");
@@ -558,5 +581,17 @@ void LinboGUI::doInfo(const QString& filename, const QString& description)
 
 void LinboGUI::doInitCache(bool formatCache, DownloadType type)
 {
-    doCommand( command->mkcacheinitcommand(formatCache, type), false, QString("Cache aktualisieren"), Aktion::None, &details);
+    switch(type){
+    case Torrent:
+    {
+        QString titlePattern = QString("^<\\d+>\\s+([\\.\\-\\w]+)\\s+\\[\\d+\\]$");
+        FilterRegex *fc = new FilterRegex(this, Command::mapValPattern[Command::initcache],
+                Command::mapMaxPattern[Command::initcache],titlePattern);
+        doCommand( command->mkcacheinitcommand(formatCache, type), false, QString("Cache aktualisieren"), Aktion::None, &details, fc);
+        break;
+    }
+    default:
+        doCommand( command->mkcacheinitcommand(formatCache, type), false, QString("Cache aktualisieren"), Aktion::None, &details);
+        break;
+    }
 }
