@@ -203,6 +203,10 @@ install rpm/sysconfig.bittorrent %{buildroot}/var/adm/fillup-templates/sysconfig
 mkdir -p %{buildroot}/var/lib/bittorrent
 mkdir -p %{buildroot}/var/log/bittorrent
 
+mkdir -p %{buildroot}/etc/sysconfig/linbo/import-workstations.d
+mkdir -p %{buildroot}/usr/sbin
+cp -r sbin/* %{buildroot}/usr/sbin
+
 %pre
 if ! grep -qw ^bittorrent /etc/passwd; then
     useradd -r -g nogroup -c "BitTorrent User" -d /var/lib/bittorrent -s /bin/false bittorrent
@@ -231,6 +235,11 @@ then
      cp $FILE $FILE.$DATE
    fi
    cp $FILE.in $FILE
+   FILE=/etc/sysconfig/linbo/workstations
+   if [ ! -e $FILE ]
+   then
+     cp $FILE.in $FILE
+   fi
    SCHOOL_SERVER=10.0.0.2
    [ -e /etc/sysconfig/schoolserver ] && . /etc/sysconfig/schoolserver
    sed -i s@#SCHOOL_SERVER#@$SCHOOL_SERVER@g $FILE
@@ -271,8 +280,10 @@ fi
 %files
 %defattr(-,root,root)
 %dir /etc/sysconfig/linbo
+%dir /etc/sysconfig/linbo/import-workstations.d
 %config /etc/sysconfig/linbo/ssh_config
 %config /etc/sysconfig/linbo/start.conf.default.in
+%config /etc/sysconfig/linbo/workstations.in
 %config /etc/logrotate.d/oss-linbo
 %attr(-,nobody,root) %dir /var/log/oss-linbo
 %dir /var/cache/oss-linbo
@@ -319,10 +330,12 @@ fi
 /srv/tftp/linbo-version
 /usr/share/oss-linbo
 /usr/share/doc/packages/oss-linbo/examples
+%defattr(0755,root,root)
 /usr/sbin/linbo-ssh
 /usr/sbin/linbo-scp
 /usr/sbin/linbo-remote
 /usr/sbin/update-linbofs
+/usr/sbin/import_workstations
 
 %changelog
 

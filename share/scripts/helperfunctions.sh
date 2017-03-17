@@ -93,7 +93,7 @@ esc_spec_chars() {
 }
 
 
-# backup up files gzipped to /var/backup/linuxmuster
+# backup up files gzipped to /var/adm/backup
 backup_file() {
 	[ -z "$1" ] && return 1
 	[ -e "$1" ] || return 1
