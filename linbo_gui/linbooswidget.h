@@ -33,7 +33,7 @@ signals:
     void doStart(int nr);
     void doSync(int nr);
     void doNew(int nr);
-    void doInfo(int nr);
+    void doDesc(int nr);
 
 private slots:
     void on_tbDefault_clicked();
@@ -44,7 +44,7 @@ private slots:
 
     void on_tbNew_clicked();
 
-    void on_tbInfo_clicked();
+    void on_tbDesc_clicked();
 
 private:
     DefaultButton buttonFromAction(const QString& defaultAction);

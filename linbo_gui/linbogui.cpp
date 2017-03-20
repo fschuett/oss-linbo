@@ -24,7 +24,7 @@
 #include "aktion.h"
 #include "downloadtype.h"
 #include "image_description.h"
-#include "linboInfoBrowser.h"
+#include "linboDescBrowser.h"
 #include "linboMulticastBox.h"
 #include "autostart.h"
 #include "linboremote.h"
@@ -286,7 +286,7 @@ void LinboGUI::showOSs()
         connect(os, &LinboOSWidget::doStart, this, &LinboGUI::doStart);
         connect(os, &LinboOSWidget::doSync, this, &LinboGUI::doSync);
         connect(os, &LinboOSWidget::doNew, this, &LinboGUI::doNew);
-        connect(os, &LinboOSWidget::doInfo, this, &LinboGUI::doInfoDialog);
+        connect(os, &LinboOSWidget::doDesc, this, &LinboGUI::doDescDialog);
         ui->osareaLayout->addWidget(os, row, col);
         os->show();
         col++;
@@ -468,14 +468,15 @@ void LinboGUI::doAutostartDialog()
     dlg->exec();
 }
 
-void LinboGUI::doInfoDialog(int nr)
+void LinboGUI::doDescDialog(int nr)
 {
-    QString filename = conf->elements[nr].image_history[conf->elements[nr].find_current_image()].get_image();
+    QString imagename = conf->elements[nr].image_history[conf->elements[nr].find_current_image()].get_image();
+    QString filename = imagename + Command::DESCEXT;
     QString description = QString("");
     QFile* file = new QFile( filename );
     // read content
     if( !file->open( QIODevice::ReadOnly ) ) {
-        logConsole->writeStdErr( QString("Keine passende Beschreibung im Cache.") );
+        logConsole->writeStdErr( QString("Keine passende Beschreibung im Cache für ")+filename+QString(".") );
     }
     else {
         QTextStream ts( file );
@@ -483,7 +484,8 @@ void LinboGUI::doInfoDialog(int nr)
         file->close();
     }
     delete file;
-    linboInfoBrowser* dlg = new linboInfoBrowser( this, filename, description, !isRoot());
+    linboDescBrowser* dlg = new linboDescBrowser( this, filename, description, !isRoot());
+    connect(dlg,&linboDescBrowser::writeDesc,this,&LinboGUI::doDesc);
     dlg->exec();
 }
 
@@ -522,20 +524,11 @@ void LinboGUI::doCreate(int nr, const QString& imageName, const QString& descrip
         os.image_history.push_back(new_image);
     }
 
-    QString tmpName = Command::TMPDIR + imageName + Command::DESCEXT;
+    QString tmpName = imageName + Command::DESCEXT;
     QString destination = imageName + Command::DESCEXT;
-
-    QFile* file = new QFile( tmpName );
-    if ( !file->open( QIODevice::WriteOnly ) ) {
-        logConsole->writeStdErr( QString("Fehler beim Speichern der Beschreibung.") );
-    } else {
-        QTextStream ts( file );
-        ts << description;
-        file->flush();
-        file->close();
-    }
-    delete file;
+    command->createTmpFile(tmpName, description);
     command->doWritefileCommand(tmpName, destination);
+    command->removeTmpFile(tmpName);
 
     if( upload ){
         QString uTitlePattern = QString("^Lade ([\\-\\.\\w]+) zu");
@@ -562,21 +555,11 @@ void LinboGUI::doUpload(const QString &imageName, Aktion aktion)
     }
 }
 
-void LinboGUI::doInfo(const QString& filename, const QString& description)
+void LinboGUI::doDesc(const QString& filename, const QString& description)
 {
-    QString tmpname = command->TMPDIR + filename;
-    QFile* file = new QFile( tmpname );
-    if ( !file->open( QIODevice::WriteOnly ) ) {
-        logConsole->writeStdErr( QString("Fehler beim Speichern der Beschreibung.") );
-    } else {
-        QTextStream ts( file );
-        ts << description;
-        file->flush();
-        file->close();
-    }
-    delete file;
-
-    command->doWritefileCommand(tmpname, filename);
+    command->createTmpFile(filename, description);
+    command->doWritefileCommand(filename, filename);
+    command->removeTmpFile(filename);
 }
 
 void LinboGUI::doInitCache(bool formatCache, DownloadType type)

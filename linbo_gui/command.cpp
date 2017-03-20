@@ -3,6 +3,8 @@
 
 #include "command.h"
 #include "qprocess.h"
+#include "qfile.h"
+
 #include "image_description.h"
 #include "downloadtype.h"
 
@@ -197,8 +199,15 @@ QStringList Command::parseWrapperCommand(const QString& input)
                 if(customimage == NULL || customimage.compare(QString("")) == 0){
                     customimage = os.get_baseimage();
                 }
-                //FIXME create_desc
-                return mkcreatecommand(osnr, customimage, QString(""));
+                QString baseImage = customimage.left(customimage.lastIndexOf(".")) + Command::BASEIMGEXT;
+                if(msg == NULL || msg.compare(QString("")) == 0){
+                    msg = QString(customimage + QString(" created by linbo-wrapper"));
+                }
+                QString descfile = customimage  + DESCEXT;
+                createTmpFile(descfile, msg);
+                doWritefileCommand(descfile, descfile);
+                removeTmpFile(descfile);
+                return mkcreatecommand(osnr, customimage, baseImage);
             } else {
                 qWarning() << "Fehler: Ungültige OS-Nr!\n";
             }
@@ -215,7 +224,13 @@ QStringList Command::parseWrapperCommand(const QString& input)
                 if(customimage == NULL || customimage.compare(QString("")) == 0){
                     customimage = os.get_baseimage();
                 }
-                //FIXME create_desc
+                if(msg == NULL || msg.compare(QString("")) == 0){
+                    msg = QString(customimage + QString(" created by linbo-wrapper"));
+                }
+                QString descfile = customimage  + DESCEXT;
+                createTmpFile(descfile, msg);
+                doWritefileCommand(descfile, descfile);
+                removeTmpFile(descfile);
                 return mkcreatecommand(osnr, customimage, os.get_baseimage());
             } else {
                 qWarning() << "Fehler: Ungültige OS-Nr!\n";
@@ -509,6 +524,25 @@ bool Command::doAuthenticateCommand(const QString &password)
     }
 }
 
+void Command::createTmpFile(const QString &filename, const QString &content)
+{
+    QFile* file = new QFile( TMPDIR + filename );
+    if ( !file->open( QIODevice::WriteOnly ) ) {
+        qWarning() << "Fehler beim Speichern der Beschreibung.\n";
+    } else {
+        QTextStream ts( file );
+        ts << content;
+        file->flush();
+        file->close();
+    }
+    delete file;
+}
+
+void Command::removeTmpFile(const QString &filename)
+{
+    system("rm -f "+TMPDIR.toLocal8Bit() + filename.toLocal8Bit());
+}
+
 void Command::doReadfileCommand(const QString &source, const QString &destination)
 {
     QStringList command = LINBO_CMD("readfile");
@@ -526,7 +560,7 @@ void Command::doWritefileCommand(const QString &source, const QString &destinati
     QStringList command = LINBO_CMD("writefile");
     saveappend(command, conf->config.get_cache());
     saveappend(command, destination);
-    saveappend(command, source);
+    saveappend(command, TMPDIR + source);
     QProcess *process = new QProcess();
     process->start( command.join(" ") );
     while( !process->waitForFinished(10000)) {}

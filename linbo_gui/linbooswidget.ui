@@ -144,7 +144,7 @@ color:rgb(0,0,0);</string>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="tbInfo">
+        <widget class="QPushButton" name="tbDesc">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>

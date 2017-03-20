@@ -88,8 +88,8 @@ public slots:
     void doCreate(int nr, const QString& imageName, const QString& description, bool isnew, bool upload, Aktion aktion);
     void doUploadDialog(int nr);
     void doUpload(const QString& imageName, Aktion aktion);
-    void doInfoDialog(int nr);
-    void doInfo(const QString& filename, const QString& desription);
+    void doDescDialog(int nr);
+    void doDesc(const QString& filename, const QString& desription);
 
 private slots:
 

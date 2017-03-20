@@ -59,6 +59,8 @@ public:
     bool doAuthenticateCommand(const QString& password);
     void clearPassword();
 
+    void createTmpFile(const QString &filename, const QString &content);
+    void removeTmpFile(const QString &filename);
     void doReadfileCommand(const QString &source, const QString &destination);
     void doWritefileCommand(const QString &source, const QString &destination);
 

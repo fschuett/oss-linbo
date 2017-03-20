@@ -4,16 +4,16 @@
 #include <qtextstream.h>
 #include <QDesktopWidget>
 
-#include "linboInfoBrowser.h"
-#include "ui_linboInfoBrowser.h"
+#include "linboDescBrowser.h"
+#include "ui_linboDescBrowser.h"
 
-linboInfoBrowser::linboInfoBrowser(QWidget* parent, const QString& newFilename, const QString& newInfo, bool newReadOnly ) : QDialog( parent ),
-filename(newFilename), ui(new Ui::linboInfoBrowser)
+linboDescBrowser::linboDescBrowser(QWidget* parent, const QString& newFilename, const QString& newDesc, bool newReadOnly ) : QDialog( parent ),
+filename(newFilename), ui(new Ui::linboDescBrowser)
 {
    ui->setupUi(this);
-   ui->editor->setText(newInfo);
+   ui->editor->setText(newDesc);
     if ( newReadOnly ) {
-        ui->saveButton->setText("Schliessen");
+        ui->saveButton->setText("Schließen");
         ui->saveButton->setEnabled( true );
         ui->editor->setReadOnly( true );
     } else {
@@ -23,15 +23,15 @@ filename(newFilename), ui(new Ui::linboInfoBrowser)
     }
 }
 
-linboInfoBrowser::~linboInfoBrowser()
+linboDescBrowser::~linboDescBrowser()
 {
   delete ui;
 } 
 
-void linboInfoBrowser::on_saveButton_clicked()
+void linboDescBrowser::on_saveButton_clicked()
 {
     if(! ui->editor->isReadOnly() ){
-        emit( writeInfo( filename, ui->editor->toPlainText() ));
+        emit( writeDesc( filename, ui->editor->toPlainText() ));
     }
     this->accept();
 }

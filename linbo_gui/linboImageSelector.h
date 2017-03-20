@@ -30,7 +30,7 @@ public:
   static const QString& NEWNAME;
 
 signals:
-  void finished(int nr, const QString& imageName, const QString& info, bool isnew, bool upload, Aktion folgeAktion);
+  void finished(int nr, const QString& imageName, const QString& desc, bool isnew, bool upload, Aktion folgeAktion);
 
 private slots:
   void on_listBox_itemSelectionChanged();

@@ -36,7 +36,7 @@ linboImageSelector::~linboImageSelector()
 } 
 
 void linboImageSelector::finish() {
-    QString imageName, info;
+    QString imageName, desc;
     bool isnew;
     Aktion folgeAktion;
 
@@ -55,12 +55,12 @@ void linboImageSelector::finish() {
         }
     }
 
-    if( ! ui->infoEditor->toPlainText().isEmpty()){
-        info = ui->infoEditor->toPlainText();
+    if( ! ui->descEditor->toPlainText().isEmpty()){
+        desc = ui->descEditor->toPlainText();
     } else if( isnew ){
-        info = QString(" Informationen zu " + imageName + ":");
+        desc = QString(" Beschreibung zu " + imageName + ":");
     } else {
-        info = QString("Beschreibung");
+        desc = QString("Beschreibung");
     }
 
     folgeAktion = Aktion::None;
@@ -72,7 +72,7 @@ void linboImageSelector::finish() {
     } else {
         folgeAktion = Aktion::None;
     }
-    emit(finished(nr, imageName, info, isnew, upload, folgeAktion));
+    emit(finished(nr, imageName, desc, isnew, upload, folgeAktion));
 }
 
 
@@ -98,7 +98,7 @@ void linboImageSelector::on_listBox_itemSelectionChanged()
         }
         else {
             QTextStream ts( file );
-            ui->infoEditor->setText( ts.readAll() );
+            ui->descEditor->setText( ts.readAll() );
             file->close();
         }
         delete file;

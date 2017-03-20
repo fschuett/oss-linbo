@@ -23,7 +23,6 @@ SOURCES += main.cpp\
     image_description.cpp \
     linboImageSelector.cpp \
     linboImageUpload.cpp \
-    linboInfoBrowser.cpp \
     linboLogConsole.cpp \
     linboMulticastBox.cpp \
     linboConsole.cpp \
@@ -39,7 +38,8 @@ SOURCES += main.cpp\
     linboremote.cpp \
     filtertime.cpp \
     filterregex.cpp \
-    filter.cpp
+    filter.cpp \
+    linboDescBrowser.cpp
 
 HEADERS  += linbogui.h\
     registrierungsdialog.h \
@@ -50,7 +50,6 @@ HEADERS  += linbogui.h\
     linboConsole.h \
     linboImageSelector.h \
     linboImageUpload.h \
-    linboInfoBrowser.h \
     linboLogConsole.h \
     linboMulticastBox.h \
     linbooswidget.h \
@@ -65,7 +64,8 @@ HEADERS  += linbogui.h\
     linboremote.h \
     filtertime.h \
     filterregex.h \
-    filter.h
+    filter.h \
+    linboDescBrowser.h
 
 FORMS    += linbogui.ui\
     registrierungsdialog.ui \
@@ -73,12 +73,12 @@ FORMS    += linbogui.ui\
     linboConsole.ui \
     linboImageSelector.ui \
     linboImageUpload.ui \
-    linboInfoBrowser.ui \
     linboMulticastBox.ui \
     linbooswidget.ui \
     linboimagewidget.ui \
     login.ui \
-    autostart.ui
+    autostart.ui \
+    linboDescBrowser.ui
 
 RESOURCES += \
     linbo_icons.qrc \

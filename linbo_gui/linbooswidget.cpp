@@ -125,7 +125,7 @@ LinboOSWidget::~LinboOSWidget()
     delete ui;
 }
 
-void LinboOSWidget::on_tbInfo_clicked()
+void LinboOSWidget::on_tbDesc_clicked()
 {
-    emit doInfo(nr);
+    emit doDesc(nr);
 }
