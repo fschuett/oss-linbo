@@ -145,6 +145,7 @@ install rpm/sysconfig.oss-linbo %{buildroot}/var/adm/fillup-templates/sysconfig.
 mkdir -p %{buildroot}/etc/sysconfig/linbo
 install etc/ssh_config %{buildroot}/etc/sysconfig/linbo/ssh_config
 install etc/start.conf.default.in %{buildroot}/etc/sysconfig/linbo/start.conf.default.in
+install rpm/workstations.in %{buildroot}/etc/sysconfig/linbo/workstations.in
 mkdir -p %{buildroot}/srv/tftp
 cp -r var/* %{buildroot}/srv/tftp
 pushd %{buildroot}/srv/tftp/boot/grub/
@@ -205,7 +206,9 @@ mkdir -p %{buildroot}/var/log/bittorrent
 
 mkdir -p %{buildroot}/etc/sysconfig/linbo/import-workstations.d
 mkdir -p %{buildroot}/usr/sbin
-cp -r sbin/* %{buildroot}/usr/sbin
+install rpm/import_workstations %{buildroot}/usr/sbin/import_workstations
+mkdir -p %{buildroot}/usr/share/oss-linbo
+install rpm/wimport.sh %{buildroot}/usr/share/oss-linbo/wimport.sh
 
 %pre
 if ! grep -qw ^bittorrent /etc/passwd; then
