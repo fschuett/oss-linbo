@@ -7,7 +7,7 @@
 Name:		oss-linbo
 Summary:	OSS linux installation and boot environment
 Version:	3.0.0
-Release:	2.2
+Release:	3.3
 License:	GPLv3
 Vendor:		openSUSE Linux
 Distribution:	SLE11
@@ -47,7 +47,7 @@ Source27:	glibc-2.24.tar.xz
 Source28:	gmp-6.1.1.tar.xz
 Source29:	gperf-3.0.4.tar.gz
 Source30:	gptfdisk-1.0.0.tar.gz
-Source31:	grub-2.02~rc1.tar.gz
+Source31:	grub-2.02~rc2.tar.gz
 Source32:	inputproto-2.3.2.tar.bz2
 Source33:	intltool-0.51.0.tar.gz
 Source34:	kbproto-1.0.7.tar.bz2
