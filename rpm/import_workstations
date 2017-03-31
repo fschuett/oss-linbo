@@ -52,12 +52,15 @@ fi
 
 # source import script
 echo | tee -a $TMPLOG
-. $SCRIPTSDIR/wimport.sh | tee -a $TMPLOG
+. $LINBOSHAREDIR/wimport.sh | tee -a $TMPLOG
 RC_ML=${PIPESTATUS[0]}
 [ $RC_ML -ne 0 ] && RC=$RC_ML
 
 # restart nscd service
 service nscd restart| tee -a $TMPLOG
+
+# restart dhcp service
+service dhcpd restart| tee -a $TMPLOG
 
 # running user scripts
 echo | tee -a $TMPLOG

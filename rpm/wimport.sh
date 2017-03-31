@@ -258,14 +258,6 @@ rooms="$(grep ^[a-zA-Z0-9] $WIMPORTDATA | awk -F\; '{ print $1 }' | sort -u)"
 for i in $rooms; do
  check_string "$i" || exitmsg "$i is no valid room name!"
 done
-# rooms;ips
-roomsips="$(grep ^[a-zA-Z0-9] $WIMPORTDATA | awk -F\; '{ print $1";"gensub(".[[:digit:]]+","",4,$5) }' | sort -u)"
-for i in $roomsips; do
- r=$(echo $i|awk -F\; '{ print $1 }')
- n=$(echo $roomsips|tr ' ' '\n'|grep ^"$r;" | wc -l)
- ips=$(echo $roomsips|tr ' ' '\n'|grep ^"$r;"| cut -d\; -f2| tr '\n' ' ')
- [ $n -eq 1 ] || echo "WARNING: room $r has multiple ip ranges $ips!"
-done
 
 # hostgroups
 hostgroups="$(grep ^[a-zA-Z0-9] $WIMPORTDATA | awk -F\; '{ print "#"$3"#" }' | sort -u)"
@@ -302,45 +294,27 @@ done
 RET="$(check_unique "$macs")"
 [ -n "$RET" ] && exitmsg "Not unique mac(s) detected: $RET!"
 
-# ips
-ips="$(grep ^[a-zA-Z0-9] $WIMPORTDATA | awk -F\; '{ print "#"$5"#" }')"
-echo "$ips" | grep -q "##" && exitmsg "Empty ip address found! Check your data!"
-ips="${ips//#/}"
-for i in $ips; do
- validip "$i" || exitmsg "$i is no valid host ip address!"
-done
-RET="$(check_unique "$ips")"
-[ -n "$RET" ] && exitmsg "Not unique ip(s) detected: $RET!"
-
-
 # tests are done
 echo " Ok!"
 echo
 
 # sync host accounts
-#TODO
-# add new accounts to LDAP
-#echo "Sophomorix syncs accounts (may take a while):"
-#sophomorix-workstation --sync-accounts | grep ^[KA][id][ld] 2>> $TMPLOG ; RC_LINE="${PIPESTATUS[0]}"
-#if [ "$RC_LINE" = "0" ]; then
-# echo "Done!"
-# echo
-#else
-# RC="$RC_LINE"
-# echo "sophomorix-workstation exits with error!"
-# echo
-# rm -f $locker
-# exit "$RC"
-#fi # sync host accounts
+echo "Creating new workstations accounts..."
+oss_workstations_sync_hosts.pl<$WIMPORTDATA 2>> $TMPLOG ; RC_LINE="${PIPESTATUS[0]}"
+if [ "$RC_LINE" = "0" ]; then
+ echo "Done!"
+ echo
+else
+ RC="$RC_LINE"
+ echo "oss_workstations_sync_hosts.pl exits with error!"
+ echo
+ rm -f $locker
+ exit "$RC"
+fi # sync host accounts
 
-#TODO - Test: probably not needed
-# test for dhcp conf cache dir and clean it up
-#[ -e "$DHCPDCACHE" -a ! -d "$DHCPDCACHE" ] && rm -rf "$DHCPDCACHE"
-#mkdir -p "$DHCPDCACHE"
-#[ -d "$DHCPDCACHE" ] || exitmsg "Missing directory $DHCPDCACHE!"
-#rm -rf "$DHCPDCACHE"/*
-
-
+echo "Creating/modifying PXE/DHCP entries..."
+tmpdhcp="/tmp/modify_dhcpstatements.$$"
+rm -f $tmpdhcp
 groups_processed=""
 sort -b -d -t';' -k5 $WIMPORTDATA | grep ^[a-z0-9] | while read line; do
 
@@ -350,20 +324,41 @@ sort -b -d -t';' -k5 $WIMPORTDATA | grep ^[a-z0-9] | while read line; do
  hostgroup="$(echo "$line" | awk -F\; '{ print $3 }')"
  hostgroup="$(echo "$hostgroup" | awk -F\, '{ print $1 }')"
  mac="$(echo "$line" | awk -F\; '{ print $4 }')"
- ip="$(echo "$line" | awk -F\; '{ print $5 }')"
  pxe="$(echo "$line" | awk -F\; '{ print $11 }')"
 
- # write dhcpd.conf entries for hosts
+ # create dhcpd entries for hosts in ldap
  case "$pxe" in
   1|2|3|22)
+   # determine systemtype for efi netboot
+   systemtype="$(get_systemtype "$hostgroup")"
    # process linbo pxe configs
-   do_pxe "$hostgroup" "$ip" || RC="1"
+   do_pxe "$hostgroup" || RC="1"
+   if [ -n "$RC" ]; then
+     cat >>$tmpdhcp <<EOF
+name $hostname
+group $hostgroup
+systemtype $systemtype
+EOF
+   fi
    echo -en " * PXE" ;;
   *) echo -en " * IP" ;;
  esac
- echo -e "-Host\t$ip\t$hostname."
+ echo -e "-Host\t$hostname."
 
 done
+echo "Done!"
+echo
+
+echo "Writing DHCP statements to LDAP...";
+# write dhcpd entries to ldap
+if [ -e "$tmpdhcp" ]; then
+    oss_modify_dhcpStatements.pl <$tmpdhcp || RC="1"
+else
+    echo "  * No DHCP statements to write to LDAP";
+fi
+echo "Done!"
+echo
+rm -f $tmpdhcp
 
 # exit with return code
 exit $RC

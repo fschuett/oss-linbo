@@ -207,6 +207,9 @@ mkdir -p %{buildroot}/var/log/bittorrent
 mkdir -p %{buildroot}/etc/sysconfig/linbo/import-workstations.d
 mkdir -p %{buildroot}/usr/sbin
 install rpm/import_workstations %{buildroot}/usr/sbin/import_workstations
+install rpm/oss_modify_dhcpStatements.pl %{buildroot}/usr/sbin/oss_modify_dhcpStatements.pl
+install rpm/oss_workstations_sync_hosts.pl %{buildroot}/usr/sbin/oss_workstations_sync_hosts.pl
+
 mkdir -p %{buildroot}/usr/share/oss-linbo
 install rpm/wimport.sh %{buildroot}/usr/share/oss-linbo/wimport.sh
 
@@ -339,6 +342,7 @@ fi
 /usr/sbin/linbo-remote
 /usr/sbin/update-linbofs
 /usr/sbin/import_workstations
+/usr/sbin/oss_modify_dhcpStatements.pl
+/usr/sbin/oss_workstations_sync_hosts.pl
 
 %changelog
-
