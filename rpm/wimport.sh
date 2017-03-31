@@ -300,12 +300,14 @@ echo
 
 # sync host accounts
 echo "Creating new workstations accounts..."
-oss_workstations_sync_hosts.pl<$WIMPORTDATA 2>> $TMPLOG ; RC_LINE="${PIPESTATUS[0]}"
-if [ "$RC_LINE" = "0" ]; then
+oss_workstations_sync_hosts.pl<$WIMPORTDATA 2>> $TMPLOG
+
+if [ "$RC" = "0" ]; then
  echo "Done!"
  echo
+ # restart nameserver
+ service named reload
 else
- RC="$RC_LINE"
  echo "oss_workstations_sync_hosts.pl exits with error!"
  echo
  rm -f $locker
@@ -323,6 +325,7 @@ sort -b -d -t';' -k5 $WIMPORTDATA | grep ^[a-z0-9] | while read line; do
  hostname="$(echo "$line" | awk -F\; '{ print $2 }')"
  hostgroup="$(echo "$line" | awk -F\; '{ print $3 }')"
  hostgroup="$(echo "$hostgroup" | awk -F\, '{ print $1 }')"
+ ip="$(host $hostname | sed 's/.* //g')"
  mac="$(echo "$line" | awk -F\; '{ print $4 }')"
  pxe="$(echo "$line" | awk -F\; '{ print $11 }')"
 
@@ -337,6 +340,7 @@ sort -b -d -t';' -k5 $WIMPORTDATA | grep ^[a-z0-9] | while read line; do
      cat >>$tmpdhcp <<EOF
 name $hostname
 group $hostgroup
+ipaddress $ip
 systemtype $systemtype
 EOF
    fi

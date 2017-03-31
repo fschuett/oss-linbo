@@ -1,15 +1,7 @@
 #!/usr/bin/perl
 # 2017 Copyright Frank Schütte <fschuett@gymhim.de>
 # sync hosts with workstations file
-# add missing hosts
-#   $oss_host->add(      name => 'mediothek-pc01', 
-#		      domain => 'schule.de',
-#                      roomdn => 'cn=Room1,cn=172.16.0.0,cn=config1,cn=admin,ou=DHCP,dc=schule,dc=de',
-#		   hwaddress => '00:04:23:CF:F8:2D',
-#		   ipaddress => '172.16.5.10',
-#		      hwconf => hwconf1,
-#		      master => yes
-#                );
+# add missing hosts with oss_import_hosts.pl script
 #
 
 BEGIN{
@@ -19,6 +11,7 @@ BEGIN{
 use strict;
 use oss_host;
 use oss_utils;
+use Data::Dumper;
 
 if( $> )
 {
@@ -44,12 +37,11 @@ while(<STDIN>)
 
 	next if( getConnect($connect,$key,$value));
 	my @ar = split /;/,$_;
-	#raum;rechner;gruppe;mac;ip;;;;benutzer;;linbo=1;
+	#raum;rechner;gruppe;mac;;;;;benutzer;;linbo=1;
 	#Switche und Drucker im Servernetz einordnen
 	my $host = {};
 	$host->{'name'} = $ar[1];
 	$host->{'hwaddress'} = $ar[3];
-	$host->{'ipaddress'} = $ar[4];
 	$host->{'hwconf'} = $ar[2] if $ar[10] eq '1' and $ar[2] ne 'pc_group';
 	$host->{'master'} = 'no';
 	$host->{'room'} = $ar[0];
@@ -65,6 +57,13 @@ if( defined $ENV{SUDO_USER} )
    }
 }
 $oss_host = oss_host->new($connect);
+# get HW configurations
+my $confs = $oss_host->get_HW_configurations(0);
+my $hwconfs = {};
+foreach my $key (@{$confs})
+{
+    $hwconfs->{$key->[1]} = $key->[0];
+}
 
 # create import file
 my $importfile = "/tmp/import_workstations.add_hosts.$$.csv";
@@ -73,25 +72,32 @@ print IMPORT "room;name;mac;hwconf;uid\n";
 my $import_needed = 0;
 foreach my $host (keys %$hosts) {
     my $data = $hosts->{$host};
+    my $hwconf = $hwconfs->{$data->{'hwconf'}};
+    if( ! defined $hwconf or $hwconf eq '' )
+    {
+	die "  > Host ".$data->{'name'}." has unknown hardware configuration ".$data->{'hwconf'};
+    }
     next if defined $oss_host->get_host($data->{'name'});
     $import_needed = 1;
     my ($owner) = $host =~ /^(?:cpq|lap)(.+)$/;
     if( $owner ){
 	$data->{'alternate'} = $host;
 	$data->{'user'}=$owner if $owner ne $data->{'user'};
-	print IMPORT $data->{'room'} . ";" . $data->{'alternate'} . ";" . $data->{'hwaddress'} . ";" . $data->{'hwconf'}
-		  . ";" . $owner;
+	print IMPORT $data->{'room'} . ";" . $data->{'alternate'} . ";" . $data->{'hwaddress'} . ";" . $hwconf
+		  . ";" . $owner."\n";
     } else {
-	print IMPORT $data->{'room'} . ";;" . $data->{'hwaddress'} . ";" . $data->{'hwconf'} . ";";    
+	print IMPORT $data->{'room'} . ";;" . $data->{'hwaddress'} . ";" . $hwconf . ";\n";    
     }
     print "  * Import new host " . $data->{'name'} . "/" . $data->{'alternate'} . " to ldap\n";
 }
+
 if($import_needed){
     # start the actual import
-    system("oss_import_hosts.pl --debug --addws --addma $importfile");
+    system("oss_import_hosts.pl --addws --addma $importfile >$importfile.log");
 } else {
-    system("rm -f $importfile");
     print "  * No new hosts to import.\n";
 }
+system("rm -f $importfile");
+system("rm -f $importfile.log");
 
 $oss_host->destroy();
