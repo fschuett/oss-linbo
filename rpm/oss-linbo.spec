@@ -39,7 +39,7 @@ Source19:	eudev-3.2.1.tar.gz
 Source20:	expat-2.2.0.tar.bz2
 Source21:	fakeroot_1.20.2.orig.tar.bz2
 Source22:	flex-2.5.37.tar.gz
-Source23:   freetype-2.7.1.tar.bzw
+Source23:	freetype-2.7.1.tar.bz2
 Source24:	fuse-2.9.7.tar.gz
 Source25:	gawk-4.1.4.tar.xz
 Source26:	gcc-5.4.0.tar.bz2
