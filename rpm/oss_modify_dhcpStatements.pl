@@ -6,13 +6,12 @@ BEGIN{
 
 use strict;
 use oss_base;
-use oss_host;
 use oss_utils;
 
 my $HOST     = {};
 my @hosts = ();
 my $connect  = {};
-my $oss_host = undef;
+my $oss_base = undef;
 
 sub get_bootfilename($)
 {
@@ -68,9 +67,9 @@ if( defined $ENV{SUDO_USER} )
        die "Using sudo you have to define the parameters aDN and aPW\n";
    }
 }
-$oss_host = oss_host->new($connect);
+$oss_base = oss_base->new($connect);
 my $DEBUG               = 0;
-if( $oss_host->get_school_config('SCHOOL_DEBUG') eq 'yes' )
+if( $oss_base->get_school_config('SCHOOL_DEBUG') eq 'yes' )
 {
   $DEBUG = 1;
   use Data::Dumper;
@@ -78,7 +77,7 @@ if( $oss_host->get_school_config('SCHOOL_DEBUG') eq 'yes' )
 
 foreach my $HOST (@hosts)
 {
-    my $dn = $oss_host->get_workstation($HOST->{ipaddress});
+    my $dn = $oss_base->get_workstation($HOST->{ipaddress});
     my $group = $HOST->{group};
     my $systemtype = $HOST->{systemtype};
     if( ! defined $dn or $dn eq '' )
@@ -94,16 +93,16 @@ foreach my $HOST (@hosts)
 	die "  > Host " . $HOST->{name} . " has no valid systemtype.";
     }
     print "  * DHCP for $dn...\n";
-    my $le = $oss_host->get_entry($dn);
+    my $le = $oss_base->get_entry($dn);
     foreach my $line (@{$le->{'dhcpstatements'}})
     {
 	if($line =~ /^option extensions-path / or $line =~ /^filename /)
 	{
-	    $oss_host->del_attribute($dn,'dhcpstatements',$line);
+	    $oss_base->del_attribute($dn,'dhcpstatements',$line);
 	}
     }
-    $oss_host->add_attribute($dn,'dhcpstatements','option extensions-path "' . $group . '"');
-    $oss_host->add_attribute($dn,'dhcpstatements',get_bootfilename($HOST->{systemtype}));
+    $oss_base->add_attribute($dn,'dhcpstatements','option extensions-path "' . $group . '"');
+    $oss_base->add_attribute($dn,'dhcpstatements',get_bootfilename($HOST->{systemtype}));
     if( $DEBUG )
     {
         open(OUT,">/tmp/ldap_modify.dhcpStatements");
@@ -112,4 +111,4 @@ foreach my $HOST (@hosts)
     }
 }
 
-$oss_host->destroy();
+$oss_base->destroy();

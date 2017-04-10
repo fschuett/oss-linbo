@@ -9,7 +9,7 @@ BEGIN{
 }
 
 use strict;
-use oss_host;
+use oss_base;
 use oss_utils;
 use Data::Dumper;
 
@@ -20,7 +20,7 @@ if( $> )
 
 my $hosts = {};
 my $connect  = {};
-my $oss_host =  undef;
+my $oss_base =  undef;
 
 while(my $param = shift)
 {
@@ -56,9 +56,9 @@ if( defined $ENV{SUDO_USER} )
        die "Using sudo you have to define the parameters aDN and aPW\n";
    }
 }
-$oss_host = oss_host->new($connect);
+$oss_base = oss_base->new($connect);
 # get HW configurations
-my $confs = $oss_host->get_HW_configurations(0);
+my $confs = $oss_base->get_HW_configurations(0);
 my $hwconfs = {};
 foreach my $key (@{$confs})
 {
@@ -77,7 +77,7 @@ foreach my $host (keys %$hosts) {
     {
 	die "  > Host ".$data->{'name'}." has unknown hardware configuration ".$data->{'hwconf'};
     }
-    next if defined $oss_host->get_host($data->{'name'});
+    next if defined $oss_base->get_host($data->{'name'});
     $import_needed = 1;
     my ($owner) = $host =~ /^(?:cpq|lap)(.+)$/;
     if( $owner ){
@@ -100,4 +100,4 @@ if($import_needed){
 system("rm -f $importfile");
 system("rm -f $importfile.log");
 
-$oss_host->destroy();
+$oss_base->destroy();
