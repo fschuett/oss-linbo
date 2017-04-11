@@ -7,6 +7,8 @@
 # adapted for oss-linbo
 # Frank Schütte <fschuett@gymhim.de>
 # 17.03.2017
+# workstations file (oss)
+# raum;rechner;gruppe;mac;;;;;;;linbo=1;
 
 RC=0
 

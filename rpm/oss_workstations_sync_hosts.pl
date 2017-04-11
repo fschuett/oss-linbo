@@ -38,7 +38,6 @@ while(<STDIN>)
 	next if( getConnect($connect,$key,$value));
 	my @ar = split /;/,$_;
 	#raum;rechner;gruppe;mac;;;;;benutzer;;linbo=1;
-	#Switche und Drucker im Servernetz einordnen
 	my $host = {};
 	$host->{'name'} = $ar[1];
 	$host->{'hwaddress'} = $ar[3];
