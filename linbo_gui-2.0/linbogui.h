@@ -22,6 +22,7 @@
 #include "aktion.h"
 #include "downloadtype.h"
 #include "filter.h"
+#include "status.h"
 
 #define ADMINTAB ui->systeme->count()-2
 #define LOGTAB ui->systeme->count()-1
@@ -50,6 +51,7 @@ private:
     int autostarttimeout;
     QTimer *batteryTimer;
     QTimer *remoteTimer;
+    Status status;
 
     void showInfos();
     void showOSs();
