@@ -17,6 +17,25 @@ const QString Command::DESCEXT = ".desc";
 const QString Command::TMPDIR = "/tmp/";
 const QString Command::LINBOCMDSEP = ",";
 
+//Pattern mit genau einem herausgefilterten Text
+std::map<Command::CmdValue, QString> Command::mapTitlePattern
+= {
+      {linbo,"DONT MATCH"},
+      {partition,"DONT MATCH"},
+      {format,"DONT MATCH"},
+      {initcache,"Total\\:\\s+(\\d+)\\s+MB"},
+      {create_cloop,"Block size \\d+, expected number of blocks: (\\d+)"},
+      {upload_cloop,"DONT MATCH"}, //es bleibt bei der Prozentanzeige
+      {create_rsync,"DONT MATCH"},
+      {upload_rsync,"DONT MATCH"},
+      {sync,"DONT MATCH"},
+      {start,"DONT MATCH"},
+      {update,"DONT MATCH"},
+      {reboot,"DONT MATCH"},
+      {halt,"DONT MATCH"},
+      {poweroff,"DONT MATCH"}
+};
+
 //Pattern mit genau einer heraus gefilterten ganzen Zahl
 std::map<Command::CmdValue, QString> Command::mapMaxPattern
 = {

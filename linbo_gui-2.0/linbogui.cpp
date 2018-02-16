@@ -444,19 +444,25 @@ void LinboGUI::on_setup_clicked()
 {
     doCommand( command->mkpartitioncommand(), true, QString("Einrichten - Partitionieren"), Aktion::None, &details);
     switch(conf->config.get_downloadtype()){
-    case Torrent:
-    {
-        FilterRegex *fc = new FilterRegex(this, Command::mapMaxPattern[Command::initcache],
-                Command::mapValPattern[Command::initcache]);
-        doCommand( command->mkcacheinitcommand(false, conf->config.get_downloadtype()), true, QString("Einrichten - Cache aktualisieren"), Aktion::None, &details,fc);
-        break;
-    }
-    default:
-        doCommand( command->mkcacheinitcommand(false, conf->config.get_downloadtype()), true, QString("Einrichten - Cache aktualisieren"), Aktion::None, &details);
-        break;
+        case Torrent:
+        {
+            QString icTitlePattern = QString("^Erzeuge Image\\s+([\\-\\.\\w]+)\\s+");
+            FilterRegex *fc = new FilterRegex(this, Command::mapMaxPattern[Command::initcache],
+                    Command::mapValPattern[Command::initcache], icTitlePattern);
+            doCommand( command->mkcacheinitcommand(false, conf->config.get_downloadtype()), true, QString("Einrichten - Cache aktualisieren"), Aktion::None, &details,fc);
+            break;
+        }
+        default:
+        {
+            QString icTitlePattern = QString("^Erzeuge Image\\s+([\\-\\.\\w]+)\\s+");
+            FilterRegex *fc = new FilterRegex(this, Command::mapMaxPattern[Command::initcache],
+                    Command::mapValPattern[Command::initcache], icTitlePattern);
+            doCommand( command->mkcacheinitcommand(false, conf->config.get_downloadtype()), true, QString("Einrichten - Cache aktualisieren"), Aktion::None, &details, &fc);
+            break;
+        }
     }
     for(unsigned int osnr = 0;osnr < conf->elements.size(); osnr++){
-        doCommand( command->mksynccommand(osnr), true, QString("Einrichten - Synchronisieren OS Nr."+osnr), Aktion::None, &details);
+        doCommand( command->mksynccommand(osnr), true, QString("Einrichten - Synchronisieren OS Nr."+(osnr+1)), Aktion::None, &details);
     }
     doCommand( command->mkstartcommand(0), true, QString("Einrichten - Start OS Nr.1"), Aktion::None, &details);
 }
@@ -510,14 +516,17 @@ void LinboGUI::doUploadDialog(int nr)
 void LinboGUI::doCreate(int nr, const QString& imageName, const QString& description, bool isnew, bool upload, Aktion aktion)
 {
     QString baseImage = imageName.left(imageName.lastIndexOf(".")) + Command::BASEIMGEXT;
-    QString title = QString("Image erstellen");
+    QString title = QString("Image erstellen ");
     if( upload ){
-        title += "(und hochladen)";
+        title += "(und hochladen) ";
     }
-    QString cTitlePattern = QString("^Erzeuge Image '([\\-\\.\\w]+)'");
+    QString cTitlePattern = QString("^Erzeuge Image\\s+([\\-\\.\\w]+)\\s+");
     FilterRegex *fc = new FilterRegex(this, Command::mapValPattern[Command::create_cloop],
             Command::mapMaxPattern[Command::create_cloop], cTitlePattern);
-    doCommand(command->mkcreatecommand(nr, imageName, baseImage), true, title, aktion, &details, fc);
+    bool done = doCommand(command->mkcreatecommand(nr, imageName, baseImage), true, title, aktion, &details, fc);
+    if( !done ){
+        return;
+    }
     if(isnew){
         os_item os = conf->elements[nr];
         image_item new_image;
@@ -534,7 +543,10 @@ void LinboGUI::doCreate(int nr, const QString& imageName, const QString& descrip
         QString uTitlePattern = QString("^Lade ([\\-\\.\\w]+) zu");
         FilterRegex *fu = new FilterRegex(this, Command::mapValPattern[Command::upload_cloop],
                 Command::mapMaxPattern[Command::upload_cloop], uTitlePattern);
-        doCommand(command->mkuploadcommand(imageName), true, QString("Image hochladen"), aktion, &details, fu);
+        done = doCommand(command->mkuploadcommand(imageName), true, QString("Image hochladen"), aktion, &details, fu);
+        if(! done){
+            return;
+        }
     }
     if(aktion == Aktion::Reboot)
         system("busybox reboot");
