@@ -457,7 +457,7 @@ void LinboGUI::on_setup_clicked()
             QString icTitlePattern = QString("^Erzeuge Image\\s+([\\-\\.\\w]+)\\s+");
             FilterRegex *fc = new FilterRegex(this, Command::mapMaxPattern[Command::initcache],
                     Command::mapValPattern[Command::initcache], icTitlePattern);
-            doCommand( command->mkcacheinitcommand(false, conf->config.get_downloadtype()), true, QString("Einrichten - Cache aktualisieren"), Aktion::None, &details);
+            doCommand( command->mkcacheinitcommand(false, conf->config.get_downloadtype()), true, QString("Einrichten - Cache aktualisieren"), Aktion::None, &details, fc);
             break;
         }
     }

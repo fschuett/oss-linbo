@@ -39,7 +39,8 @@ SOURCES += main.cpp\
     filtertime.cpp \
     filterregex.cpp \
     filter.cpp \
-    linboDescBrowser.cpp
+    linboDescBrowser.cpp \
+    status.cpp
 
 HEADERS  += linbogui.h\
     registrierungsdialog.h \
@@ -65,7 +66,8 @@ HEADERS  += linbogui.h\
     filtertime.h \
     filterregex.h \
     filter.h \
-    linboDescBrowser.h
+    linboDescBrowser.h \
+    status.h
 
 FORMS    += linbogui.ui\
     registrierungsdialog.ui \
