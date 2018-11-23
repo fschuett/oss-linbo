@@ -92,3 +92,5 @@ DISTFILES += \
     test/start.conf \
     test/fake_cmd_upload.sh \
     test/fake_cmd_initcache.sh
+
+SUBDIRS = QtConsole
