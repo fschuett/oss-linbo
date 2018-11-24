@@ -23,7 +23,8 @@
 #include "downloadtype.h"
 #include "filter.h"
 
-#define ADMINTAB ui->systeme->count()-2
+#define ADMINTAB ui->systeme->count()-3
+#define CONSOLETAB ui->systeme->count()-2
 #define LOGTAB ui->systeme->count()-1
 
 namespace Ui {
@@ -69,6 +70,7 @@ public:
     void readFromStderr();
     void resetButtons();
     bool isAdminTab(int tabIndex);
+    bool isConsoleTab(int tabIndex);
     bool isLogTab(int tabIndex);
 
 public slots:
@@ -108,8 +110,6 @@ private slots:
 
     void on_cbTimeout_toggled(bool checked);
 
-    void on_console_clicked();
-
     void on_initcache_clicked();
 
     void on_partition_clicked();
@@ -123,7 +123,7 @@ private:
     void doCreate();
     void doUpload();
     int doCommand(const QStringList& command, bool interruptible = false, const QString& titel = QString(""),
-                   Aktion aktion = Aktion::None, bool* details = NULL, Filter *filter = nullptr);
+                   Aktion aktion = Aktion::None, bool* details = nullptr, Filter *filter = nullptr);
     Ui::LinboGUI *ui;
 };
 

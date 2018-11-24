@@ -319,7 +319,7 @@ background-color: rgba(255, 255, 255, 0);</string>
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="benutzertab">
        <property name="enabled">
@@ -378,8 +378,8 @@ background-color: rgba(255, 255, 255, 0);</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>600</width>
-             <height>249</height>
+             <width>756</width>
+             <height>233</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -470,8 +470,8 @@ background-color: rgba(255, 255, 255, 0);</string>
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>594</width>
-               <height>298</height>
+               <width>547</width>
+               <height>261</height>
               </rect>
              </property>
              <layout class="QGridLayout" name="gridLayout_4">
@@ -497,29 +497,6 @@ background-color: rgba(255, 255, 255, 0);</string>
           </item>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_3">
-            <item>
-             <widget class="QPushButton" name="console">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>120</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>Konsole öffnen</string>
-              </property>
-              <property name="icon">
-               <iconset resource="linbo_icons.qrc">
-                <normaloff>:/icons/console-22x22.png</normaloff>:/icons/console-22x22.png</iconset>
-              </property>
-             </widget>
-            </item>
             <item>
              <widget class="QPushButton" name="initcache">
               <property name="sizePolicy">
@@ -647,6 +624,44 @@ background-color: rgba(255, 255, 255, 0);</string>
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="consoletab">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>1</horstretch>
+         <verstretch>1</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <attribute name="title">
+        <string>Seite</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <item>
+         <widget class="QConsole" name="console">
+          <property name="minimumSize">
+           <size>
+            <width>500</width>
+            <height>200</height>
+           </size>
+          </property>
+          <property name="lineWidth">
+           <number>3</number>
+          </property>
+          <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOn</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
       <widget class="QWidget" name="logtab">
        <property name="layoutDirection">
         <enum>Qt::LeftToRight</enum>
@@ -679,6 +694,9 @@ background-color: rgba(255, 255, 255, 0);</string>
            <number>3</number>
           </property>
           <property name="verticalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOn</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
            <enum>Qt::ScrollBarAlwaysOn</enum>
           </property>
           <property name="readOnly">
@@ -860,6 +878,13 @@ background-color: rgba(255, 255, 255, 0);</string>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QConsole</class>
+   <extends>QTextEdit</extends>
+   <header>qconsole.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="linbo_icons.qrc"/>
  </resources>

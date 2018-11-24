@@ -25,11 +25,9 @@ SOURCES += main.cpp\
     linboImageUpload.cpp \
     linboLogConsole.cpp \
     linboMulticastBox.cpp \
-    linboConsole.cpp \
     linbooswidget.cpp \
     linboimagewidget.cpp \
     login.cpp \
-    consolewidget.cpp \
     downloadtype.cpp \
     autostart.cpp \
     aktion.cpp \
@@ -39,7 +37,8 @@ SOURCES += main.cpp\
     filtertime.cpp \
     filterregex.cpp \
     filter.cpp \
-    linboDescBrowser.cpp
+    linboDescBrowser.cpp \
+    qconsole.cpp
 
 HEADERS  += linbogui.h\
     registrierungsdialog.h \
@@ -47,7 +46,6 @@ HEADERS  += linbogui.h\
     configuration.h \
     command.h \
     image_description.h \
-    linboConsole.h \
     linboImageSelector.h \
     linboImageUpload.h \
     linboLogConsole.h \
@@ -55,7 +53,6 @@ HEADERS  += linbogui.h\
     linbooswidget.h \
     linboimagewidget.h \
     login.h \
-    consolewidget.h \
     downloadtype.h \
     autostart.h \
     aktion.h \
@@ -65,12 +62,12 @@ HEADERS  += linbogui.h\
     filtertime.h \
     filterregex.h \
     filter.h \
-    linboDescBrowser.h
+    linboDescBrowser.h \
+    qconsole.h
 
 FORMS    += linbogui.ui\
     registrierungsdialog.ui \
     fortschrittdialog.ui \
-    linboConsole.ui \
     linboImageSelector.ui \
     linboImageUpload.ui \
     linboMulticastBox.ui \
@@ -92,5 +89,3 @@ DISTFILES += \
     test/start.conf \
     test/fake_cmd_upload.sh \
     test/fake_cmd_initcache.sh
-
-SUBDIRS = QtConsole

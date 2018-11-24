@@ -15,7 +15,7 @@
 #include "registrierungsdialog.h"
 #include "configuration.h"
 #include "command.h"
-#include "linboConsole.h"
+#include "qconsole.h"
 #include "fortschrittdialog.h"
 #include "registrierungsdialog.h"
 #include "linboimagewidget.h"
@@ -153,6 +153,10 @@ bool LinboGUI::isAdminTab(int tabIndex) {
     return (tabIndex == ADMINTAB);
 }
 
+bool LinboGUI::isConsoleTab(int tabIndex) {
+    return (tabIndex == CONSOLETAB);
+}
+
 bool LinboGUI::isLogTab(int tabIndex) {
     return (tabIndex == LOGTAB);
 }
@@ -233,7 +237,7 @@ void LinboGUI::on_update_clicked()
 void LinboGUI::on_systeme_currentChanged(int index)
 {
     if( !isRoot() ) {
-        if( isAdminTab(index)) {
+        if( isAdminTab(index) || isConsoleTab(index)) {
             // if our partition button is disabled, there is a linbo_cmd running
             if( process->state() != QProcess::Running ) {
                 ui->systeme->setCurrentIndex( preTab );
@@ -246,7 +250,8 @@ void LinboGUI::on_systeme_currentChanged(int index)
             }
         }
     }
-    if( (ui->systeme->currentIndex() != ADMINTAB && ui->systeme->currentIndex() != LOGTAB)  )
+    if( (ui->systeme->currentIndex() != ADMINTAB && ui->systeme->currentIndex() != CONSOLETAB
+         && ui->systeme->currentIndex() != LOGTAB)  )
         preTab = ui->systeme->currentIndex();
 }
 
@@ -407,13 +412,6 @@ int LinboGUI::doCommand(const QStringList& command, bool interruptible, const QS
     progress = new FortschrittDialog( this, true, &cmd, logConsole, titel, aktion, details, filter );
     progress->setShowCancelButton( interruptible );
     return progress->exec();
-}
-
-void LinboGUI::on_console_clicked()
-{
-    //TODO
-    linboConsole console( this );
-    console.exec();
 }
 
 void LinboGUI::doAutostart()
