@@ -9,7 +9,7 @@ rm -fv "${TARGET_DIR}"/usr/lib/fonts/!(DejaVuSans.ttf)
 rm -fv "${TARGET_DIR}"/etc/dropbear
 rm -fvr "${TARGET_DIR}"/usr/lib/qt/plugins/bearer/
 rm -fvr "${TARGET_DIR}"/usr/lib/qt/plugins/imageformats/
-rm -fv "${TARGET_DIR}"/usr/lib/qt/generic/!(libqlibinputplugin.so)
+#rm -fv "${TARGET_DIR}"/usr/lib/qt/generic/!(libqlibinputplugin.so)
 rm -fv "${TARGET_DIR}"/usr/lib/qt/plugins/platforms/!(libqlinuxfb.so)
 rm -fv "${TARGET_DIR}"/usr/lib/libQt5Network.so*
 rm -fv "${TARGET_DIR}"/usr/lib/libQt5PrintSupport.so*
