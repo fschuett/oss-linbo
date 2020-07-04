@@ -100,7 +100,7 @@ update_linbofs() {
  mkdir -p var/log
  touch var/log/lastlog
  # check and repair permissions
- for i in .ssh .ssh/authorized_keys; do
+ for i in $ROOTSSH $ROOTSSH/authorized_keys; do
   perms="$(LANG=C stat "$i" | grep ^Access | grep Uid: | awk -F\( '{ print $2 }' | awk -F\/ '{ print $1 }')"
 	if [ "${perms:1:3}" = "666" -o "${perms:1:3}" = "777" ]; then
 	 echo "WARNING! $i has bogus permissions!"
