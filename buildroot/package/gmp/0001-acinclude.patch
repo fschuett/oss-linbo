@@ -1,0 +1,12 @@
+diff -up ./acinclude.m4.orig ./acinclude.m4
+--- ./acinclude.m4.orig 2016-12-16 16:45:27.000000000 +0100
++++ ./acinclude.m4      2020-07-05 10:40:12.590194022 +0200
+@@ -743,7 +743,7 @@ main ()
+     a[i] = ~0L;
+   r = malloc (10000 * sizeof (unsigned long));
+   r2 = r;
+-  for (i = 0; i < 528; i += 23)
++  for (i = 0; i < 528; i += 22)
+     {
+       lshift_com (r2, a,
+                  i / (8 * sizeof (unsigned long)) + 1,
