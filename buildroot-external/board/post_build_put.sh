@@ -14,6 +14,7 @@ cp -v "${BASE_DIR}"/../../share/templates/grub.cfg.local.oss "${TARGET_DIR}"/usr
 # copy linbofs files to target
 LINBOFS_DIR="${BASE_DIR}"/../../linbofs
 cp -v "${LINBOFS_DIR}"/etc/linbo-version "${TARGET_DIR}"/etc/
+cp -v "${LINBOFS_DIR}"/etc/rsync.exclude "${TARGET_DIR}"/etc/
 cp -v "${LINBOFS_DIR}"/etc/newdev-patch.bvi "${TARGET_DIR}"/etc/newdev-patch.bvi
 cp -v "${LINBOFS_DIR}"/bin/patch_registry "${TARGET_DIR}"/usr/bin/
 cp -v "${LINBOFS_DIR}"/usr/share/udhcpc/default.script "${TARGET_DIR}"/usr/share/udhcpc/default.script.d/linbo.sh
