@@ -7,8 +7,7 @@
 get_group(){
  local HOSTNAME=
  local GROUP=
- get_hostname "$1"
- HOSTNAME="$RET"
+ HOSTNAME="(get_hostname "$1")"
  [ -n "$HOSTNAME" ] || return 1
  GROUP="$(grep ^[a-zA-Z0-9] $WIMPORTDATA | awk -F\; '{ print $2 " " $3 }' | grep -i ^"$HOSTNAME " | tail -1 | awk '{ print $2 }' | tr A-Z a-z)"
  echo "$GROUP"
