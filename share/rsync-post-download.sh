@@ -34,13 +34,6 @@ EXT="$(echo $FILE | grep -o '\.[^.]*$')"
 # fetch host & domainname
 do_rsync_hostname
 
-echo "HOSTNAME: $RSYNC_HOST_NAME"
-echo "IP: $RSYNC_HOST_ADDR"
-echo "RSYNC_REQUEST: $RSYNC_REQUEST"
-echo "FILE: $FILE"
-echo "PIDFILE: $PIDFILE"
-echo "EXT: $EXT"
-
 # handle request for obsolete menu.lst
 if stringinstring "menu.lst." "$FILE"; then
  GROUP="${EXT/./}"
@@ -57,7 +50,8 @@ if [ "$FLAVOUR" = "oss" ]; then
 fi
 
 echo "HOSTNAME: $RSYNC_HOST_NAME"
-echo "ADDRESS: $RSYNC_HOST_ADDR"
+echo "IP: $RSYNC_HOST_ADDR"
+echo "RSYNC_REQUEST: $RSYNC_REQUEST"
 echo "FILE: $FILE"
 echo "PIDFILE: $PIDFILE"
 echo "EXT: $EXT"
