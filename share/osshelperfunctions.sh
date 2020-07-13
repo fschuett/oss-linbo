@@ -7,7 +7,7 @@
 get_group(){
  local HOSTNAME=
  local GROUP=
- HOSTNAME="(get_hostname "$1")"
+ HOSTNAME="$(get_hostname "$1")"
  [ -n "$HOSTNAME" ] || return 1
  GROUP="$(grep ^[a-zA-Z0-9] $WIMPORTDATA | awk -F\; '{ print $2 " " $3 }' | grep -i ^"$HOSTNAME " | tail -1 | awk '{ print $2 }' | tr A-Z a-z)"
  echo "$GROUP"
@@ -155,7 +155,7 @@ stringinstring() {
 }
 
 # test if variable is an integer
-isinteger () {
+isinteger() {
   [ $# -eq 1 ] || return 1
 
   case $1 in
@@ -198,26 +198,6 @@ get_pxe() {
   done
  fi
  echo "$res"
-}
-
-# check valid ip
-validip() {
-  if (expr match "$1"  '\(\([1-9]\|[1-9][0-9]\|1[0-9]\{2\}\|2[0-4][0-9]\|25[0-4]\)\.\([0-9]\|[1-9][0-9]\|1[0-9]\{2\}\|2[0-4][0-9]\|25[0-4]\)\.\([0-9]\|[1-9][0-9]\|1[0-9]\{2\}\|2[0-4][0-9]\|25[0-4]\)\.\([1-9]\|[1-9][0-9]\|1[0-9]\{2\}\|2[0-4][0-9]\|25[0-4]\)$\)') &> /dev/null; then
-    return 0
-  else
-    return 1
-  fi
-}
-
-# test valid mac address syntax
-validmac() {
-  [ -z "$1" ] && return 1
-  [ `expr length $1` -ne "17" ] && return 1
-  if (expr match "$1" '\([a-fA-F0-9-][a-fA-F0-9-]\+\(\:[a-fA-F0-9-][a-fA-F0-9-]\+\)\+$\)') &> /dev/null; then
-    return 0
-  else
-    return 1
-  fi
 }
 
 # print kernel options from start.conf
