@@ -2614,7 +2614,7 @@ syncl(){
   for i in /dev /dev/pts /proc /sys; do
    mount --bind "$i" /mnt"$i"
   done
-  chroot /mnt "$UPDATEGRUB"
+  chroot /mnt $UPDATEGRUB 1>>/tmp/linbo.log 2>>/tmp/linbo.log
   for i in /sys /proc /dev/pts /dev; do
    umount /mnt"$i"
   done
