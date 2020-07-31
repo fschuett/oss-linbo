@@ -1011,16 +1011,16 @@ print_grubpart(){
  echo "(hd${disknr},${partnr})"
 }
 
-# print efi bootnr of given item
+# print efi bootnr(s) of given item (naybe more than one, space separated list)
 # print_efi_bootnr item efiout
 print_efi_bootnr(){
  local item="$1"
  local efiout="$2"
  [ -z "$item" ] && return 1
  if [ -s "$efiout" ]; then
-  local bootnr="$(grep -iw "$item" "$efiout" | head -1 | awk -F\* '{ print $1 }' | sed 's|^Boot||')"
+  local bootnr="$(grep -iw "$item" "$efiout" | awk -F\* '{ print $1 }' | sed 's|^Boot||' | tr "\n" " " )"
  else
-  local bootnr="$(efibootmgr | grep -iw "$item" | head -1 | awk -F\* '{ print $1 }' | sed 's|^Boot||')"
+  local bootnr="$(efibootmgr | grep -iw "$item" | awk -F\* '{ print $1 }' | sed 's|^Boot||' | tr "\n" " " )"
  fi
  if [ -n "$bootnr" ]; then
   echo "$bootnr"
@@ -1058,7 +1058,7 @@ set_efibootnext(){
  local bootloaderid="$1"
  forcegrub && bootloaderid="grub"
  # get the bootnr
- local bootnextnr="$(print_efi_bootnr "$bootloaderid")"
+ local bootnextnr="$(print_efi_bootnr "$bootloaderid" | awk '{ print $1 }')"
  if [ -n "$bootnextnr" ]; then
   echo "Setze EFI BootNext: $bootnextnr." >> /tmp/linbo.log
   efibootmgr --bootnext "$bootnextnr" 2>> /tmp/linbo.log 1>> /tmp/linbo.log || return 1
@@ -1074,22 +1074,25 @@ set_efibootorder(){
  local i
  local nr
  local bootorder
+ local entries
+ 
  # fix bootnext in case of KVM virtualization
  if dmesg | grep -qw KVM; then
    local bootnextnr="$(grep -i ^bootnext "$efiout" | awk '{ print $2 }')"
-   [ -n "$bootnextnr" ] && bootorder="$bootnextnr"
+   [ -n "$bootnextnr" ] && entries="$bootnextnr "
  fi
  # searchstrings for grub (local boot) and efi network devices
  for i in grub ip4 ipv4 pxev4 "efi network" "usb nic" "onboard nic"; do
    nr="$(print_efi_bootnr "$i" "$efiout")"
    [ -z "$nr" ] && continue
-   if [ -n "$bootorder" ]; then
-    bootorder="$bootorder,$nr"
-   else
-    bootorder="$nr"
-   fi
+   entries="$entries$nr"
  done
- if [ -n "$bootorder" ]; then
+ if [ -n "$entries" ]; then
+  for b in $entries; do
+   if ! echo "$bootorder" | grep -qw "$b"; then bootorder="$bootorder$b "; fi
+  done
+  bootorder="${bootorder% }"
+  bootorder="${bootorder// /,}"
   echo "Setze EFI Bootreihenfolge: $bootorder."
   efibootmgr --bootorder "$bootorder" 2>> /tmp/linbo.log 1>> /tmp/linbo.log || return 1
  fi
