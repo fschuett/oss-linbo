@@ -123,7 +123,7 @@ get_hostgroup(){
 # return mac address from dhcp leases
 get_mac_dhcp(){
   validip "$1" || return
-  LANG=C grep -A10 "$1" /var/lib/dhcp/dhcpd.leases | grep "hardware ethernet" | awk '{ print $3 }' | awk -F\; '{ print $1 }' | tr A-Z a-z
+  LANG=C grep -A10 "$1" /var/lib/dhcp/db/dhcpd.leases | grep "hardware ethernet" | awk '{ print $3 }' | awk -F\; '{ print $1 }' | tr A-Z a-z
 }
 
 # return hostname by dhcp ip from devices.csv
