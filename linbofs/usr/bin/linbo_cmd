@@ -2822,8 +2822,9 @@ download_torrent(){
  local TIMEOUT=300
  [ -e /torrent-client.conf ] && . /torrent-client.conf
  [ -n "$DOWNLOAD_SLICE_SIZE" ] && SLICE_SIZE=$(($DOWNLOAD_SLICE_SIZE/1024))
- local pid="$(ps w | grep ctorrent | grep "$torrent" | grep -v grep | awk '{ print $1 }')"
- [ -n "$pid" ] && kill "$pid"
+ # can be more than one pid
+ local pids="$(ps w | grep ctorrent | grep "$torrent" | grep -v grep | awk '{ print $1 }')"
+ [ -n "$pids" ] && for p in $pids; do kill $p; done
  local OPTS="-I $ip -M $MAX_INITIATE -z $SLICE_SIZE"
  [ $MAX_UPLOAD_RATE -gt 0 ] && OPTS="$OPTS -U $MAX_UPLOAD_RATE"
  echo "Torrent-Optionen: $OPTS" >> /tmp/image.log
