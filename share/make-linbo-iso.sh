@@ -90,7 +90,7 @@ ISOHDPFX="$ISOLINUXSRC/isohdpfx.bin"
 [ -z "$SYSLINUXSRC" ] && SYSLINUXSRC="/usr/lib/syslinux/modules/bios"
 SYSLINUXMODS="config ifcpu64 ldlinux libcom32 libutil vesamenu"
 
-EFIIMGSIZE="128M"
+EFIIMGSIZE="135M"
 EFIMOUNT="/var/tmp/efi.$$"
 mkdir -p "$EFIMOUNT"
 
