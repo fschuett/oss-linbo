@@ -935,6 +935,27 @@ partition(){
   fi
  fi
 
+ # normalize_case fschuett
+ # convert to lower case with the exception of label values
+ # normalize_case line
+ normalize_case(){
+   local key="$(echo "${1%%=*}"| tr A-Z a-z)"
+   local value="${1#*=}"
+   if [ -z "$key" -o -z "$value" ]; then
+     echo "$1"|tr A-Z a-z
+   else
+     case "$key" in
+       label)
+         ;;
+       *)
+         value="$(echo "$value" | tr A-Z a-z)"
+         ;;
+     esac
+     echo "$key=$value"
+   fi
+   return 0
+ }
+ 
  # collect partition infos from start.conf and write them to table
  local dev
  local label
@@ -946,7 +967,7 @@ partition(){
  local table="/tmp/partitions"
  local RC="0"
  rm -f "$table"
- grep -v '^$\|^\s*\#' /start.conf | awk -F\# '{ print $1 }' | sed -e 's| ||g' -e 's|[ \t]||' | tr A-Z a-z | while read line; do
+ grep -v '^$\|^\s*\#' /start.conf | awk -F\# '{ print $1 }' | sed -e 's| ||g' -e 's|[ \t]||' | while read line; do
   if echo "$line" | grep -q ^'\['; then
    if [ -n "$dev" ]; then
     [ -z "$label" ] && label="-"
@@ -958,6 +979,7 @@ partition(){
    dev=""; label=""; id=""; fstype=""; size=""; bootable=""
    continue
   fi
+  line="$(normalize_case "$line")"
   case "$line" in dev=*|label=*|id=*|fstype=*|size=*|bootable=*) eval "$line" ;; esac
  done
 
