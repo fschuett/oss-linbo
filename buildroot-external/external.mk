@@ -29,7 +29,7 @@ BUSYBOX_KCONFIG_FIXUP_CMDS += $(call BUSYBOX_EXTERNAL_FIXUPS)
 
 # ath10k-qca9377 firmware for ipad 1S AMD9
 LINUX_FIRMWARE_FILES += ath10k/QCA9377/hw1.0/firmware-5.bin \
-			ath10k./QCA9377/hw1.0/board-2.bin \
-			ath10k./QCA9377/hw1.0/firmware-6.bin \
-			ath10k./QCA9377/hw1.0/board.bin
+			ath10k/QCA9377/hw1.0/board-2.bin \
+			ath10k/QCA9377/hw1.0/firmware-6.bin \
+			ath10k/QCA9377/hw1.0/board.bin
 LINUX_FIRMWARE_ALL_LICENSE_FILES += LICENCE.atheros_firmware
