@@ -33,3 +33,8 @@ LINUX_FIRMWARE_FILES += ath10k/QCA9377/hw1.0/firmware-5.bin \
 			ath10k/QCA9377/hw1.0/firmware-6.bin \
 			ath10k/QCA9377/hw1.0/board.bin
 LINUX_FIRMWARE_ALL_LICENSE_FILES += LICENCE.atheros_firmware
+
+# realtek rtw88_8822ce firmware for ipad 1S AMD6
+LINUX_FIRMWARE_FILES += rtw88/rtw8822c_fw.bin \
+			rtw88/rtw8822c_wow_fw.bin
+LINUX_FIRMWARE_ALL_LICENSE_FILES += LICENCE.rtlwifi_firmware.txt
