@@ -914,27 +914,6 @@ mk_parted(){
  return "$RC"
 }
 
-# Changed: All partitions start on cylinder boundaries.
-# partition dev1 size1 id1 bootable1 filesystem dev2 ...
-# When "$NOFORMAT" is set, format is skipped, otherwise all
-# partitions with known fstypes are formatted.
-partition(){
- [ -s /start.conf ] || return 1
- killalltorrents
- #echo -n "partition " ;  printargs "$@"
- # umount /cache if mounted
- if cat /proc/mounts | grep -q /cache; then
-  cd /
-  if ! umount /cache &>/dev/null; then
-   umount -l /cache &>/dev/null
-   sleep "$WAIT"
-   if cat /proc/mounts | grep -q /cache; then
-    echo "Kann /cache nicht unmounten." >&2
-    return 1
-   fi
-  fi
- fi
-
  # normalize_case fschuett
  # convert to lower case with the exception of label values
  # normalize_case line
@@ -956,6 +935,27 @@ partition(){
    return 0
  }
  
+# Changed: All partitions start on cylinder boundaries.
+# partition dev1 size1 id1 bootable1 filesystem dev2 ...
+# When "$NOFORMAT" is set, format is skipped, otherwise all
+# partitions with known fstypes are formatted.
+partition(){
+ [ -s /start.conf ] || return 1
+ killalltorrents
+ #echo -n "partition " ;  printargs "$@"
+ # umount /cache if mounted
+ if cat /proc/mounts | grep -q /cache; then
+  cd /
+  if ! umount /cache &>/dev/null; then
+   umount -l /cache &>/dev/null
+   sleep "$WAIT"
+   if cat /proc/mounts | grep -q /cache; then
+    echo "Kann /cache nicht unmounten." >&2
+    return 1
+   fi
+  fi
+ fi
+
  # collect partition infos from start.conf and write them to table
  local dev
  local label
