@@ -914,27 +914,27 @@ mk_parted(){
  return "$RC"
 }
 
- # normalize_case fschuett
- # convert to lower case with the exception of label values
- # normalize_case line
- normalize_case(){
-   local key="$(echo "${1%%=*}"| tr A-Z a-z)"
-   local value="${1#*=}"
-   if [ -z "$key" -o -z "$value" ]; then
-     echo "$1"|tr A-Z a-z
-   else
-     case "$key" in
-       label)
-         ;;
-       *)
-         value="$(echo "$value" | tr A-Z a-z)"
-         ;;
-     esac
-     echo "$key=$value"
-   fi
-   return 0
- }
- 
+# normalize_case fschuett
+# convert to lower case with the exception of label values
+# normalize_case line
+normalize_case(){
+  local key="$(echo "${1%%=*}"| tr A-Z a-z)"
+  local value="${1#*=}"
+  if [ -z "$key" -o -z "$value" ]; then
+    echo "$1"|tr A-Z a-z
+  else
+    case "$key" in
+      label)
+        ;;
+      *)
+        value="$(echo "$value" | tr A-Z a-z)"
+        ;;
+    esac
+    echo "$key=$value"
+  fi
+  return 0
+}
+
 # Changed: All partitions start on cylinder boundaries.
 # partition dev1 size1 id1 bootable1 filesystem dev2 ...
 # When "$NOFORMAT" is set, format is skipped, otherwise all
