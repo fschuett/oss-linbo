@@ -173,6 +173,9 @@ Authors:
 %build
 export FORCE_UNSAFE_CONFIGURE=1
 export BR2_DL_DIR=%{_sourcedir}
+
+# use actual build version for linbo
+echo "LINBO %{version}-%{release}" >linbofs/etc/linbo-version
 make -f rpm/Makefile build
 
 %install
