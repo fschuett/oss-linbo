@@ -1207,7 +1207,11 @@ mount_boot(){
     return 1
    fi
   fi
-  mkdir -p /boot/efi/EFI
+  # fschuett, this can fail, if mount is ro
+  if ! mkdir -p /boot/efi/EFI; then
+    umount_boot
+    return 1
+  fi
  fi
 }
 
