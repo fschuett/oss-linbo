@@ -147,18 +147,27 @@ BuildRequires:	python-argparse
 %else
 BuildRequires:	gcc gcc-32bit gcc-c++
 %endif
+%if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
 BuildRequires:  oss-base
+Requires:       oss-base
+%else
+BuildRequires:  cranix-base
+Requires:       cranix-base
+%endif
 BuildRequires:	flex gettext git freetype2-devel libtool 
 BuildRequires:	libopenssl-devel ncurses-devel python rsync texinfo unzip wget efont-unicode
 BuildRequires:  cmake quilt
 BuildRequires:	make >= 4.0
 
 BuildRoot:    %{_tmppath}/%{name}-root
-Requires:	oss-base logrotate wakeonlan BitTorrent BitTorrent-curses syslinux6 xorriso >= 1.2.4
+Requires:	logrotate wakeonlan BitTorrent BitTorrent-curses syslinux6 xorriso >= 1.2.4
 Requires(post):	%insserv_prereq %fillup_prereq dropbear pwgen
 
+%if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
 PreReq: %insserv_prereq oss-base
-
+%else
+PreReq: %insserv_prereq cranix-base
+%endif
 
 %description
 This package provides a boot environment based on linux installation and boot environment (linbo) for cloning clients.
