@@ -1,0 +1,12 @@
+[Unit]
+Description=Starts a multicast session for each LINBO image
+After=network.target ldap.service
+
+[Service]
+ExecStart=/usr/sbin/linbo-multicast start
+ExecStop=/usr/sbin/linbo-multicast stop
+Type=forking
+PIDFILE=/var/run/linbo-multicast.pid
+
+[Install]
+WantedBy=multi-user.target

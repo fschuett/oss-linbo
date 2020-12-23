@@ -1,0 +1,196 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:          linbo-multicast
+# Required-Start:    $network $local_fs ldap
+# Required-Stop:     $network $local_fs
+# Should-Start:      
+# Should-Stop:       
+# Default-Start:     3 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts per image multicast sessions
+# Description:       Starts a multicast session for each LINBO image
+### END INIT INFO
+
+# thomas@linuxmuster.net
+# GPL v3
+# 20160917
+
+#set -e
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DESC="Multicast session for"
+NAME=linbo-multicast
+PIDFILE=/var/run/$NAME.pid
+SCRIPTNAME=/usr/sbin/linbo-multicast
+
+# defaults
+START_MULTICAST=no
+PORTBASE=9000
+MINCLIENTS=16
+MINSECONDS=60
+MAXSECONDS=90
+MULTICASTLIST=/srv/tftp/multicast.list
+INTERFACE=eth0
+SERVERIP=10.0.0.2
+
+# read necessary functions and constants
+source /etc/linbo/linbo.conf || exit 1
+source $ENVDEFAULTS || exit 1
+source $LINBOSHAREDIR/helperfunctions.sh || exit 1
+source /etc/sysconfig/linbo-multicast || exit 1
+[ "$(echo $START_MULTICAST | tr a-z A-Z)" = "YES" ] || exit 0
+DAEMON=$LINBOSHAREDIR/linbo-mcasthelper.sh
+
+# Gracefully exit if the package has been removed.
+test -x $DAEMON || exit 0
+
+# read cmdline
+action="$1"
+images="$2"
+force="$3"
+
+source /lib/lsb/init-functions
+
+# reading internal interface name
+if [ -s /etc/sysconfig/dhcpd ]; then
+ . /etc/sysconfig/dhcpd
+ [ -n "${DHCPD_INTERFACE}" ] && INTERFACE=${DHCPD_INTERFACE}
+fi
+
+# reading server ip
+if [ -s /etc/sysconfig/cranix ]; then
+ . /etc/sysconfig/cranix
+ SERVERIP=${CRANIX_SERVER}
+fi
+
+create_multicast_list() {
+  echo -n "Creating multicast.list"
+  [ -e "$MULTICASTLIST" ] && mv $MULTICASTLIST $MULTICASTLIST.old
+  p=$PORTBASE
+  for i in $images; do
+    echo "$i $SERVERIP:$p" >> $MULTICASTLIST
+    let "p+=2"
+  done
+  echo .
+}
+
+images="$(active_images)"
+
+start() {
+  if [ -z "$images" ]; then
+   log_warning_msg "There exist no images yet!"
+   rm -f "$MULTICASTLIST"
+   return 1
+  fi
+
+  create_multicast_list
+  cd $LINBODIR
+
+  while read file serverport relax; do
+   port="${serverport##*:}"
+   if [ -s "$file" ]; then
+    # start daemon stuff
+    #[ "$port" = "$PORTBASE" ] || echo
+    echo -en "  - Starting $DESC" "$file"
+
+    if screen -list | grep -qw "$file.mcast"; then
+     log_warning_msg "Multicast for $file is already running. Skipped!"
+     continue
+    fi
+
+    LOGFILE="$LINBODIR/log/${file}_mcast.log"
+
+    screen -dmS "$file.mcast" "$DAEMON" "$INTERFACE" "$port" "$MINCLIENTS" "$MINSECONDS" "$MAXSECONDS" "$file" "$LOGFILE"
+    sleep 1
+    if ! screen -list | grep -qw "$file.mcast"; then
+     echo " failed!"
+    else
+     RC=0
+     echo " OK."
+    fi
+
+   fi
+  done < "$MULTICASTLIST"
+  return 0
+}
+
+stop(){
+
+ local i=""
+ local pid=""
+ for i in $images; do
+  if screen -list | grep -qw "$i.mcast"; then
+    echo -n "  - Stopping $DESC" "$i"
+    pid="$(screen -list | grep -w "$i.mcast" | awk -F\. '{ print $1 }' | awk '{ print $1 }')"
+    kill $pid ; RC="$?"
+    if [ "$RC" = "0" ]; then
+      echo " OK."
+    else
+      echo " failed($RC)!"
+    fi
+  fi
+ done
+ local pids="$(screen -list | grep mcast | awk -F\. '{ print $1 }' | awk '{ print $1 }')"
+ if [ -n "$pids" ]; then
+  echo -n "Sending all remaining linbo-multicast processes the TERM signal."
+  kill $pids ; RC="$?"
+  if [ "$RC" = "0" ]; then
+    return 0
+  else
+    return 1
+  fi
+ fi
+}
+
+status(){
+   local line=""
+   local pid=""
+   local screen=""
+   local status=""
+   local c=0
+   local d=""
+   screen -wipe | grep [ioy][nos][cop].mcast | while read line; do
+    let c+=1
+    pid="$(echo $line | awk -F\. '{ print $1 }' | awk '{ print $1 }')"
+    screen="$(echo $line | awk '{ print $1 }')"
+    screen="${screen#*.}"
+    status="$(echo $line | awk '{ print $2 }')"
+    d=""
+    [ $c -lt 100 ] && d=" "
+    [ $c -lt 10 ] && d="  "
+    echo -e "  - $d$c\t$pid\t$screen\t$status"
+   done
+}
+
+case "$action" in
+ start) 
+   	echo "Starting $DESC" "$NAME"
+    start 
+	rc_status -v
+    ;;
+  stop)
+  	echo "Stopping $DESC" "$NAME"
+	stop
+	rc_status -v
+	;;
+  restart|force-reload)
+  	echo "Restarting $DESC" "$NAME"
+	stop
+	sleep 1
+	start
+	rc_status -v
+	;;
+  status)
+	echo "Checking $DESC" "$NAME"
+	status
+	checkproc $DAEMON
+	rc_status -v
+	;;
+ *)
+  echo "Usage: $0 {start|stop|restart|status}" >&2
+  exit 1 ;;
+esac
+
+exit 0
+

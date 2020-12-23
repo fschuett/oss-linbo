@@ -1,0 +1,12 @@
+[Unit]
+Description=Starts a bittorrent tracker, which aids bittorrent clients by locating other clients.
+After=network.target ldap.service
+
+[Service]
+ExecStart=/usr/sbin/bittorrent start
+ExecStop=/usr/sbin/bittorrent stop
+Type=forking
+PIDFILE=/var/run/bittorrent.pid
+
+[Install]
+WantedBy=multi-user.target

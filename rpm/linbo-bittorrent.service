@@ -1,0 +1,12 @@
+[Unit]
+Description=Starts a complete bittorrent download for LINBO images
+After=network.target ldap.service
+
+[Service]
+ExecStart=/usr/sbin/linbo-bittorrent start
+ExecStop=/usr/sbin/linbo-bittorrent stop
+Type=forking
+PIDFILE=/var/run/linbo-bittorrent.pid
+
+[Install]
+WantedBy=multi-user.target
