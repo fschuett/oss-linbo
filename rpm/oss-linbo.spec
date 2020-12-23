@@ -306,11 +306,17 @@ fi
 
 %post
 # setup rights
-if [ -e "/etc/sysconfig/schoolserver" ]
+%if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
+SERVERCONFIG=/etc/sysconfig/schoolserver
+%else
+SERVERCONFIG=/etc/sysconfig/cranix
+%endif
+if [ -e "$SERVERCONFIG" ]
 then
    DATE=`date +%Y-%m-%d:%H-%M`
    SCHOOL_SERVER=10.0.0.2
-   . /etc/sysconfig/schoolserver
+   . "$SERVERCONFIG"
+   [ -n "$CRANIX_SERVER" ] && SCHOOL_SERVER=$CRANIX_SERVER
    LINBODIR=/srv/tftp
    LINBOSHAREDIR=/usr/share/linbo
    [ -e /etc/linbo/linbo.conf ] && . /etc/linbo/linbo.conf

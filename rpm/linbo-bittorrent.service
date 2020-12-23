@@ -3,10 +3,13 @@ Description=Starts a complete bittorrent download for LINBO images
 After=network.target ldap.service
 
 [Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=/etc/sysconfig/linbo-bittorrent
+ExecReload=/usr/sbin/linbo-bittorrent reload
 ExecStart=/usr/sbin/linbo-bittorrent start
 ExecStop=/usr/sbin/linbo-bittorrent stop
-Type=forking
-PIDFILE=/var/run/linbo-bittorrent.pid
+PIDFile=/var/run/linbo-bittorrent.pid
 
 [Install]
 WantedBy=multi-user.target

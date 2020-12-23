@@ -130,11 +130,11 @@ start(){
  done
 
  # restart tracker
- /etc/init.d/bittorrent stop
+ systemctl stop bittorrent
  sleep 1
  killall bttrack.bittorrent &> /dev/null
  sleep 1
- /etc/init.d/bittorrent start
+ systemctl start bittorrent
  sleep 1
  # start torrents
  for i in $images; do

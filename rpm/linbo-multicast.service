@@ -3,10 +3,13 @@ Description=Starts a multicast session for each LINBO image
 After=network.target ldap.service
 
 [Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=/etc/sysconfig/linbo-multicast
+ExecReload=/usr/sbin/lino-multicast reload
 ExecStart=/usr/sbin/linbo-multicast start
 ExecStop=/usr/sbin/linbo-multicast stop
-Type=forking
-PIDFILE=/var/run/linbo-multicast.pid
+PIDFile=/var/run/linbo-multicast.pid
 
 [Install]
 WantedBy=multi-user.target
