@@ -3,6 +3,11 @@
 # Copyright (c) 2016 Frank Schütte <fschuett@gymhim.de> Hildesheim, Germany.  All rights reserved.
 #
 # don't clean build dir
+%if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
+%define osstype oss
+%else
+%define osstype cranix
+%endif
 Name:		oss-linbo
 Summary:	OSS linux installation and boot environment
 Version:	2.3.63
@@ -147,13 +152,7 @@ BuildRequires:	python-argparse
 %else
 BuildRequires:	gcc gcc-32bit gcc-c++
 %endif
-%if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
-BuildRequires:  oss-base
-Requires:       oss-base
-%else
-BuildRequires:  cranix-base
-Requires:       cranix-base
-%endif
+Requires:       %{osstype}-base
 BuildRequires:	flex gettext git freetype2-devel libtool 
 BuildRequires:	libopenssl-devel ncurses-devel python rsync texinfo unzip wget efont-unicode
 BuildRequires:  cmake quilt
@@ -163,11 +162,7 @@ BuildRoot:    %{_tmppath}/%{name}-root
 Requires:	logrotate wakeonlan BitTorrent BitTorrent-curses syslinux6 xorriso >= 1.2.4
 Requires(post):	%insserv_prereq %fillup_prereq dropbear pwgen
 
-%if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
-PreReq: %insserv_prereq oss-base
-%else
-PreReq: %insserv_prereq cranix-base
-%endif
+PreReq: %insserv_prereq %{osstype}-base
 
 %description
 This package provides a boot environment based on linux installation and boot environment (linbo) for cloning clients.
