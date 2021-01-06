@@ -31,103 +31,100 @@ Source8:        binutils-2.32.tar.xz
 Source9:        bison-3.4.2.tar.xz
 Source10:       busybox-1.31.1.tar.bz2
 Source11:       bvi-1.4.0.src.tar.gz
-Source12:       Cloop-5.1.zip
-Source13:       ctorrent-dnh3.3.2.tar.gz
-Source14:       dosfstools-4.1.tar.xz
-Source15:       dropbear-2019.78.tar.bz2
-Source16:       e2fsprogs-1.45.6.tar.xz
-Source17:       efibootmgr-15.tar.gz
-Source18:       efivar-35.tar.gz
-Source19:       ethtool-5.4.tar.xz
-Source20:       eudev-3.2.9.tar.gz
-Source21:       expat-2.2.9.tar.xz
-Source22:       fakeroot_1.20.2.orig.tar.bz2
-Source23:       flex-2.6.4.tar.gz
-Source24:       freetype-2.10.1.tar.xz
-Source25:       gawk-5.1.0.tar.xz
-Source26:       gcc-8.4.0.tar.xz
-Source27:       gettext-0.20.1.tar.xz
-Source28:       gettext-tiny-adaa9c64921e80f2b8dd3610ffb508618b9204f3.tar.gz
-Source29:       glibc-2.30-67-g4748829f86a458b76642f3e98b1d80f7b868e427.tar.gz
-Source30:       gmp-6.1.2.tar.xz
-Source31:       gperf-3.1.tar.gz
-Source32:       gptfdisk-1.0.4.tar.gz
-Source33:       kmod-27.tar.xz
-Source34:       libevdev-1.9.0.tar.xz
-Source35:       libffi-3.3.tar.gz
-Source36:       fuse-2.9.9.tar.gz
-Source37:       libiconv-1.15.tar.gz
-Source38:       libinput-1.15.5.tar.xz
-Source39:       libpng-1.6.37.tar.xz
-Source40:       libtool-2.4.6.tar.xz
-Source41:       libxcb-1.14.tar.xz
-Source42:       libxkbcommon-0.10.0.tar.xz
-Source43:       libxml2-2.9.10.tar.gz
-Source44:       libxslt-1.1.34.tar.gz
-Source45:       zlib-1.2.11.tar.xz
-Source46:       linux-firmware-20200122.tar.gz
-Source47:       linux-5.6.15.tar.xz
-Source48:       m4-1.4.18.tar.xz
-Source49:       meson-0.54.2.tar.gz
-Source50:       mpc-1.1.0.tar.gz
-Source51:       mpfr-4.0.2.tar.xz
-Source52:       ms-sys-2.4.1.tar.gz
-Source53:       mtdev-1.1.6.tar.bz2
-Source54:       musl-1.2.0.tar.gz
-Source55:       ncurses-6.1-20190609-patch.sh.bz2
-Source56:       ncurses-6.1-20190615.patch.gz
-Source57:       ncurses-6.1-20190623.patch.gz
-Source58:       ncurses-6.1-20190630.patch.gz
-Source59:       ncurses-6.1-20190706.patch.gz
-Source60:       ncurses-6.1-20190713.patch.gz
-Source61:       ncurses-6.1-20190720.patch.gz
-Source62:       ncurses-6.1-20190727.patch.gz
-Source63:       ncurses-6.1-20190728.patch.gz
-Source64:       ncurses-6.1-20190803.patch.gz
-Source65:       ncurses-6.1-20190810.patch.gz
-Source66:       ncurses-6.1-20190817.patch.gz
-Source67:       ncurses-6.1-20190824.patch.gz
-Source68:       ncurses-6.1-20190831.patch.gz
-Source69:       ncurses-6.1-20190907.patch.gz
-Source70:       ncurses-6.1-20190914.patch.gz
-Source71:       ncurses-6.1-20190921.patch.gz
-Source72:       ncurses-6.1-20190928.patch.gz
-Source73:       ncurses-6.1-20191005.patch.gz
-Source74:       ncurses-6.1-20191012.patch.gz
-Source75:       ncurses-6.1-20191015.patch.gz
-Source76:       ncurses-6.1-20191019.patch.gz
-Source77:       ncurses-6.1-20191026.patch.gz
-Source78:       ncurses-6.1-20191102.patch.gz
-Source79:       ncurses-6.1-20191109.patch.gz
-Source80:       ncurses-6.1-20191116.patch.gz
-Source81:       ncurses-6.1-20191123.patch.gz
-Source82:       ncurses-6.1-20191130.patch.gz
-Source83:       ncurses-6.1-20191207.patch.gz
-Source84:       ncurses-6.1-20191214.patch.gz
-Source85:       ncurses-6.1-20191221.patch.gz
-Source86:       ncurses-6.1-20191228.patch.gz
-Source87:       ncurses-6.1-20200104.patch.gz
-Source88:       ncurses-6.1-20200111.patch.gz
-Source89:       ncurses-6.1-20200118.patch.gz
-Source90:       ncurses-6.1.tar.gz
-Source91:       ninja-1.10.0.tar.gz
-Source92:       ntfs-3g_ntfsprogs-2017.3.23.tgz
-Source93:       parted-3.3.tar.xz
-Source94:       patchelf-0.9.tar.bz2
-Source95:       pcre2-10.34.tar.bz2
-Source96:       pkgconf-1.6.1.tar.xz
-Source97:       popt-1.16.tar.gz
-Source98:       Python-3.8.2.tar.xz
-Source99:       Python-2.7.18.tar.xz
-Source100:      setuptools-44.0.0.zip
-Source101:      qtbase-everywhere-src-5.14.2.tar.xz
-Source102:      chntpw-source-140201.zip
-Source103:      reiserfsprogs-3.6.27.tar.xz
-Source104:      rsync-3.1.3.tar.gz
-Source105:      tar-1.29.cpio.gz
-Source106:      grub2_2.02-2ubuntu8.debian.tar.xz
-Source107:      grub2_2.02.orig.tar.xz
-Source108:      uClibc-ng-1.0.34.tar.xz
+Source12:       chntpw-source-140201.zip
+Source13:       Cloop-5.1.zip
+Source14:       ctorrent-dnh3.3.2.tar.gz
+Source15:       dosfstools-4.1.tar.xz
+Source16:       dropbear-2019.78.tar.bz2
+Source17:       e2fsprogs-1.45.6.tar.xz
+Source18:       efibootmgr-15.tar.gz
+Source19:       efivar-37.tar.gz
+Source20:       ethtool-5.4.tar.xz
+Source21:       eudev-3.2.9.tar.gz
+Source22:       expat-2.2.9.tar.xz
+Source23:       fakeroot_1.20.2.orig.tar.bz2
+Source24:       flex-2.6.4.tar.gz
+Source25:       freetype-2.10.1.tar.xz
+Source26:       gawk-5.1.0.tar.xz
+Source27:       gcc-8.4.0.tar.xz
+Source28:       gettext-0.20.1.tar.xz
+Source29:       gettext-tiny-adaa9c64921e80f2b8dd3610ffb508618b9204f3.tar.gz
+Source30:       glibc-2.30-67-g4748829f86a458b76642f3e98b1d80f7b868e427.tar.gz
+Source31:       gmp-6.1.2.tar.xz
+Source32:       gperf-3.1.tar.gz
+Source33:       gptfdisk-1.0.4.tar.gz
+Source34:       grub2_2.02-2ubuntu8.debian.tar.xz
+Source35:       grub2_2.02.orig.tar.xz
+Source36:       kmod-27.tar.xz
+Source37:       libevdev-1.9.0.tar.xz
+Source38:       libffi-3.3.tar.gz
+Source39:       fuse-2.9.9.tar.gz
+Source40:       libinput-1.15.5.tar.xz
+Source41:       libpng-1.6.37.tar.xz
+Source42:       libtool-2.4.6.tar.xz
+Source43:       libxcb-1.14.tar.xz
+Source44:       libxkbcommon-0.10.0.tar.xz
+Source45:       libxml2-2.9.10.tar.gz
+Source46:       libxslt-1.1.34.tar.gz
+Source47:       zlib-1.2.11.tar.xz
+Source48:       linux-firmware-20200122.tar.gz
+Source49:       linux-5.6.15.tar.xz
+Source50:       m4-1.4.18.tar.xz
+Source51:       meson-0.54.2.tar.gz
+Source52:       mpc-1.1.0.tar.gz
+Source53:       mpfr-4.0.2.tar.xz
+Source54:       ms-sys-2.4.1.tar.gz
+Source55:       mtdev-1.1.6.tar.bz2
+Source56:       ncurses-6.1-20190609-patch.sh.bz2
+Source57:       ncurses-6.1-20190615.patch.gz
+Source58:       ncurses-6.1-20190623.patch.gz
+Source59:       ncurses-6.1-20190630.patch.gz
+Source60:       ncurses-6.1-20190706.patch.gz
+Source61:       ncurses-6.1-20190713.patch.gz
+Source62:       ncurses-6.1-20190720.patch.gz
+Source63:       ncurses-6.1-20190727.patch.gz
+Source64:       ncurses-6.1-20190728.patch.gz
+Source65:       ncurses-6.1-20190803.patch.gz
+Source66:       ncurses-6.1-20190810.patch.gz
+Source67:       ncurses-6.1-20190817.patch.gz
+Source68:       ncurses-6.1-20190824.patch.gz
+Source69:       ncurses-6.1-20190831.patch.gz
+Source70:       ncurses-6.1-20190907.patch.gz
+Source71:       ncurses-6.1-20190914.patch.gz
+Source72:       ncurses-6.1-20190921.patch.gz
+Source73:       ncurses-6.1-20190928.patch.gz
+Source74:       ncurses-6.1-20191005.patch.gz
+Source75:       ncurses-6.1-20191012.patch.gz
+Source76:       ncurses-6.1-20191015.patch.gz
+Source77:       ncurses-6.1-20191019.patch.gz
+Source78:       ncurses-6.1-20191026.patch.gz
+Source79:       ncurses-6.1-20191102.patch.gz
+Source80:       ncurses-6.1-20191109.patch.gz
+Source81:       ncurses-6.1-20191116.patch.gz
+Source82:       ncurses-6.1-20191123.patch.gz
+Source83:       ncurses-6.1-20191130.patch.gz
+Source84:       ncurses-6.1-20191207.patch.gz
+Source85:       ncurses-6.1-20191214.patch.gz
+Source86:       ncurses-6.1-20191221.patch.gz
+Source87:       ncurses-6.1-20191228.patch.gz
+Source88:       ncurses-6.1-20200104.patch.gz
+Source89:       ncurses-6.1-20200111.patch.gz
+Source90:       ncurses-6.1-20200118.patch.gz
+Source91:       ncurses-6.1.tar.gz
+Source92:       ninja-1.10.0.tar.gz
+Source93:       ntfs-3g_ntfsprogs-2017.3.23.tgz
+Source94:       parted-3.3.tar.xz
+Source95:       patchelf-0.9.tar.bz2
+Source96:       pcre2-10.34.tar.bz2
+Source97:       pkgconf-1.6.1.tar.xz
+Source98:       popt-1.16.tar.gz
+Source99:       Python-3.8.2.tar.xz
+Source100:      Python-2.7.18.tar.xz
+Source101:      setuptools-44.0.0.zip
+Source102:      qtbase-everywhere-src-5.14.2.tar.xz
+Source104:      reiserfsprogs-3.6.27.tar.xz
+Source105:      rsync-3.1.3.tar.gz
+Source106:      tar-1.29.cpio.gz
 Source109:      udpcast-20120424.tar.gz
 Source110:      util-linux-2.35.1.tar.xz
 Source111:      ux500-firmware_1.1.3-6linaro1.tar.gz
@@ -147,21 +144,17 @@ Source124:      xz-5.2.4.tar.bz2
 Source125:      zd1211-firmware-1.4.tar.bz2
 
 BuildRequires:	unzip
-BuildRequires:  glibc glibc-32bit glibc-devel glibc-devel-32bit
+BuildRequires:	glibc glibc-32bit glibc-devel glibc-devel-32bit
 BuildRequires:	autoconf >= 2.69 automake >= 1.15 bc bison cpio
-%if 0%{?sle_version} == 120300 && 0%{?is_opensuse}
 BuildRequires:	gcc gcc-32bit gcc-c++
-BuildRequires:	python-argparse
-%else
-BuildRequires:	gcc gcc-32bit gcc-c++
-%endif
-Requires:       %{osstype}-base
 BuildRequires:	flex gettext git freetype2-devel libtool 
 BuildRequires:	libopenssl-devel ncurses-devel python rsync texinfo unzip wget efont-unicode
-BuildRequires:  cmake quilt
+BuildRequires:	cmake quilt
 BuildRequires:	make >= 4.0
+BuildRequires:	systemd-rpm-macros
 
 BuildRoot:    %{_tmppath}/%{name}-root
+Requires:	%{osstype}-base
 Requires:	logrotate wakeonlan BitTorrent BitTorrent-curses syslinux6 xorriso >= 1.2.4
 Requires(post):	%insserv_prereq %fillup_prereq dropbear pwgen
 
@@ -242,10 +235,10 @@ ln -sf ../../etc/init.d/linbo-multicast %{buildroot}/usr/sbin/rclinbo-multicast
 install rpm/bittorrent.init %{buildroot}/etc/init.d/bittorrent
 ln -sf ../../etc/init.d/bittorrent %{buildroot}/usr/sbin/rcbittorrent
 %else
-mkdir -p %{buildroot}/usr/lib/systemd/system
-install rpm/linbo-bittorrent.service %{buildroot}/usr/lib/systemd/system/linbo-bittorrent.service
-install rpm/linbo-multicast.service %{buildroot}/usr/lib/systemd/system/linbo-multicast.service
-install rpm/bittorrent.service %{buildroot}/usr/lib/systemd/system/bittorrent.service
+mkdir -p %{buildroot}%{_unitdir}
+install rpm/linbo-bittorrent.service %{buildroot}%{_unitdir}/linbo-bittorrent.service
+install rpm/linbo-multicast.service %{buildroot}%{_unitdir}/linbo-multicast.service
+install rpm/bittorrent.service %{buildroot}%{_unitdir}/bittorrent.service
 mkdir -p %{buildroot}/usr/sbin
 install rpm/linbo-bittorrent %{buildroot}/usr/sbin/linbo-bittorrent
 ln -sf linbo-bittorrent %{buildroot}/usr/sbin/rclinbo-bittorrent
@@ -301,6 +294,10 @@ install share/templates/rsyncd.secrets.oss %{buildroot}/etc/rsyncd.secrets.in
 if ! grep -qw ^bittorrent /etc/passwd; then
     useradd -r -g nogroup -c "BitTorrent User" -d /var/lib/bittorrent -s /bin/false bittorrent
 fi
+%if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
+%else
+%service_add_pre bittorrent.service linbo-bittorrent.service linbo-multicast.service
+%endif
 
 %post
 # setup rights
@@ -367,15 +364,28 @@ then
 fi
 %fillup_only
 %{fillup_only -n linbofs}
+%if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
 %{fillup_and_insserv -yn bittorrent bittorrent}
 %{fillup_and_insserv -yn linbo-bittorrent linbo-bittorrent}
 %{fillup_and_insserv -f -y linbo-multicast}
+%else
+%{fillup_only -n bittorrent}
+%{fillup_only -n linbo-bittorrent}
+%service_add_post bittorrent.service linbo-bittorrent.service linbo-multicast.service
+%endif
 systemctl enable rsyncd
 systemctl start rsyncd
 
+%preun
+%service_del_preun bittorrent.service linbo-bittorrent.service linbo-multicast.service
+
 %postun
+%if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
 %restart_on_update bittorrent linbo-bittorrent linbo-multicast rsyncd
 %insserv_cleanup
+%else
+%service_del_postun bittorrent.service linbo-bittorrent.service linbo-multicast.service
+%endif
 
 %files
 %defattr(-,root,root)
@@ -411,13 +421,13 @@ systemctl start rsyncd
 /etc/init.d/bittorrent
 /usr/sbin/rcbittorrent
 %else
-/usr/lib/systemd/system/linbo-bittorrent.service
+%_unitdir/linbo-bittorrent.service
 /usr/sbin/linbo-bittorrent
 /usr/sbin/rclinbo-bittorrent
-/usr/lib/systemd/system/linbo-multicast.service
+%_unitdir/linbo-multicast.service
 /usr/sbin/linbo-multicast
 /usr/sbin/rclinbo-multicast
-/usr/lib/systemd/system/bittorrent.service
+%_unitdir/bittorrent.service
 /usr/sbin/bittorrent
 /usr/sbin/rcbittorrent
 %endif
