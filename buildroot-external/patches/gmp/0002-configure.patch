@@ -1,0 +1,44 @@
+--- gmp-6.1.99-20180106/configure	2018-01-06 06:20:09.000000000 +0100
++++ gmp-6.1.99-20190417/configure	2019-04-17 02:17:50.054807098 +0200
+@@ -6765,6 +6765,7 @@
+
+ #if ! defined (__cplusplus)
+ #include <stdlib.h>
++#include <string.h>
+ void
+ lshift_com (rp, up, n, cnt)
+   unsigned long *rp;
+@@ -6796,9 +6797,10 @@
+   long i;
+   for (i = 0; i < 88 + 1; i++)
+     a[i] = ~0L;
+-  r = calloc (10000, sizeof (unsigned long));
++  r = malloc (10000 * sizeof (unsigned long));
++  memset (r, 0x3F, 10000 * sizeof (unsigned long));
+   r2 = r;
+-  for (i = 0; i < 528; i += 23)
++  for (i = 0; i < 528; i += 22)
+     {
+       lshift_com (r2, a,
+ 		  i / (8 * sizeof (unsigned long)) + 1,
+@@ -8383,6 +8385,7 @@
+
+ #if ! defined (__cplusplus)
+ #include <stdlib.h>
++#include <string.h>
+ void
+ lshift_com (rp, up, n, cnt)
+   unsigned long *rp;
+@@ -8414,9 +8417,10 @@
+   long i;
+   for (i = 0; i < 88 + 1; i++)
+     a[i] = ~0L;
+-  r = calloc (10000, sizeof (unsigned long));
++  r = malloc (10000 * sizeof (unsigned long));
++  memset (r, 0x3F, 10000 * sizeof (unsigned long));
+   r2 = r;
+-  for (i = 0; i < 528; i += 23)
++  for (i = 0; i < 528; i += 22)
+     {
+       lshift_com (r2, a,
+ 		  i / (8 * sizeof (unsigned long)) + 1,

@@ -1,0 +1,23 @@
+--- gmp-6.1.99-20180106/acinclude.m4	2018-01-06 06:20:02.000000000 +0100
++++ gmp-6.1.99-20190417/acinclude.m4	2019-04-17 00:14:01.434958684 +0200
+@@ -710,6 +710,7 @@
+
+ #if ! defined (__cplusplus)
+ #include <stdlib.h>
++#include <string.h>
+ void
+ lshift_com (rp, up, n, cnt)
+   unsigned long *rp;
+@@ -741,9 +742,10 @@
+   long i;
+   for (i = 0; i < 88 + 1; i++)
+     a[i] = ~0L;
+-  r = calloc (10000, sizeof (unsigned long));
++  r = malloc (10000 * sizeof (unsigned long));
++  memset (r, 0x3F, 10000 * sizeof (unsigned long));
+   r2 = r;
+-  for (i = 0; i < 528; i += 23)
++  for (i = 0; i < 528; i += 22)
+     {
+       lshift_com (r2, a,
+ 		  i / (8 * sizeof (unsigned long)) + 1,
