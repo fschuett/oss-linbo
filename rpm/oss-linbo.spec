@@ -143,6 +143,7 @@ Source123:      util-macros-1.19.2.tar.bz2
 Source124:      xz-5.2.4.tar.bz2
 Source125:      zd1211-firmware-1.4.tar.bz2
 
+BuildRequires:	chrpath
 BuildRequires:	unzip
 BuildRequires:	glibc glibc-32bit glibc-devel glibc-devel-32bit
 BuildRequires:	autoconf >= 2.69 automake >= 1.15 bc bison cpio
@@ -177,6 +178,9 @@ export BR2_DL_DIR=%{_sourcedir}
 # use actual build version for linbo
 echo "LINBO %{version}-%{release}" >linbofs/etc/linbo-version
 make -f rpm/Makefile build
+
+# fix rpath (brp-35-rpath)
+chrpath --delete build/build-x86_64/host/lib/grub-{mkimage,mkstandalone}
 
 %install
 # install main conf
