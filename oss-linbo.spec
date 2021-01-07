@@ -180,7 +180,7 @@ echo "LINBO %{version}-%{release}" >linbofs/etc/linbo-version
 make -f rpm/Makefile build
 
 # fix rpath (brp-35-rpath)
-chrpath --delete build/build-x86_64/host/lib/grub-{mkimage,mkstandalone}
+chrpath --delete build/build-x86_64/host/bin/grub-{mkimage,mkstandalone}
 
 %install
 # install main conf
