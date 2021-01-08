@@ -153,6 +153,7 @@ BuildRequires:	libopenssl-devel ncurses-devel python rsync texinfo unzip wget ef
 BuildRequires:	cmake quilt
 BuildRequires:	make >= 4.0
 BuildRequires:	systemd-rpm-macros
+BuildRequires:	-post-build-checks
 
 BuildRoot:    %{_tmppath}/%{name}-root
 Requires:	%{osstype}-base
@@ -425,13 +426,13 @@ fi
 /etc/init.d/bittorrent
 /usr/sbin/rcbittorrent
 %else
-%_unitdir/linbo-bittorrent.service
+%attr(0644,root,root) %_unitdir/linbo-bittorrent.service
 /usr/sbin/linbo-bittorrent
 /usr/sbin/rclinbo-bittorrent
-%_unitdir/linbo-multicast.service
+%attr(0644,root,root) %_unitdir/linbo-multicast.service
 /usr/sbin/linbo-multicast
 /usr/sbin/rclinbo-multicast
-%_unitdir/bittorrent.service
+%attr(0644,root,root) %_unitdir/bittorrent.service
 /usr/sbin/bittorrent
 /usr/sbin/rcbittorrent
 %_presetdir/50-oss-linbo.preset
