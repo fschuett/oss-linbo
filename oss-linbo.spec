@@ -38,7 +38,7 @@ Source15:       dosfstools-4.1.tar.xz
 Source16:       dropbear-2019.78.tar.bz2
 Source17:       e2fsprogs-1.45.6.tar.xz
 Source18:       efibootmgr-15.tar.gz
-Source19:       efivar-37.tar.gz
+Source19:       efivar-35.tar.gz
 Source20:       ethtool-5.4.tar.xz
 Source21:       eudev-3.2.9.tar.gz
 Source22:       expat-2.2.9.tar.xz
