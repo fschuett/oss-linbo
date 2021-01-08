@@ -156,8 +156,8 @@ BuildRequires:	systemd-rpm-macros
 
 BuildRoot:    %{_tmppath}/%{name}-root
 Requires:	%{osstype}-base
-Requires:	logrotate wakeonlan BitTorrent BitTorrent-curses syslinux6 xorriso >= 1.2.4 rsync
-Requires(post):	%insserv_prereq %fillup_prereq dropbear pwgen
+Requires:	logrotate wakeonlan BitTorrent BitTorrent-curses syslinux6 xorriso >= 1.2.4 rsync dosfstools
+Requires(post):	%insserv_prereq %fillup_prereq dropbear pwgen syslinux6 xorriso rsync dosfstools
 
 PreReq: %insserv_prereq %{osstype}-base
 
@@ -222,11 +222,11 @@ for f in `find %{buildroot}/usr/share/linbo -name '*.oss'`; do
 done
 install rpm/dist.conf %{buildroot}/usr/share/linbo/dist.conf
 mkdir -p %{buildroot}/var/cache/linbo
-mkdir -p %{buildroot}/var/adm/fillup-templates
-install rpm/sysconfig.linbofs %{buildroot}/var/adm/fillup-templates/sysconfig.linbofs
-install rpm/sysconfig.linbo-multicast %{buildroot}/var/adm/fillup-templates/sysconfig.linbo-multicast
-install rpm/sysconfig.linbo-bittorrent %{buildroot}/var/adm/fillup-templates/sysconfig.linbo-bittorrent
-install rpm/sysconfig.bittorrent %{buildroot}/var/adm/fillup-templates/sysconfig.bittorrent
+mkdir -p %{buildroot}%{_fillupdir}
+install rpm/sysconfig.linbofs %{buildroot}%{_fillupdir}/sysconfig.linbofs
+install rpm/sysconfig.linbo-multicast %{buildroot}%{_fillupdir}/sysconfig.linbo-multicast
+install rpm/sysconfig.linbo-bittorrent %{buildroot}%{_fillupdir}/sysconfig.linbo-bittorrent
+install rpm/sysconfig.bittorrent %{buildroot}%{_fillupdir}/sysconfig.bittorrent
 mkdir -p %{buildroot}/var/lib/bittorrent
 mkdir -p %{buildroot}/var/log/bittorrent
 %if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
@@ -306,6 +306,17 @@ fi
 %endif
 
 %post
+%fillup_only
+%{fillup_only -n linbofs}
+%if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
+%{fillup_and_insserv -yn bittorrent bittorrent}
+%{fillup_and_insserv -yn linbo-bittorrent linbo-bittorrent}
+%{fillup_and_insserv -f -y linbo-multicast}
+%else
+%{fillup_only -n bittorrent}
+%{fillup_only -n linbo-bittorrent}
+%service_add_post bittorrent.service linbo-bittorrent.service linbo-multicast.service rsyncd.service
+%endif
 # setup rights
 %if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
 SERVERCONFIG=/etc/sysconfig/schoolserver
@@ -348,15 +359,15 @@ then
    
    # create dropbear ssh keys
    if [ ! -s "/etc/linbo/ssh_host_rsa_key" ]; then
-     ssh-keygen -t rsa -N "" -f /etc/linbo/ssh_host_rsa_key
+     ssh-keygen -t rsa -m PEM -N "" -f /etc/linbo/ssh_host_rsa_key
      dropbearconvert openssh dropbear /etc/linbo/ssh_host_rsa_key /etc/linbo/dropbear_rsa_host_key
    fi
    if [ ! -s "/etc/linbo/ssh_host_dsa_key" ]; then
-     ssh-keygen -t dsa -N "" -f /etc/linbo/ssh_host_dsa_key
+     ssh-keygen -t dsa -m PEM -N "" -f /etc/linbo/ssh_host_dsa_key
      dropbearconvert openssh dropbear /etc/linbo/ssh_host_dsa_key /etc/linbo/dropbear_dsa_host_key
    fi
    if [ ! -s "/etc/linbo/ssh_host_ecdsa_key" ]; then
-     ssh-keygen -t ecdsa -N "" -f /etc/linbo/ssh_host_ecdsa_key
+     ssh-keygen -t ecdsa -m PEM -N "" -f /etc/linbo/ssh_host_ecdsa_key
      dropbearconvert openssh dropbear /etc/linbo/ssh_host_ecdsa_key /etc/linbo/dropbear_ecdsa_host_key
    fi
    # create missing ecdsa ssh key
@@ -368,17 +379,6 @@ then
    fi
    update-linbofs
 fi
-%fillup_only
-%{fillup_only -n linbofs}
-%if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
-%{fillup_and_insserv -yn bittorrent bittorrent}
-%{fillup_and_insserv -yn linbo-bittorrent linbo-bittorrent}
-%{fillup_and_insserv -f -y linbo-multicast}
-%else
-%{fillup_only -n bittorrent}
-%{fillup_only -n linbo-bittorrent}
-%service_add_post bittorrent.service linbo-bittorrent.service linbo-multicast.service rsyncd.service
-%endif
 
 %preun
 %service_del_preun bittorrent.service linbo-bittorrent.service linbo-multicast.service
@@ -413,10 +413,10 @@ fi
 %dir /srv/tftp/backup
 %attr(0755,bittorrent,root) /var/lib/bittorrent
 %attr(0755,bittorrent,root) /var/log/bittorrent
-%attr(0644,root,root) /var/adm/fillup-templates/sysconfig.bittorrent
-%attr(0644,root,root) /var/adm/fillup-templates/sysconfig.linbo-bittorrent
-%attr(0644,root,root) /var/adm/fillup-templates/sysconfig.linbo-multicast
-%attr(0644,root,root) /var/adm/fillup-templates/sysconfig.linbofs
+%attr(0644,root,root) %_fillupdir/sysconfig.bittorrent
+%attr(0644,root,root) %_fillupdir/sysconfig.linbo-bittorrent
+%attr(0644,root,root) %_fillupdir/sysconfig.linbo-multicast
+%attr(0644,root,root) %_fillupdir/sysconfig.linbofs
 %if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
 /etc/init.d/linbo-bittorrent
 /usr/sbin/rclinbo-bittorrent
