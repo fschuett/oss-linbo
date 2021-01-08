@@ -12,10 +12,10 @@ Name:		oss-linbo
 Summary:	OSS linux installation and boot environment
 Version:	2.3.63
 Release:	7
-License:	GPLv3
+License:	GPL-3.0-or-later
+Url:		https://github.com/fschuett/oss-linbo
 Vendor:		openSUSE Linux
-Packager:	fschuett@gymhim.de
-Group:		Productivity/
+Group:		System/Packages
 Source:		%{name}-%{version}.tar.gz
 Source131:	ipxe.efi
 Source132:	ipxe.lkrn
@@ -397,7 +397,7 @@ fi
 %config /etc/linbo/linbo.conf
 %attr(644,root,root) %config /etc/linbo/ssh_config
 %attr(644,root,root) %config /etc/linbo/start.conf.default.in
-%config /etc/logrotate.d/linbo
+%attr(644,root,root) %config /etc/logrotate.d/linbo
 %attr(-,nobody,root) %dir /var/log/linbo
 %dir /var/cache/linbo
 %dir /srv/tftp
@@ -436,8 +436,8 @@ fi
 /usr/sbin/rcbittorrent
 %_presetdir/50-oss-linbo.preset
 %endif
-%attr(0640,root,root) /etc/rsyncd.conf.in
-%attr(0600,root,root) /etc/rsyncd.secrets.in
+%attr(0640,root,root) %config /etc/rsyncd.conf.in
+%attr(0600,root,root) %config /etc/rsyncd.secrets.in
 /srv/tftp/boot/grub/ipxe.lkrn
 /srv/tftp/boot/grub/ipxe.efi
 %config(noreplace) /srv/tftp/boot/grub/grub.cfg
