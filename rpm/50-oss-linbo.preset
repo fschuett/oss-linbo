@@ -1,0 +1,4 @@
+enable bittorrent
+enable linbo-bittorrent
+enable linbo-multicast
+enable rsyncd
