@@ -156,7 +156,7 @@ BuildRequires:	systemd-rpm-macros
 
 BuildRoot:    %{_tmppath}/%{name}-root
 Requires:	%{osstype}-base
-Requires:	logrotate wakeonlan BitTorrent BitTorrent-curses syslinux6 xorriso >= 1.2.4
+Requires:	logrotate wakeonlan BitTorrent BitTorrent-curses syslinux6 xorriso >= 1.2.4 rsync
 Requires(post):	%insserv_prereq %fillup_prereq dropbear pwgen
 
 PreReq: %insserv_prereq %{osstype}-base
@@ -250,6 +250,8 @@ install rpm/linbo-multicast %{buildroot}/usr/sbin/linbo-multicast
 ln -sf linbo-multicast %{buildroot}/usr/sbin/rclinbo-multicast
 install rpm/bittorrent %{buildroot}/usr/sbin/bittorrent
 ln -sf bittorrent %{buildroot}/usr/sbin/rcbittorrent
+mkdir -p %{buildroot}%{_presetdir}
+install rpm/50-oss-linbo.preset %{buildroot}%{_presetdir}/50-oss-linbo.preset
 %endif
 install share/templates/grub.cfg.pxe %{buildroot}/srv/tftp/boot/grub/grub.cfg
 # linbo kernels, initrds
@@ -375,10 +377,8 @@ fi
 %else
 %{fillup_only -n bittorrent}
 %{fillup_only -n linbo-bittorrent}
-%service_add_post bittorrent.service linbo-bittorrent.service linbo-multicast.service
+%service_add_post bittorrent.service linbo-bittorrent.service linbo-multicast.service rsyncd.service
 %endif
-systemctl enable rsyncd
-systemctl start rsyncd
 
 %preun
 %service_del_preun bittorrent.service linbo-bittorrent.service linbo-multicast.service
@@ -434,6 +434,7 @@ systemctl start rsyncd
 %_unitdir/bittorrent.service
 /usr/sbin/bittorrent
 /usr/sbin/rcbittorrent
+%_presetdir/50-oss-linbo.preset
 %endif
 %attr(0640,root,root) /etc/rsyncd.conf.in
 %attr(0600,root,root) /etc/rsyncd.secrets.in
