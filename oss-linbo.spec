@@ -156,11 +156,10 @@ BuildRequires:	systemd-rpm-macros
 BuildRequires:	-post-build-checks
 
 BuildRoot:    %{_tmppath}/%{name}-root
-Requires:	%{osstype}-base
 Requires:	logrotate wakeonlan BitTorrent BitTorrent-curses syslinux6 xorriso >= 1.2.4 rsync dosfstools
 Requires(post):	%insserv_prereq %fillup_prereq dropbear pwgen syslinux6 xorriso rsync dosfstools
 
-PreReq: %insserv_prereq %{osstype}-base
+PreReq: %insserv_prereq
 
 %description
 This package provides a boot environment based on linux installation and boot environment (linbo) for cloning clients.
