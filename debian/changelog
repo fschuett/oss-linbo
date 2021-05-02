@@ -1,3 +1,146 @@
+linuxmuster-linbo (2.4.3-1) lmn7; urgency=low
+
+  * fix #184: wake-on-lan with broadcast address fails.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Thu, 29 Apr 2021 12:43:35 +0200
+
+linuxmuster-linbo (2.4.2-8) lmn7; urgency=low
+
+  * fix #174: linbo_cmd initcache_format has a wrong return code on failure.
+  * fix #159: prestart script.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Tue, 23 Feb 2021 16:35:25 +0100
+
+linuxmuster-linbo (2.4.2-7) lmn7; urgency=low
+
+  * extended plymouth boot-bootsplash status messages.
+  * show full linbo version.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Sat, 06 Feb 2021 12:57:19 +0100
+
+linuxmuster-linbo (2.4.2-6) lmn7; urgency=low
+
+  * added plymouth boot-bootsplash status messages.
+  * fixed logfile error in linbo-remote for lmn62.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Thu, 04 Feb 2021 22:29:30 +0100
+
+linuxmuster-linbo (2.4.2-5) lmn7; urgency=low
+
+  * fix #172: 64bit gui binary archive not being packed.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Wed, 03 Feb 2021 15:46:30 +0100
+
+linuxmuster-linbo (2.4.2-4) lmn7; urgency=low
+
+  * unifying bootsplash and grub menu background.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Tue, 02 Feb 2021 21:10:10 +0100
+
+linuxmuster-linbo (2.4.2-3) lmn7; urgency=low
+
+  * bootsplash cosmetics.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Mon, 01 Feb 2021 17:27:35 +0100
+
+linuxmuster-linbo (2.4.2-2) lmn7; urgency=low
+
+  * fix #165: linbo_cmd function to list all images in cache.
+  * fix #161: Explicit start.conf parameter for "linbo-remote mode".
+  * improved behaviour of some linbo-remote options.
+  * updated start.conf examples.
+  * changed plymouth default color.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Sun, 31 Jan 2021 19:38:26 +0100
+
+linuxmuster-linbo (2.4.2-1) lmn7; urgency=low
+
+  * take over ubuntu's kernel framebuffer configuration (fixes hopefully
+    #169).
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Sun, 31 Jan 2021 16:26:46 +0100
+
+linuxmuster-linbo (2.4.2-0) lmn7; urgency=low
+
+  * fix #163: Linbo manipulates start.conf.
+  * implemented codename.
+  * fix #164: implemented plymouth boot splash (for 64bit versions only).
+  * fix linbo_wallpaper handling due to plymouth stuff (#164).
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Wed, 27 Jan 2021 14:45:18 +0100
+
+linuxmuster-linbo (2.4.1-0) lmn7; urgency=low
+
+  * linbo_cmd, register(): implemented device role (see https://github.com/linuxmuster/linuxmuster-linbo-gui/issues/7).
+  * fix #155: linbo_cmd, added functions netmask and bitmask.
+  * fix #157: offline boot on efi systems boots last booted os.
+  * fix #158: Gui is not loaded from cache in offline mode.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Fri, 11 Dec 2020 17:56:57 +0100
+
+linuxmuster-linbo (2.4.0-0) lmn7; urgency=low
+
+  * fix #147: implemented logging image status of client.
+  * more english translations of console messages and further code beautifying.
+  * fix #141: linbo manipulating the local start.conf when finding labels with same name.
+  * fix #142: added start.conf examples for Ubuntu 20.04 with correct kernel and initrd paths.
+  * fix #139: improved error handling in linbo_wrapper, linbo_cmd and linbo-remote.
+  * fix #146: PID of screen launched (lmn7 only).
+  * fix #148: linbo-remote, handling of clients with dynamic ip (lmn7 only).
+  * fix #149: linbo_gui on demand.
+  * fix #150: Additional grub menu option "Start with Linbo".
+  * minor linbo grub theme improvements.
+  * fixed kernel and initrd paths and linbo menu class in remaining grub config templates.
+  * fix #153: Extend linbo clients ssh authorized_keys.
+  * fix #152: Linbo should not reboot on update in all cases.
+  * fix #154: New linbo_gui (lmn7 only).
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Mon, 07 Dec 2020 18:17:06 +0100
+
+linuxmuster-linbo (2.3.68-0) lmn7; urgency=low
+
+  * fix #145: /boot and /boot/efi fail to be unmounted, subsequent partitioning fails.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Fri, 06 Nov 2020 19:24:10 +0100
+
+linuxmuster-linbo (2.3.67-0) lmn7; urgency=low
+
+  * lmn7: kernel update to 5.4.75.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Fri, 06 Nov 2020 14:52:18 +0100
+
+linuxmuster-linbo (2.3.66-1) lmn7; urgency=low
+
+  * lmn7: linbo-remote: fixes and improvements concerning to hostlists and the
+    use of wol broadcast address, increased verbosity.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Sat, 08 Aug 2020 16:48:50 +0200
+
+linuxmuster-linbo (2.3.66-0) lmn7; urgency=low
+
+  * Fix linbo_wrapper, get_images(): improved getting image names from start.conf.
+  * Fix #131: WOL improvement, new parameter -u for linbo-remote to use broadcast
+    address additionally with wakeonlan.
+  * added kmod, grub2-common & grub-efi-ia32-bin to build dependencies.
+  * update to kernel 4.14.192.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Tue, 4 Aug 2020 19:40:00 +0200
+
+linuxmuster-linbo (2.3.65-0) lmn7; urgency=low
+
+  * Fix #136: Linbo fails when label exists (mk_parted zeroes the mbr before creating the partition table).
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Tue, 21 Jul 2020 14:24:23 +0200
+
+linuxmuster-linbo (2.3.64-0) lmn7; urgency=low
+
+  * linbofs: rsync.exclude additions.
+  * Fix #86: Added support for multiple individual hosts or IPs.
+  * Fix #116: .postsync vanishes after sync.
+  * Fix #48: udhcpc: dns labels can actually start with a number.
+
+ -- Thomas Schmitt <thomas@linuxmuster.net>  Tue, 21 Jul 2020 14:24:23 +0200
+
 linuxmuster-linbo (2.3.63-0) lmn7; urgency=low
 
   * fix #132: tell hwclock to assume rtc is in utc.

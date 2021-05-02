@@ -3,7 +3,7 @@
 # create bootable linbo isos
 #
 # thomas@linuxmuster.net
-# 20170519
+# 20201124
 # GPL V3
 #
 
@@ -118,7 +118,7 @@ if [ "$FLAVOUR" = "oss" ]; then
   cp "$LINBODIR/$i" "$ISOCACHE"
  done
 else
- for i in linbo linbo-np linbo64 linbofs.lz linbofs-np.lz linbofs64.lz linbo-version; do
+ for i in linbo linbo-np linbo64 linbofs.lz linbofs-np.lz linbofs64.lz linbo_gui32.tar.lz linbo_gui64.tar.lz linbo-version; do
   cp "$LINBODIR/$i" "$ISOCACHE"
  done
 fi

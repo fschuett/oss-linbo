@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 #
 # thomas@linuxmuster.net
-# 20190708
+# 20210206
 # GPL v3
 #
 
@@ -13,6 +13,7 @@ LML_URL=https://download.linuxmuster.net/dev/linbo-build-cache
 
 # linbo version
 LVERS=$(shell head -n 1 debian/changelog | awk -F\( '{ print $$2 }' | awk -F\) '{ print $$1 }')
+LRELNAME=$(shell cat debian/releasename)
 
 # kernel
 VESAMODE=785 # 640x480, 64k colors
@@ -23,15 +24,12 @@ KERNEL_ARCHIVE=$(shell grep " linux-" debian/md5sums.src | awk '{ print $$2 }')
 KVERS=$(shell echo $(KERNEL_ARCHIVE) | sed -e 's/linux-//' | sed -e 's/.tar.xz//')
 KMAINVERS=$(shell echo $(KVERS) | sed -e 's/.0$$//')
 KERNEL_DIR=kernel/linux-$(KVERS)
-#KERNEL_URL=https://www.kernel.org/pub/linux/kernel/v4.x
-KERNEL_URL=https://cdn.kernel.org/pub/linux/kernel/v4.x
-#KERNEL_URL=$(LML_URL)
-
 # kernel non pae
 KERNELNP_DIR=kernel-np/linux-$(KVERS)
-
 # kernel64
 KERNEL64_DIR=kernel64/linux-$(KVERS)
+#KERNEL_URL=https://www.kernel.org/pub/linux/kernel/v4.x
+KERNEL_URL=$(LML_URL)
 
 # backports
 #BACKPORTS_ARCHIVE=$(shell grep backports- debian/md5sums.src | awk '{ print $$2 }')
@@ -43,22 +41,21 @@ KERNEL64_DIR=kernel64/linux-$(KVERS)
 #BACKPORTS64_DIR=kernel64/$(shell echo $(BACKPORTS_ARCHIVE) | sed -e 's/.tar.xz//')
 
 # cloop
-### integreate cloop in LMN
-#CLOOP_ARCHIVE=$(shell grep cloop_ debian/md5sums.src | awk '{ print $$2 }')
+### integrate cloop in LMN
+CLOOP_ARCHIVE=$(shell grep cloop_ debian/md5sums.src | awk '{ print $$2 }')
+CLOOP_VERSION=$(shell echo $(CLOOP_ARCHIVE) | awk -F_ '{ print $$2 }' | sed -e 's/.tar.xz//')
 #CLOOP_ARCHIVE=$(shell grep cloop- debian/md5sums.src | awk '{ print $$2 }')
-CLOOP_DIR=kernel/cloop
+#CLOOP_DIR=kernel/cloop
 #CLOOP_DIR=kernel/$(shell echo $(CLOOP_ARCHIVE) | sed -e 's/.tar.gz//')
-#CLOOP_DIR=kernel/cloop-$(shell echo $(CLOOP_ARCHIVE) | awk -F_ '{ print $$2 }' | sed -e 's/-2.tar.gz//')
-###CLOOP_URL=http://ftp.de.debian.org/debian/pool/main/c/cloop
-##CLOOP_URL=$(LML_URL)
-
+CLOOP_DIR=kernel/cloop-$(CLOOP_VERSION)
 # cloop non pae
 #CLOOPNP_DIR=kernel-np/$(shell echo $(CLOOP_ARCHIVE) | sed -e 's/.tar.gz//')
-CLOOPNP_DIR=kernel-np/cloop
-
+CLOOPNP_DIR=kernel-np/cloop-$(CLOOP_VERSION)
 # cloop64
 #CLOOP64_DIR=kernel64/cloop-$(shell echo $(CLOOP_ARCHIVE) | awk -F_ '{ print $$2 }' | sed -e 's/-2.tar.gz//')
-CLOOP64_DIR=kernel64/cloop
+CLOOP64_DIR=kernel64/cloop-$(CLOOP_VERSION)
+###CLOOP_URL=http://ftp.de.debian.org/debian/pool/main/c/cloop
+CLOOP_URL=$(LML_URL)
 
 # qt
 QT_ARCHIVE=$(shell grep qt- debian/md5sums.src | awk '{ print $$2 }')
@@ -68,6 +65,10 @@ QT_VERS=$(shell echo $(QT_ARCHIVE) | sed -e 's/qt-everywhere-opensource-src-//' 
 QT_URL=https://download.qt.io/archive/qt/4.8/$(QT_VERS)
 # qt64
 QT64_DIR=linbo_gui64/$(shell echo $(QT_ARCHIVE) | sed -e 's/.tar.gz//')
+
+# gui archives
+GUI32_ARCHIVE=linbo_gui32/linbo_gui32.tar.lz
+GUI64_ARCHIVE=linbo_gui64/linbo_gui64.tar.lz
 
 # busybox
 BB_ARCHIVE=$(shell grep busybox- debian/md5sums.src | awk '{ print $$2 }')
@@ -178,7 +179,7 @@ configure-stamp:
 		tar xf cache/$(BB_ARCHIVE) -C src64; \
 		echo "[1mPatching 64bit busybox sources...[0m" ; \
 		( cd $(BB64_DIR) && for i in ../../patches/busybox/*; do patch -p1 <$$i; done ); \
-		cp conf/busybox.conf $(BB64_DIR)/.config; \
+		cp conf/busybox64.conf $(BB64_DIR)/.config; \
 		ln -sf ../$(BB64_DIR) src64/busybox; \
 	fi
 
@@ -202,7 +203,7 @@ configure-stamp:
 		echo "[1mPatching chntpw64 sources...[0m" ; \
 		( cd $(CHNTPW64_DIR) && for i in ../../patches/chntpw64/*; do patch -p1 <$$i; done ); \
 	fi
-	
+
 
 	# ms-sys
 	-@if [ ! -d $(MSSYS_DIR) ]; then \
@@ -258,9 +259,9 @@ configure-stamp:
 	fi
 
 	# cloop
-	-@if [ ! -d $(CLOOP_DIR) ]; then \
-		git clone https://github.com/PLanB2008/cloop kernel/cloop;\
-	fi
+	#-@if [ ! -d $(CLOOP_DIR) ]; then \
+	#	git clone https://github.com/PLanB2008/cloop kernel/cloop;\
+	#fi
 		#( [ -e cache/$(CLOOP_ARCHIVE) ] || ( cd cache && wget $(CLOOP_URL)/$(CLOOP_ARCHIVE) ) ); \
 		#( cd cache && grep $(CLOOP_ARCHIVE) ../debian/md5sums.src | md5sum -c ); \
 		#echo "[1mUnpacking $(CLOOP_ARCHIVE)...[0m" ; \
@@ -268,35 +269,40 @@ configure-stamp:
 		#ln -sf ../$(CLOOP_DIR) kernel/cloop; \
 
 	# cloop with patch
-#	-@if [ ! -d $(CLOOP_DIR) ]; then \
-#		( [ -e cache/$(CLOOP_ARCHIVE) ] || ( cd cache && wget $(CLOOP_URL)/$(CLOOP_ARCHIVE) ) ); \
-#		( cd cache && grep $(CLOOP_ARCHIVE) ../debian/md5sums.src | md5sum -c ); \
-#		echo "[1mUnpacking $(CLOOP_ARCHIVE)...[0m" ; \
-#		tar xf cache/$(CLOOP_ARCHIVE) -C kernel; \
-#		( cd $(CLOOP_DIR) && patch -p1 <../../patches/cloop-4.3.diff ); \
-#		ln -sf ../$(CLOOP_DIR) kernel/cloop; \
-#	fi
+	-@if [ ! -d $(CLOOP_DIR) ]; then \
+		( [ -e cache/$(CLOOP_ARCHIVE) ] || ( cd cache && wget $(CLOOP_URL)/$(CLOOP_ARCHIVE) ) ); \
+		( cd cache && grep $(CLOOP_ARCHIVE) ../debian/md5sums.src | md5sum -c ); \
+		echo "[1mUnpacking $(CLOOP_ARCHIVE)...[0m" ; \
+		tar xf cache/$(CLOOP_ARCHIVE) -C kernel; \
+		( cd $(CLOOP_DIR) && for i in ../../patches/cloop/*; do patch -p1 <$$i; done ); \
+		ln -sf ../$(CLOOP_DIR) kernel/cloop; \
+	fi
 
 	# cloop non pae
+	#-@if [ ! -d $(CLOOPNP_DIR) ]; then \
+	#	git clone https://github.com/PLanB2008/cloop kernel-np/cloop;\
+	#fi
 	-@if [ ! -d $(CLOOPNP_DIR) ]; then \
-		git clone https://github.com/PLanB2008/cloop kernel-np/cloop;\
+		( [ -e cache/$(CLOOP_ARCHIVE) ] || ( cd cache && wget $(CLOOP_URL)/$(CLOOP_ARCHIVE) ) ); \
+		( cd cache && grep $(CLOOP_ARCHIVE) ../debian/md5sums.src | md5sum -c ); \
+		echo "[1mUnpacking $(CLOOP_ARCHIVE)...[0m" ; \
+		tar xf cache/$(CLOOP_ARCHIVE) -C kernel-np; \
+		( cd $(CLOOPNP_DIR) && for i in ../../patches/cloop/*; do patch -p1 <$$i; done ); \
+		ln -sf ../$(CLOOPNP_DIR) kernel-np/cloop; \
 	fi
-		#( [ -e cache/$(CLOOP_ARCHIVE) ] || ( cd cache && wget $(CLOOP_URL)/$(CLOOP_ARCHIVE) ) ); \
-		#( cd cache && grep $(CLOOP_ARCHIVE) ../debian/md5sums.src | md5sum -c ); \
-		#echo "[1mUnpacking non pae $(CLOOP_ARCHIVE)...[0m" ; \
-		#tar xf cache/$(CLOOP_ARCHIVE) -C kernel-np; \
-		#ln -sf ../$(CLOOPNP_DIR) kernel-np/cloop; \
-
 
 	# cloop64
+	#-@if [ ! -d $(CLOOP64_DIR) ]; then \
+	#	git clone https://github.com/PLanB2008/cloop kernel64/cloop;\
+	#fi
 	-@if [ ! -d $(CLOOP64_DIR) ]; then \
-		git clone https://github.com/PLanB2008/cloop kernel64/cloop;\
+		( [ -e cache/$(CLOOP_ARCHIVE) ] || ( cd cache && wget $(CLOOP_URL)/$(CLOOP_ARCHIVE) ) ); \
+		( cd cache && grep $(CLOOP_ARCHIVE) ../debian/md5sums.src | md5sum -c ); \
+		echo "[1mUnpacking $(CLOOP_ARCHIVE)...[0m" ; \
+		tar xf cache/$(CLOOP_ARCHIVE) -C kernel64; \
+		( cd $(CLOOP64_DIR) && for i in ../../patches/cloop/*; do patch -p1 <$$i; done ); \
+		ln -sf ../$(CLOOP64_DIR) kernel64/cloop; \
 	fi
-		#( [ -e cache/$(CLOOP_ARCHIVE) ] || ( cd cache && wget $(CLOOP_URL)/$(CLOOP_ARCHIVE) ) ); \
-		#( cd cache && grep $(CLOOP_ARCHIVE) ../debian/md5sums.src | md5sum -c ); \
-		#echo "[1mUnpacking 64bit $(CLOOP_ARCHIVE)...[0m" ; \
-		#tar xf cache/$(CLOOP_ARCHIVE) -C kernel64; \
-		#ln -sf ../$(CLOOP64_DIR) kernel64/cloop; \
 
 	# kernel
 	-@if [ ! -d $(KERNEL_DIR) ]; then \
@@ -326,8 +332,6 @@ configure-stamp:
 		( cd cache && grep $(KERNEL_ARCHIVE) ../debian/md5sums.src | md5sum -c ); \
 		echo "[1mUnpacking 64bit $(KERNEL_ARCHIVE)...[0m" ; \
 		tar xf cache/$(KERNEL_ARCHIVE) -C kernel64; \
-		echo "[1mPatching 64bit kernel sources...[0m" ; \
-		( cd $(KERNEL64_DIR) && for i in ../../patches/linux/*; do patch -p1 <$$i; done ); \
 		cp conf/kernel64.conf $(KERNEL64_DIR)/.config; \
 	fi
 
@@ -439,6 +443,7 @@ build-stamp: configure-stamp
 	-@if [ ! -e $(CURDIR)/linbo_gui32/linbo_gui ]; then \
 		echo "[1mBuilding 32bit linbo_gui-1.0...[0m" ; \
 		cp var/icons/linbo_wallpaper_800x600.png linbo_gui32/icons/linbo_wallpaper.png ; \
+		rm -f $(GUI32_ARCHIVE) ; \
 		( cd linbo_gui32 && PATH=$(TOOLCHAIN):$(PATH) CFLAGS=-m32 ./build_gui ); \
 	fi
 
@@ -446,8 +451,12 @@ build-stamp: configure-stamp
 	-@if [ ! -e $(CURDIR)/linbo_gui64/linbo_gui ]; then \
 		echo "[1mBuilding 64bit linbo_gui-1.0...[0m" ; \
 		cp var/icons/linbo_wallpaper_800x600.png linbo_gui64/icons/linbo_wallpaper.png ; \
+		rm -f $(GUI64_ARCHIVE) ; \
 		( cd linbo_gui64 && ./build_gui ); \
 	fi
+
+	# create gui archives
+	debian/mkguiarchives.sh
 
 	# linbo kernel
 	-@if [ ! -e $(KERNEL_DIR)/vmlinux ]; then \
@@ -558,6 +567,7 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp $(TOOLCHAIN)/i386-linux-gnu-ar $(TOOLCHAIN)/i386-linux-gnu-strip
+	rm -rf tmp
 	dh_clean -d
 
 install: build
@@ -603,8 +613,8 @@ install: build
 	-/sbin/depmod -a -b kernel-np/modules $(KVERS)
 	-/sbin/depmod -a -b kernel64/modules $(KVERS)
 	# initrd build
-	# linbo version
-	echo "LINBO $(LVERS)" > linbofs/etc/linbo-version
+	# linbo version & codename
+	echo "LINBO $(LVERS): $(LRELNAME)" > linbofs/etc/linbo-version
 	# fetch common linbofs files
 	( cd linbofs && find . -type d -printf "dir %p %m 0 0\n" && find . -type f -printf "file %p %p %m 0 0\n" ) | sed -e 's|dir \./|dir /|g' -e 's|file \./|file /|g' -e 's|\./|\.\./\.\./linbofs/|g' >$(LINBOINITRAMFS)
 	# start building x86 linbofs
@@ -666,7 +676,6 @@ install: build
 	( cd $(CURDIR)/$(BB64_DIR)/_install && find . -type d -printf "dir %p %m 0 0\n" && find . -type l -printf "slink %p /bin/busybox 777 0 0\n" ) | sed -e 's|\./|/|g' >>$(CURDIR)/kernel64/initramfs.conf ; \
 	cat $(LINBOINITRAMFS) >>$(CURDIR)/kernel64/initramfs.conf ; \
 	rm -f initramfs.lz ; ./usr/gen_init_cpio ../initramfs.conf | lzma -zcv > $(CURDIR)/debian/linuxmuster-linbo-common/var/linbo/linbofs64.lz
-
 	### scripts and config files to package
 	# linbo md5sums
 	md5sum $(CURDIR)/debian/linuxmuster-linbo-common/var/linbo/linbo | cut -f1 -d" " > $(CURDIR)/debian/linuxmuster-linbo-common/var/linbo/linbo.md5
@@ -693,6 +702,12 @@ install: build
 		nf=$${f%.lmn6} ; \
 		mv $$f $$nf ; \
 	done
+	# gui32
+	install -m 644 $(GUI32_ARCHIVE) debian/linuxmuster-linbo-common/var/linbo
+	install -m 644 $(GUI32_ARCHIVE).md5 debian/linuxmuster-linbo-common/var/linbo
+	# gui64
+	install -m 644 $(GUI64_ARCHIVE) debian/linuxmuster-linbo-common/var/linbo
+	install -m 644 $(GUI64_ARCHIVE).md5 debian/linuxmuster-linbo-common/var/linbo
 
 	# linuxmuster-linbo-common7
 	cp -r debian/linuxmuster-linbo-common/* debian/linuxmuster-linbo-common7/

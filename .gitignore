@@ -15,3 +15,5 @@ build-stamp
 .directory
 .debhelper
 debian/linuxmuster-linbo-common/var/linbo/
+mkpkg
+tmp

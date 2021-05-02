@@ -6,7 +6,7 @@
 #
 # thomas@linuxmuster.net
 # GPL V3
-# 20191206
+# 20201127
 #
 
 # read linuxmuster environment
@@ -97,6 +97,8 @@ update_linbofs() {
  fi
  mkdir -p $ROOTSSH
  cat /root/.ssh/id_{ec,}dsa.pub > $ROOTSSH/authorized_keys
+ # supplemental authorized_keys
+ [ -s /root/.ssh/authorized_keys ] && cat /root/.ssh/authorized_keys >> $ROOTSSH/authorized_keys
  mkdir -p var/log
  touch var/log/lastlog
  # check and repair permissions
