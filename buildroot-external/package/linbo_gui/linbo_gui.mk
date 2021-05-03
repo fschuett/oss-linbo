@@ -4,10 +4,9 @@
 #
 ################################################################################
 
-LINBO_GUI_VERSION = 2.0
+LINBO_GUI_VERSION = v7.0.1-rc3
 LINBO_GUI_DEPENDENCIES = qt5base
-LINBO_GUI_SITE = $(TOPDIR)/../linbo_gui-2.0
-LINBO_GUI_SITE_METHOD = local
+LINBO_GUI_SITE = $(call github,linuxmuster,linuxmuster-linbo-gui,$(LINBO_GUI_VERSION))
 LINBO_GUI_INSTALL_STAGING = YES
 
 define LINBO_GUI_CONFIGURE_CMDS
