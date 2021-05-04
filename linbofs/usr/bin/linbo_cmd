@@ -594,43 +594,32 @@ format(){
   local RC
   if [ -n "$label" ]; then
     case "$fstype" in
-      swap|ext2|ext3|ext4|[Nn][Tt][Ff][Ss]*) label="-L $label" ;;
+      swap|ext2|ext3|ext4|xfs|[Nn][Tt][Ff][Ss]*) label="-L $label" ;;
       reiserfs) label="-l $label" ;;
       *[Ff][Aa][Tt]*) label="-n $label" ;;
       *) ;;
     esac
   fi
   case "$fstype" in
-   swap|ext2|ext3|ext4|xfs|[Nn][Tt][Ff][Ss]*) label="-L $label" ;;
-   reiserfs) label="-l $label" ;;
-   *[Ff][Aa][Tt]*) label="-n $label" ;;
-   *) ;;
+    [Ss][Ww][Aa][Pp]) fcmd="mkswap $label $partition" ;;
+    [Rr][Ee][Ii][Ss][Ee][Rr][Ff][Ss]) fcmd="mkreiserfs $label -f -f $partition" ;;
+    [Ee][Xx][Tt][2]) fcmd="mkfs.$fstype $label -F -F $partition" ;;
+    [Ee][Xx][Tt][34]) fcmd="mkfs.$fstype $label -j -F -F $partition" ;;
+    # sparse format is standard and unusable by grub
+    [Xx][Ff][Ss]) fcmd="mkfs.xfs -i sparse=0 -f $label $partition" ;;
+    [Nn][Tt][Ff][Ss]) fcmd="mkfs.ntfs $label -Q $partition" ;;
+    *[Ff][Aa][Tt]*) fcmd="mkdosfs $label -F 32 $partition" ;;
+    *) return 1 ;;
   esac
- fi
- case "$fstype" in
-  [Ss][Ww][Aa][Pp]) fcmd="mkswap $label $partition" ;;
-  [Rr][Ee][Ii][Ss][Ee][Rr][Ff][Ss]) fcmd="mkreiserfs $label -f -f $partition" ;;
-  [Ee][Xx][Tt][2]) fcmd="mkfs.$fstype $label -F -F $partition" ;;
-  [Ee][Xx][Tt][34]) fcmd="mkfs.$fstype $label -j -F -F $partition" ;;
-  # sparse format is standard and unusable by grub
-  [Xx][Ff][Ss]) fcmd="mkfs.xfs -i sparse=0 -f $label $partition" ;;
-  [Nn][Tt][Ff][Ss]) fcmd="mkfs.ntfs $label -Q $partition" ;;
-  *[Ff][Aa][Tt]*) fcmd="mkdosfs $label -F 32 $partition" ;;
-  *) return 1 ;;
- esac
- echo -n "Formatting $partition with $fstype ..."
- [ -d "$partition" ] || sleep 5
- $fcmd 2>> /tmp/linbo.log 1>> /tmp/linbo.log ; RC="$?"
- ### fschuett: mkfs.ext? sets part label but not volume label
- case "$fstype" in
-  [Es][Xx][Tt][234]) e2label "$partition" "${label#-L }" ;;
-  *) ;;
- esac
- ###
- if [ "$RC" != "0" ]; then
-  echo -n " Partition is not yet ready - trying again ..."
-  sleep 2
+  echo -n "Formatting $partition with $fstype ..."
+  [ -d "$partition" ] || sleep 5
   $fcmd 2>> /tmp/linbo.log 1>> /tmp/linbo.log ; RC="$?"
+  ### fschuett: mkfs.ext? sets part label but not volume label
+  case "$fstype" in
+    [Es][Xx][Tt][234]) e2label "$partition" "${label#-L }" ;;
+    *) ;;
+  esac
+  ###
   if [ "$RC" != "0" ]; then
     echo -n " Partition is not yet ready - trying again ..."
     sleep 2
@@ -914,6 +903,7 @@ normalize_case(){
   if [ -z "$key" -o -z "$value" ]; then
     echo "$1"|tr A-Z a-z
   else
+    key="$(echo "$key" | tr A-Z a-z)"
     case "$key" in
       label)
         ;;
@@ -958,7 +948,7 @@ partition(){
   local table="/tmp/partitions"
   local RC="0"
   rm -f "$table"
-  grep -v '^$\|^\s*\#' /start.conf | awk -F\# '{ print $1 }' | sed -e 's| ||g' -e 's|[ \t]||' | tr A-Z a-z | while read line; do
+  grep -v '^$\|^\s*\#' /start.conf | awk -F\# '{ print $1 }' | sed -e 's| ||g' -e 's|[ \t]||' | while read line; do
     if echo "$line" | grep -q ^'\['; then
       if [ -n "$dev" ]; then
         [ -z "$label" ] && label="-"
@@ -970,6 +960,7 @@ partition(){
       dev=""; label=""; id=""; fstype=""; size=""; bootable=""
       continue
     fi
+    line="$(normalize_case "$line")"
     case "$line" in dev=*|label=*|id=*|fstype=*|size=*|bootable=*) eval "$line" ;; esac
   done
 
@@ -1181,7 +1172,7 @@ umount_boot(){
   done
 }
 
-# mount_boot efipart
+# mount_boot [efipart]
 # fake mounts boot partition for grub
 mount_boot(){
   local efipart="$1"
@@ -1203,12 +1194,6 @@ mount_boot(){
       return 1
     fi
   fi
-  # fschuett, this can fail, if mount is ro
-  if ! mkdir -p /boot/efi/EFI; then
-    umount_boot
-    return 1
-  fi
- fi
 }
 
 # mk_winefiboot: restore and install windows efi boot files
@@ -2660,14 +2645,16 @@ syncl(){
   # linux stuff begin
 
   # grub efi
-  if [ -n "$efipart" -a -d /mnt/boot/grub ]; then
-    mkdir -p /mnt/boot/efi
+  UPDATEGRUB=
+  [ -d /mnt/boot/grub ] && UPDATEGRUB="update-grub"
+  [ -d /mnt/boot/grub2 ] && UPDATEGRUB="grub2-mkconfig -o /boot/grub2/grub.cfg"
+  if [ -n "$efipart" -a -n "$UPDATEGRUB" ]; then  mkdir -p /mnt/boot/efi
     mount "$efipart" /mnt/boot/efi
     local i
     for i in /dev /dev/pts /proc /sys; do
       mount --bind "$i" /mnt"$i"
     done
-    chroot /mnt update-grub
+    chroot /mnt $UPDATEGRUB 1>>/tmp/linbo.log 2>>/tmp/linbo.log
     for i in /sys /proc /dev/pts /dev; do
       umount /mnt"$i"
     done
@@ -2795,11 +2782,11 @@ mk_info(){
   local timestamp=$(date +%Y%m%d%H%M)
   log_image_status $1 $timestamp
   echo "[$1 Info File]
-timestamp=$timestamp
-image=$1
-baseimage=$2
-partitionsize=$3
-imagesize=$4"
+  timestamp=$timestamp
+  image=$1
+  baseimage=$2
+  partitionsize=$3
+  imagesize=$4"
 }
 
 # get_multicast_server file
@@ -2892,8 +2879,9 @@ download_torrent(){
   local TIMEOUT=300
   [ -e /torrent-client.conf ] && . /torrent-client.conf
   [ -n "$DOWNLOAD_SLICE_SIZE" ] && SLICE_SIZE=$(($DOWNLOAD_SLICE_SIZE/1024))
-  local pid="$(ps w | grep ctorrent | grep "$torrent" | grep -v grep | awk '{ print $1 }')"
-  [ -n "$pid" ] && kill "$pid"
+  # can be more than one pid
+  local pids="$(ps w | grep ctorrent | grep "$torrent" | grep -v grep | awk '{ print $1 }')"
+  [ -n "$pids" ] && for p in $pids; do kill "$p"; done
   local OPTS="-I $ip -M $MAX_INITIATE -z $SLICE_SIZE"
   [ $MAX_UPLOAD_RATE -gt 0 ] && OPTS="$OPTS -U $MAX_UPLOAD_RATE"
   echo "Torrent-Optionen: $OPTS" >> /tmp/image.log
@@ -3326,6 +3314,7 @@ update(){
         cat /cache/update.log >> /tmp/linbo.log
         sendlog
       fi
+      # FIXME: ist das noch notwendig?
       ( umount -a ; /sbin/reboot -f )
     fi
     if [ -n "$cachedev" -a -n "$reboot" ]; then
