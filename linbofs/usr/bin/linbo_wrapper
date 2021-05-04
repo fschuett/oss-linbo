@@ -96,11 +96,9 @@ get_os(){
   append=""
   while read line; do
     # strip trailing comments
-    line="${line%\#*}"
+    line="${line%%\#*}"
     # strip trailing spaces
     line="$(echo "$line" | sed 's/[ \t]*$//')"
-    # skip lines beginning with comment
-    [ "${line:0:1}" = "#" ] && continue
     # skip empty lines
     [ -z "$line" ] && continue
     # find [OS] entry at position given in $osnr
@@ -230,19 +228,12 @@ format_partition(){
   local fcmd=""
   if [ -n "$label" ]; then
     case "$fstype" in
-      swap|ext2|ext3|ext4|[Nn][Tt][Ff][Ss]*) label="-L $label" ;;
+      xfs|swap|ext2|ext3|ext4|[Nn][Tt][Ff][Ss]*) label="-L $label" ;;
       reiserfs) label="-l $label" ;;
       *[Ff][Aa][Tt]*) label="-n $label" ;;
       *) ;;
     esac
   fi
-  case "$fstype" in
-   xfs|swap|ext2|ext3|ext4|[Nn][Tt][Ff][Ss]*) label="-L $label" ;;
-   reiserfs) label="-l $label" ;;
-   *[Ff][Aa][Tt]*) label="-n $label" ;;
-   *) ;;
-  esac
- fi
  case "$fstype" in
   [Ss][Ww][Aa][Pp]) fcmd="mkswap $label $dev" ;;
   [Rr][Ee][Ii][Ss][Ee][Rr][Ff][Ss]) fcmd="mkreiserfs $label -f -f $dev" ;;
@@ -304,37 +295,40 @@ create_desc(){
 # print help
 help(){
   echo
-  echo "Usage: `basename $0` <command1 command2 ...>"
+  echo "Benutzung: `basename $0` <command1 command2 ...>"
   echo
-  echo "`basename $0` is a linbo_cmd command wrapper."
-  echo "It reads the start.conf and creates the according commands."
+  echo "`basename $0` erlaubt die einfache Benutzung von linbo_cmd auf der Kommandozeile."
+  echo "Es liest die start.conf und setzt die entsprechenden Befehle zusammen."
   echo
-  echo "Available commands are:"
+  echo "Verfügbare Befehle sind:"
   echo
-  echo "partition                : Partitions the disk."
-  echo "label                    : Assings labels to partitions."
-  echo "format                   : Partitions the disk and formats the partions."
-  echo "format:<#>               : Partitions the disk and formats only"
-  echo "                           partition nr. <#>."
-  echo "initcache:<dltype>       : Updates the local cache. <dltype> is"
-  echo "                           rsync, multicast or torrent. If <dltype> is"
-  echo "                           not given it will be fetched from start.conf."
-  echo "sync:<#>                 : Synchronizes operating system nr. <#>."
-  echo "start:<#>                : Starts operating system nr. <#>."
-  echo "create_cloop:<#>:<\"msg\"> : Creates a CLOOP image from operating system nr. <#>."
-  echo "create_rsync:<#>:<\"msg\"> : Creates a RSYNC image from operating system nr. <#>."
-  echo "upload_cloop:<#>         : Uploads the CLOOP image of operating system nr. <#>."
-  echo "upload_rsync:<#>         : Uploads the RSYNC image of operating system nr. <#>."
-  echo "update                   : Updates LINBO's kernel and initrd and installs GRUB."
-  echo "reboot                   : Reboots the client."
-  echo "halt                     : Shuts down the client."
-  echo "help                     : Show this help."
+  echo "partition                : Schreibe die Partitionstabelle."
+  echo "label                    : Versieht alle Partitionen mit Label, die in der"
+  echo "                           start.conf-Datei definiert und formatiert sind."
+  echo "format                   : Schreibt die Partitionstabelle und formatiert"
+  echo "                           alle Partitionen."
+  echo "format:<#>               : Schreibt die Partitionstabelle und formatiert"
+  echo "                           nur Partition Nr. <#>."
+  echo "initcache:<dltype>       : Aktualisiert den lokalen Cache. <dltype> ist"
+  echo "                           rsync, multicast oder torrent."
+  echo "                           Wenn <dltype> nicht angegeben ist wird er aus der"
+  echo "                           start.conf gelesen."
+  echo "sync:<#>                 : Synchronisiert das Betriebssystem auf Position Nr. <#>."
+  echo "start:<#>                : Startet das Betriebssystem auf Position Nr. <#>."
+  echo "create_cloop:<#>:<\"msg\"> : Erstellt ein CLOOP-image von Betriebssystem Nr. <#>."
+  echo "create_rsync:<#>:<\"msg\"> : Erstellt ein RSYNC-image von Betriebssystem Nr. <#>."
+  echo "upload_cloop:<#>         : Lädt das CLOOP-image von Betriebssystem Nr. <#> hoch."
+  echo "upload_rsync:<#>         : Lädt das RSYNC-image von Betriebssystem Nr. <#> hoch."
+  echo "update                   : Aktualisiere LINBOs Kernel/RAM-Disk und installiere GRUB."
+  echo "reboot                   : Client neustarten."
+  echo "halt                     : Client herunterfahren."
+  echo "help                     : Zeigt diese Hilfe."
   echo
-  echo "<\"msg\"> image comment (optional)."
-  echo "The position numbers depend on the position in the start.conf."
-  echo "The Commands are invoked in the order they are given."
-  echo "The upload command needs a file /tmp/rsyncd.secrets with the RSYNC credentials"
-  echo "in the form: <username>:<password>"
+  echo "<\"msg\"> ist ein optionaler Image-Kommentar."
+  echo "Die Positions-Nummern beziehen sich auf die Position in der start.conf."
+  echo "Die Befehle werden in der Reihenfolge ausgeführt, in der sie übergeben werden."
+  echo "Der upload-Befehl erwartet eine Datei /tmp/rsyncd.secrets mit RSYNC-Anmeldedaten"
+  echo "in der Form: <Benutzername>:<Passwort>"
   echo
   exit
 }
