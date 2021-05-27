@@ -153,7 +153,6 @@ BuildRequires:	libopenssl-devel ncurses-devel python rsync texinfo unzip wget ef
 BuildRequires:	cmake quilt
 BuildRequires:	make >= 4.0
 BuildRequires:	systemd-rpm-macros
-BuildRequires:	-post-build-checks
 
 BuildRoot:    %{_tmppath}/%{name}-root
 Requires:	logrotate wakeonlan BitTorrent BitTorrent-curses syslinux6 xorriso >= 1.2.4 rsync dosfstools
