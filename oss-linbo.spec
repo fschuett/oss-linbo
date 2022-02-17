@@ -1,6 +1,6 @@
 #
 # Spec file for oss-linbo
-# Copyright (c) 2016 Frank Schütte <fschuett@gymhim.de> Hildesheim, Germany.  All rights reserved.
+# Copyright (c) 2016-2022 Frank Schütte <fschuett@gymhim.de> Hildesheim, Germany.  All rights reserved.
 #
 # don't clean build dir
 %if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
@@ -155,7 +155,7 @@ BuildRequires:	make >= 4.0
 BuildRequires:	systemd-rpm-macros
 
 BuildRoot:    %{_tmppath}/%{name}-root
-Requires:	logrotate wakeonlan BitTorrent BitTorrent-curses syslinux6 xorriso >= 1.2.4 rsync dosfstools
+Requires:	logrotate wakeonlan syslinux6 xorriso >= 1.2.4 rsync dosfstools rtorrent
 Requires(post):	%insserv_prereq %fillup_prereq dropbear pwgen syslinux6 xorriso rsync dosfstools
 
 PreReq: %insserv_prereq
@@ -224,31 +224,17 @@ mkdir -p %{buildroot}/var/cache/linbo
 mkdir -p %{buildroot}%{_fillupdir}
 install rpm/sysconfig.linbofs %{buildroot}%{_fillupdir}/sysconfig.linbofs
 install rpm/sysconfig.linbo-multicast %{buildroot}%{_fillupdir}/sysconfig.linbo-multicast
-install rpm/sysconfig.linbo-bittorrent %{buildroot}%{_fillupdir}/sysconfig.linbo-bittorrent
-install rpm/sysconfig.bittorrent %{buildroot}%{_fillupdir}/sysconfig.bittorrent
-mkdir -p %{buildroot}/var/lib/bittorrent
-mkdir -p %{buildroot}/var/log/bittorrent
 %if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
 mkdir -p %{buildroot}/etc/init.d
 mkdir -p %{buildroot}/usr/sbin
-install rpm/linbo-bittorrent.init %{buildroot}/etc/init.d/linbo-bittorrent
-ln -sf ../../etc/init.d/linbo-bittorrent %{buildroot}/usr/sbin/rclinbo-bittorrent
 install rpm/linbo-multicast.init %{buildroot}/etc/init.d/linbo-multicast
 ln -sf ../../etc/init.d/linbo-multicast %{buildroot}/usr/sbin/rclinbo-multicast
-install rpm/bittorrent.init %{buildroot}/etc/init.d/bittorrent
-ln -sf ../../etc/init.d/bittorrent %{buildroot}/usr/sbin/rcbittorrent
 %else
 mkdir -p %{buildroot}%{_unitdir}
-install rpm/linbo-bittorrent.service %{buildroot}%{_unitdir}/linbo-bittorrent.service
 install rpm/linbo-multicast.service %{buildroot}%{_unitdir}/linbo-multicast.service
-install rpm/bittorrent.service %{buildroot}%{_unitdir}/bittorrent.service
 mkdir -p %{buildroot}/usr/sbin
-install rpm/linbo-bittorrent %{buildroot}/usr/sbin/linbo-bittorrent
-ln -sf linbo-bittorrent %{buildroot}/usr/sbin/rclinbo-bittorrent
 install rpm/linbo-multicast %{buildroot}/usr/sbin/linbo-multicast
 ln -sf linbo-multicast %{buildroot}/usr/sbin/rclinbo-multicast
-install rpm/bittorrent %{buildroot}/usr/sbin/bittorrent
-ln -sf bittorrent %{buildroot}/usr/sbin/rcbittorrent
 mkdir -p %{buildroot}%{_presetdir}
 install rpm/50-oss-linbo.preset %{buildroot}%{_presetdir}/50-oss-linbo.preset
 %endif
@@ -296,25 +282,18 @@ install share/templates/rsyncd.conf %{buildroot}/etc/rsyncd.conf.in
 install share/templates/rsyncd.secrets.oss %{buildroot}/etc/rsyncd.secrets.in
 
 %pre
-if ! grep -qw ^bittorrent /etc/passwd; then
-    useradd -r -g nogroup -c "BitTorrent User" -d /var/lib/bittorrent -s /bin/false bittorrent
-fi
 %if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
 %else
-%service_add_pre bittorrent.service linbo-bittorrent.service linbo-multicast.service
+%service_add_pre linbo-multicast.service
 %endif
 
 %post
 %fillup_only
 %{fillup_only -n linbofs}
 %if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
-%{fillup_and_insserv -yn bittorrent bittorrent}
-%{fillup_and_insserv -yn linbo-bittorrent linbo-bittorrent}
 %{fillup_and_insserv -f -y linbo-multicast}
 %else
-%{fillup_only -n bittorrent}
-%{fillup_only -n linbo-bittorrent}
-%service_add_post bittorrent.service linbo-bittorrent.service linbo-multicast.service rsyncd.service
+%service_add_post linbo-multicast.service rsyncd.service
 %endif
 # setup rights
 %if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
@@ -380,14 +359,14 @@ then
 fi
 
 %preun
-%service_del_preun bittorrent.service linbo-bittorrent.service linbo-multicast.service
+%service_del_preun linbo-multicast.service
 
 %postun
 %if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
-%restart_on_update bittorrent linbo-bittorrent linbo-multicast rsyncd
+%restart_on_update linbo-multicast rsyncd
 %insserv_cleanup
 %else
-%service_del_postun bittorrent.service linbo-bittorrent.service linbo-multicast.service
+%service_del_postun linbo-multicast.service
 %endif
 
 %files
@@ -410,29 +389,15 @@ fi
 %dir /srv/tftp/boot/grub/hostcfg
 %dir /srv/tftp/tmp
 %dir /srv/tftp/backup
-%attr(0755,bittorrent,root) /var/lib/bittorrent
-%attr(0755,bittorrent,root) /var/log/bittorrent
-%attr(0644,root,root) %_fillupdir/sysconfig.bittorrent
-%attr(0644,root,root) %_fillupdir/sysconfig.linbo-bittorrent
 %attr(0644,root,root) %_fillupdir/sysconfig.linbo-multicast
 %attr(0644,root,root) %_fillupdir/sysconfig.linbofs
 %if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
-/etc/init.d/linbo-bittorrent
-/usr/sbin/rclinbo-bittorrent
 /etc/init.d/linbo-multicast
 /usr/sbin/rclinbo-multicast
-/etc/init.d/bittorrent
-/usr/sbin/rcbittorrent
 %else
-%attr(0644,root,root) %_unitdir/linbo-bittorrent.service
-/usr/sbin/linbo-bittorrent
-/usr/sbin/rclinbo-bittorrent
 %attr(0644,root,root) %_unitdir/linbo-multicast.service
 /usr/sbin/linbo-multicast
 /usr/sbin/rclinbo-multicast
-%attr(0644,root,root) %_unitdir/bittorrent.service
-/usr/sbin/bittorrent
-/usr/sbin/rcbittorrent
 %_presetdir/50-oss-linbo.preset
 %endif
 %attr(0640,root,root) %config /etc/rsyncd.conf.in
