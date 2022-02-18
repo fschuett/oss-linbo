@@ -918,8 +918,8 @@ mk_parted(){
 # convert to lower case with the exception of label values
 # normalize_case line
 normalize_case(){
-  local key="$(echo "${1%%=*}"| tr A-Z a-z)"
-  local value="${1#*=}"
+  local key="$(echo "${1%%=*}"| sed / *$//g | sed /^ *//g | tr A-Z a-z)"
+  local value="$(echo "${1#*=}"| sed / *$//g | sed /^ *//g)"
   if [ -z "$key" -o -z "$value" ]; then
     echo "$1"|tr A-Z a-z
   else
