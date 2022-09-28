@@ -270,19 +270,19 @@ void LinboGUI::on_doregister_clicked()
     RegistrierungsDialog *regdlg;
     if( registerDataList.size() >= 4 ){
         regdlg = new RegistrierungsDialog( this, registerDataList[0], registerDataList[1],
-                registerDataList[2], registerDataList[3]);
+                registerDataList[3]);
     }
     else {
         regdlg = new RegistrierungsDialog( this );
     }
-    connect(regdlg,SIGNAL(finished(QString&, QString&, QString&, QString&)),
-            this,SLOT(do_register(QString&, QString&, QString&, QString&)));
+    connect(regdlg,SIGNAL(finished(QString&, QString&, QString&)),
+            this,SLOT(do_register(QString&, QString&, QString&)));
     regdlg->exec();
 }
 
-void LinboGUI::do_register(QString& roomName, QString& clientName, QString& ipAddress, QString& clientGroup)
+void LinboGUI::do_register(QString& roomName, QString& clientName, QString& clientGroup)
 {
-    doCommand(command->mkregistercommand(roomName, clientName, ipAddress, clientGroup), true, QString("Registrieren"), Aktion::None, &details);
+    doCommand(command->mkregistercommand(roomName, clientName, QString("0.0.0.0"), clientGroup), true, QString("Registrieren"), Aktion::None, &details);
 }
 
 void LinboGUI::showOSs()

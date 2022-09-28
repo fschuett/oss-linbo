@@ -11,8 +11,6 @@ RegistrierungsDialog::RegistrierungsDialog(QWidget *parent) :
     ui(new Ui::RegistrierungsDialog)
 {
     ui->setupUi(this);
-    ui->ipAddress->setValidator(new IP4Validator(this));
-    ui->ipAddress->setInputMask("000.000.000.000");
 }
 
 RegistrierungsDialog::~RegistrierungsDialog()
@@ -21,16 +19,13 @@ RegistrierungsDialog::~RegistrierungsDialog()
 }
 
 RegistrierungsDialog::RegistrierungsDialog(  QWidget* parent, QString& roomName, QString& clientName,
-                                     QString& ipAddress, QString& clientGroup) :
+                                     QString& clientGroup) :
     QDialog(parent), ui(new Ui::RegistrierungsDialog)
 {
   ui->setupUi(this);
-  ui->ipAddress->setValidator(new IP4Validator(this));
-  ui->ipAddress->setInputMask("000.000.000.000");
 
   ui->roomName->setText(roomName);
   ui->clientName->setText(clientName);
-  ui->ipAddress->setText(ipAddress);
   ui->clientGroup->setText(clientGroup);
 
   Qt::WindowFlags flags;
@@ -43,13 +38,11 @@ void RegistrierungsDialog::accept()
 {
     QString *roomName = new QString(ui->roomName->text());
     QString *clientName = new QString(ui->clientName->text());
-    QString *ipAddress = new QString(ui->ipAddress->text());
     QString *clientGroup = new QString(ui->clientGroup->text());
 
-    emit(finished(*roomName, *clientName, *ipAddress, *clientGroup));
+    emit(finished(*roomName, *clientName, *clientGroup));
     delete roomName;
     delete clientName;
-    delete ipAddress;
     delete clientGroup;
     close();
 }
