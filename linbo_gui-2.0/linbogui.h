@@ -74,7 +74,7 @@ public:
 public slots:
     void showBatteryInfo();
     void showRemoteCommand();
-    void do_register(QString& roomName, QString& clientName, QString& ipAddress, QString& clientGroup);
+    void do_register(QString& roomName, QString& clientName, QString& clientGroup);
     void doInitCache(bool formatCache, DownloadType type);
     void performLogin(QString passwd);
     void performLogout();
