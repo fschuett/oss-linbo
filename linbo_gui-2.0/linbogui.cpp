@@ -283,7 +283,7 @@ void LinboGUI::on_doregister_clicked()
 void LinboGUI::do_register(QString& roomName, QString& clientName, QString& clientGroup)
 {
     QString* ipAddress = new QString("0.0.0.0");
-    doCommand(command->mkregistercommand(roomName, clientName, ipAddress, clientGroup), true, QString("Registrieren"), Aktion::None, &details);
+    doCommand(command->mkregistercommand(roomName, clientName, *ipAddress, clientGroup), true, QString("Registrieren"), Aktion::None, &details);
     delete ipAddress;
 }
 
