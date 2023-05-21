@@ -3,11 +3,7 @@
 # Copyright (c) 2016 Frank Schütte <fschuett@gymhim.de> Hildesheim, Germany.  All rights reserved.
 #
 # don't clean build dir
-%if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
-%define osstype oss
-%else
 %define osstype cranix
-%endif
 Name:		oss-linbo
 Summary:	OSS linux installation and boot environment
 Version:	2.3.63
@@ -152,7 +148,7 @@ BuildRequires:	flex gettext git freetype2-devel libtool
 BuildRequires:	libopenssl-devel ncurses-devel python rsync texinfo unzip wget efont-unicode
 BuildRequires:	cmake quilt
 BuildRequires:	make >= 4.0
-BuildRequires:	systemd-rpm-macros
+BuildRequires:	systemd-rpm-macros system-user-module
 
 BuildRoot:    %{_tmppath}/%{name}-root
 Requires:	logrotate wakeonlan BitTorrent BitTorrent-curses syslinux6 xorriso >= 1.2.4 rsync dosfstools
