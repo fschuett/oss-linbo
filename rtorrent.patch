@@ -1,0 +1,1200 @@
+diff --git a/oss-linbo.spec b/oss-linbo.spec
+index a355c2c9b..84b11528b 100644
+--- a/oss-linbo.spec
++++ b/oss-linbo.spec
+@@ -1,6 +1,6 @@
+ #
+ # Spec file for oss-linbo
+-# Copyright (c) 2016 Frank Schütte <fschuett@gymhim.de> Hildesheim, Germany.  All rights reserved.
++# Copyright (c) 2016-2022 Frank Schütte <fschuett@gymhim.de> Hildesheim, Germany.  All rights reserved.
+ #
+ # don't clean build dir
+ %if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
+@@ -155,7 +155,7 @@ BuildRequires:	make >= 4.0
+ BuildRequires:	systemd-rpm-macros
+ 
+ BuildRoot:    %{_tmppath}/%{name}-root
+-Requires:	logrotate wakeonlan BitTorrent BitTorrent-curses syslinux6 xorriso >= 1.2.4 rsync dosfstools
++Requires:	logrotate wakeonlan syslinux6 xorriso >= 1.2.4 rsync dosfstools rtorrent
+ Requires(post):	%insserv_prereq %fillup_prereq dropbear pwgen syslinux6 xorriso rsync dosfstools
+ 
+ PreReq: %insserv_prereq
+@@ -224,31 +224,17 @@ mkdir -p %{buildroot}/var/cache/linbo
+ mkdir -p %{buildroot}%{_fillupdir}
+ install rpm/sysconfig.linbofs %{buildroot}%{_fillupdir}/sysconfig.linbofs
+ install rpm/sysconfig.linbo-multicast %{buildroot}%{_fillupdir}/sysconfig.linbo-multicast
+-install rpm/sysconfig.linbo-bittorrent %{buildroot}%{_fillupdir}/sysconfig.linbo-bittorrent
+-install rpm/sysconfig.bittorrent %{buildroot}%{_fillupdir}/sysconfig.bittorrent
+-mkdir -p %{buildroot}/var/lib/bittorrent
+-mkdir -p %{buildroot}/var/log/bittorrent
+ %if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
+ mkdir -p %{buildroot}/etc/init.d
+ mkdir -p %{buildroot}/usr/sbin
+-install rpm/linbo-bittorrent.init %{buildroot}/etc/init.d/linbo-bittorrent
+-ln -sf ../../etc/init.d/linbo-bittorrent %{buildroot}/usr/sbin/rclinbo-bittorrent
+ install rpm/linbo-multicast.init %{buildroot}/etc/init.d/linbo-multicast
+ ln -sf ../../etc/init.d/linbo-multicast %{buildroot}/usr/sbin/rclinbo-multicast
+-install rpm/bittorrent.init %{buildroot}/etc/init.d/bittorrent
+-ln -sf ../../etc/init.d/bittorrent %{buildroot}/usr/sbin/rcbittorrent
+ %else
+ mkdir -p %{buildroot}%{_unitdir}
+-install rpm/linbo-bittorrent.service %{buildroot}%{_unitdir}/linbo-bittorrent.service
+ install rpm/linbo-multicast.service %{buildroot}%{_unitdir}/linbo-multicast.service
+-install rpm/bittorrent.service %{buildroot}%{_unitdir}/bittorrent.service
+ mkdir -p %{buildroot}/usr/sbin
+-install rpm/linbo-bittorrent %{buildroot}/usr/sbin/linbo-bittorrent
+-ln -sf linbo-bittorrent %{buildroot}/usr/sbin/rclinbo-bittorrent
+ install rpm/linbo-multicast %{buildroot}/usr/sbin/linbo-multicast
+ ln -sf linbo-multicast %{buildroot}/usr/sbin/rclinbo-multicast
+-install rpm/bittorrent %{buildroot}/usr/sbin/bittorrent
+-ln -sf bittorrent %{buildroot}/usr/sbin/rcbittorrent
+ mkdir -p %{buildroot}%{_presetdir}
+ install rpm/50-oss-linbo.preset %{buildroot}%{_presetdir}/50-oss-linbo.preset
+ %endif
+@@ -296,25 +282,18 @@ install share/templates/rsyncd.conf %{buildroot}/etc/rsyncd.conf.in
+ install share/templates/rsyncd.secrets.oss %{buildroot}/etc/rsyncd.secrets.in
+ 
+ %pre
+-if ! grep -qw ^bittorrent /etc/passwd; then
+-    useradd -r -g nogroup -c "BitTorrent User" -d /var/lib/bittorrent -s /bin/false bittorrent
+-fi
+ %if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
+ %else
+-%service_add_pre bittorrent.service linbo-bittorrent.service linbo-multicast.service
++%service_add_pre linbo-multicast.service
+ %endif
+ 
+ %post
+ %fillup_only
+ %{fillup_only -n linbofs}
+ %if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
+-%{fillup_and_insserv -yn bittorrent bittorrent}
+-%{fillup_and_insserv -yn linbo-bittorrent linbo-bittorrent}
+ %{fillup_and_insserv -f -y linbo-multicast}
+ %else
+-%{fillup_only -n bittorrent}
+-%{fillup_only -n linbo-bittorrent}
+-%service_add_post bittorrent.service linbo-bittorrent.service linbo-multicast.service rsyncd.service
++%service_add_post linbo-multicast.service rsyncd.service
+ %endif
+ # setup rights
+ %if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
+@@ -380,14 +359,14 @@ then
+ fi
+ 
+ %preun
+-%service_del_preun bittorrent.service linbo-bittorrent.service linbo-multicast.service
++%service_del_preun linbo-multicast.service
+ 
+ %postun
+ %if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
+-%restart_on_update bittorrent linbo-bittorrent linbo-multicast rsyncd
++%restart_on_update linbo-multicast rsyncd
+ %insserv_cleanup
+ %else
+-%service_del_postun bittorrent.service linbo-bittorrent.service linbo-multicast.service
++%service_del_postun linbo-multicast.service
+ %endif
+ 
+ %files
+@@ -410,29 +389,15 @@ fi
+ %dir /srv/tftp/boot/grub/hostcfg
+ %dir /srv/tftp/tmp
+ %dir /srv/tftp/backup
+-%attr(0755,bittorrent,root) /var/lib/bittorrent
+-%attr(0755,bittorrent,root) /var/log/bittorrent
+-%attr(0644,root,root) %_fillupdir/sysconfig.bittorrent
+-%attr(0644,root,root) %_fillupdir/sysconfig.linbo-bittorrent
+ %attr(0644,root,root) %_fillupdir/sysconfig.linbo-multicast
+ %attr(0644,root,root) %_fillupdir/sysconfig.linbofs
+ %if 0%{?sle_version} == 150100 && 0%{?is_opensuse}
+-/etc/init.d/linbo-bittorrent
+-/usr/sbin/rclinbo-bittorrent
+ /etc/init.d/linbo-multicast
+ /usr/sbin/rclinbo-multicast
+-/etc/init.d/bittorrent
+-/usr/sbin/rcbittorrent
+ %else
+-%attr(0644,root,root) %_unitdir/linbo-bittorrent.service
+-/usr/sbin/linbo-bittorrent
+-/usr/sbin/rclinbo-bittorrent
+ %attr(0644,root,root) %_unitdir/linbo-multicast.service
+ /usr/sbin/linbo-multicast
+ /usr/sbin/rclinbo-multicast
+-%attr(0644,root,root) %_unitdir/bittorrent.service
+-/usr/sbin/bittorrent
+-/usr/sbin/rcbittorrent
+ %_presetdir/50-oss-linbo.preset
+ %endif
+ %attr(0640,root,root) %config /etc/rsyncd.conf.in
+diff --git a/rpm/50-oss-linbo.preset b/rpm/50-oss-linbo.preset
+index 559c82c5a..30dd8bbfd 100644
+--- a/rpm/50-oss-linbo.preset
++++ b/rpm/50-oss-linbo.preset
+@@ -1,4 +1,2 @@
+-enable bittorrent
+-enable linbo-bittorrent
+ enable linbo-multicast
+ enable rsyncd
+diff --git a/rpm/bittorrent b/rpm/bittorrent
+deleted file mode 100755
+index 8defb7d37..000000000
+--- a/rpm/bittorrent
++++ /dev/null
+@@ -1,126 +0,0 @@
+-#! /bin/sh
+-
+-### BEGIN INIT INFO
+-# Provides:		bittorrent
+-# Required-Start:	$network $local_fs ldap
+-# Required-Stop:	$network $local_fs
+-# Should-Start:		
+-# Should-Stop:		
+-# Default-Start:	3 5
+-# Default-Stop:		
+-# Short-Description:	Start a bittorrent tracker
+-# Description:		Starts a bittorrent tracker, which
+-#               	aids bittorrent clients by locating
+-#               	other clients.
+-### END INIT INFO
+-
+-set -e
+-
+-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+-DESC="BitTorrent tracker"
+-NAME=bttrack
+-DAEMON=/usr/bin/$NAME
+-SCRIPTNAME=/usr/sbin/bittorrent
+-
+-. /lib/lsb/init-functions
+-
+-# Gracefully exit if the package has been removed.
+-test -x $DAEMON || exit 0
+-
+-
+-PORT=6969
+-DFILE=/var/lib/bittorrent/bttrack.state
+-
+-# Read config file if it is present.
+-if [ -r /etc/sysconfig/bittorrent ]; then
+-	. /etc/sysconfig/bittorrent
+-fi
+-
+-# Add optional option $1 with argument $2 to OPTS, if $2 is nonempty
+-add_opt () {
+-	if ! test -z "$2" ; then
+-		OPTS="$OPTS $1 $2"
+-	fi
+-}
+-
+-# Compose command-line arguments list for bttrack daemon, based on variables
+-# set in /etc/sysconfig/$NAME
+-OPTS=""
+-add_opt --dfile "$DFILE"
+-add_opt --port "$PORT"
+-add_opt --bind "$BIND"
+-add_opt --socket_timeout "$SOCKET_TIMEOUT"
+-add_opt --save_dfile_interval "$SAVE_DFILE_INTERVAL"
+-add_opt --timeout_downloaders_interval "$TIMEOUT_DOWNLOADERS_INTERVAL"
+-add_opt --reannounce_interval "$REANNOUNCE_INTERVAL"
+-add_opt --respose_size "$RESPONSE_SIZE"
+-add_opt --timeout_check_interval "$TIMEOUT_CHECK_INTERVAL"
+-add_opt --nat_check "$NAT_CHECK"
+-add_opt --min_time_between_log_flushes "$MIN_TIME_BETWEEN_LOG_FLUSHES"
+-add_opt --allowed_dir "$ALLOWED_DIR"
+-add_opt --parse_allowed_interval "$PARSE_ALLOWED_INTERVAL"
+-add_opt --show_names "$SHOW_NAMES"
+-add_opt --logfile "$DAEMONLOGFILE"
+-DAEMONOPTS="$OPTS"
+-
+-# Add arguments for start_daemon, based on variables set in
+-# /etc/sysconfig/$NAME
+-OPTS=""
+-add_opt -c "$DAEMONCHROOT"
+-# add_opt --chdir "$DAEMONCHDIR"
+-METAROOTOPTS="$OPTS"
+-add_opt -n "$DAEMONNICE"
+-add_opt -u "$DAEMONUSER"
+-METAOPTS="$OPTS"
+-
+-#
+-#Function that starts the daemon/service.
+-#
+-d_start() {
+-	if [ $START_BTTRACK -ne 1 ]; then
+-		log_warning_msg "disabled in /etc/sysconfig/bittorrent"
+-		return 1
+-	else
+-		startproc $METAOPTS \
+-			$DAEMON $DAEMONOPTS
+-		return 0
+-	fi
+-}
+-
+-#
+-#Function that stops the daemon/service.
+-#
+-d_stop() {
+-	killproc $METAROOTOPTS $DAEMON
+-}
+-
+-case "$1" in
+-  start)
+-  	echo -n "Starting $DESC $NAME "
+-	d_start
+-	rc_status -v
+-	;;
+-  stop)
+-  	echo -n "Stopping $DESC $NAME "
+-	d_stop
+-	rc_status -v
+-	;;
+-  restart|force-reload)
+-  	echo -n "Restarting $DESC $NAME "
+-	d_stop
+-	sleep 1
+-	d_start
+-	rc_status -v
+-	;;
+-  status)
+-	echo -n "Checking $DESC $NAME "
+-	checkproc $METAROOTOPTS $DAEMON
+-	rc_status -v
+-	;;
+-  *)
+-	echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+-	exit 2
+-	;;
+-esac
+-
+-exit 0
+diff --git a/rpm/bittorrent.init b/rpm/bittorrent.init
+deleted file mode 100755
+index 451aafd14..000000000
+--- a/rpm/bittorrent.init
++++ /dev/null
+@@ -1,126 +0,0 @@
+-#! /bin/sh
+-
+-### BEGIN INIT INFO
+-# Provides:		bittorrent
+-# Required-Start:	$network $local_fs ldap
+-# Required-Stop:	$network $local_fs
+-# Should-Start:		
+-# Should-Stop:		
+-# Default-Start:	3 5
+-# Default-Stop:		
+-# Short-Description:	Start a bittorrent tracker
+-# Description:		Starts a bittorrent tracker, which
+-#               	aids bittorrent clients by locating
+-#               	other clients.
+-### END INIT INFO
+-
+-set -e
+-
+-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+-DESC="BitTorrent tracker"
+-NAME=bttrack
+-DAEMON=/usr/bin/$NAME
+-SCRIPTNAME=/etc/init.d/bittorrent
+-
+-. /lib/lsb/init-functions
+-
+-# Gracefully exit if the package has been removed.
+-test -x $DAEMON || exit 0
+-
+-
+-PORT=6969
+-DFILE=/var/lib/bittorrent/bttrack.state
+-
+-# Read config file if it is present.
+-if [ -r /etc/sysconfig/bittorrent ]; then
+-	. /etc/sysconfig/bittorrent
+-fi
+-
+-# Add optional option $1 with argument $2 to OPTS, if $2 is nonempty
+-add_opt () {
+-	if ! test -z "$2" ; then
+-		OPTS="$OPTS $1 $2"
+-	fi
+-}
+-
+-# Compose command-line arguments list for bttrack daemon, based on variables
+-# set in /etc/sysconfig/$NAME
+-OPTS=""
+-add_opt --dfile "$DFILE"
+-add_opt --port "$PORT"
+-add_opt --bind "$BIND"
+-add_opt --socket_timeout "$SOCKET_TIMEOUT"
+-add_opt --save_dfile_interval "$SAVE_DFILE_INTERVAL"
+-add_opt --timeout_downloaders_interval "$TIMEOUT_DOWNLOADERS_INTERVAL"
+-add_opt --reannounce_interval "$REANNOUNCE_INTERVAL"
+-add_opt --respose_size "$RESPONSE_SIZE"
+-add_opt --timeout_check_interval "$TIMEOUT_CHECK_INTERVAL"
+-add_opt --nat_check "$NAT_CHECK"
+-add_opt --min_time_between_log_flushes "$MIN_TIME_BETWEEN_LOG_FLUSHES"
+-add_opt --allowed_dir "$ALLOWED_DIR"
+-add_opt --parse_allowed_interval "$PARSE_ALLOWED_INTERVAL"
+-add_opt --show_names "$SHOW_NAMES"
+-add_opt --logfile "$DAEMONLOGFILE"
+-DAEMONOPTS="$OPTS"
+-
+-# Add arguments for start_daemon, based on variables set in
+-# /etc/sysconfig/$NAME
+-OPTS=""
+-add_opt -c "$DAEMONCHROOT"
+-# add_opt --chdir "$DAEMONCHDIR"
+-METAROOTOPTS="$OPTS"
+-add_opt -n "$DAEMONNICE"
+-add_opt -u "$DAEMONUSER"
+-METAOPTS="$OPTS"
+-
+-#
+-#Function that starts the daemon/service.
+-#
+-d_start() {
+-	if [ $START_BTTRACK -ne 1 ]; then
+-		log_warning_msg "disabled in /etc/sysconfig/bittorrent"
+-		return 1
+-	else
+-		startproc $METAOPTS \
+-			$DAEMON $DAEMONOPTS
+-		return 0
+-	fi
+-}
+-
+-#
+-#Function that stops the daemon/service.
+-#
+-d_stop() {
+-	killproc $METAROOTOPTS $DAEMON
+-}
+-
+-case "$1" in
+-  start)
+-  	echo -n "Starting $DESC $NAME "
+-	d_start
+-	rc_status -v
+-	;;
+-  stop)
+-  	echo -n "Stopping $DESC $NAME "
+-	d_stop
+-	rc_status -v
+-	;;
+-  restart|force-reload)
+-  	echo -n "Restarting $DESC $NAME "
+-	d_stop
+-	sleep 1
+-	d_start
+-	rc_status -v
+-	;;
+-  status)
+-	echo -n "Checking $DESC $NAME "
+-	checkproc $METAROOTOPTS $DAEMON
+-	rc_status -v
+-	;;
+-  *)
+-	echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+-	exit 2
+-	;;
+-esac
+-
+-exit 0
+diff --git a/rpm/bittorrent.service b/rpm/bittorrent.service
+deleted file mode 100644
+index 996ca4cda..000000000
+--- a/rpm/bittorrent.service
++++ /dev/null
+@@ -1,15 +0,0 @@
+-[Unit]
+-Description=Starts a bittorrent tracker, which aids bittorrent clients by locating other clients.
+-After=network.target ldap.service
+-
+-[Service]
+-Type=oneshot
+-RemainAfterExit=yes
+-EnvironmentFile=/etc/sysconfig/bittorrent
+-ExecReload=/usr/sbin/bittorrent reload
+-ExecStart=/usr/sbin/bittorrent start
+-ExecStop=/usr/sbin/bittorrent stop
+-PIDFile=/var/run/bittorrent.pid
+-
+-[Install]
+-WantedBy=multi-user.target
+diff --git a/rpm/linbo-bittorrent b/rpm/linbo-bittorrent
+deleted file mode 100755
+index b1e102498..000000000
+--- a/rpm/linbo-bittorrent
++++ /dev/null
+@@ -1,271 +0,0 @@
+-#!/bin/sh
+-
+-### BEGIN INIT INFO
+-# Provides:          linbo-bittorrent
+-# Required-Start:    $network $local_fs ldap
+-# Required-Stop:     $network $local_fs
+-# Should-Start:      
+-# Should-Stop:       
+-# Default-Start:     3 5
+-# Default-Stop:      0 1 6
+-# Short-Description: Start a complete bittorrent download
+-# Description:       Starts a complete bittorrent download for LINBO images
+-### END INIT INFO
+-
+-# thomas@linuxmuster.net
+-# 22.03.2015
+-# GPL v3
+-
+-#set -e
+-
+-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+-DESC="BitTorrent service"
+-NAME=linbo-bittorrent
+-PIDFILE=/var/run/$NAME.pid
+-SCRIPTNAME=/usr/sbin/linbo-bittorent
+-
+-# read cmdline
+-action="$1"
+-images="$2"
+-force="$3"
+-
+-# default values
+-MINPORT=6881
+-MAX_UPLOADS=20
+-MAX_UPLOAD_RATE=0
+-REREQUEST_INTERVAL=60
+-MIN_PEERS=20
+-MAX_INITIATE=20
+-KEEPALIVE_INTERVAL=120
+-DOWNLOAD_SLICE_SIZE=131072
+-REQUEST_BACKLOG=5
+-MAX_MESSAGE_LENGTH=8388608
+-TIMEOUT=300
+-TIMEOUT_CHECK_INTERVAL=60
+-MAX_RATE_PERIOD=20
+-UPLOAD_RATE_FUDGE=5
+-DISPLAY_INTERVAL=1
+-MAX_SLICE_LENGTH=131072
+-CLIENT_CONFIG="torrent-client.conf"
+-SERVERIP=10.0.0.2
+-
+-# read necessary functions and constants
+-source /etc/linbo/linbo.conf || exit 1
+-source $ENVDEFAULTS || exit 1
+-source $LINBOSHAREDIR/helperfunctions.sh || exit 1
+-source /lib/lsb/init-functions
+-
+-DAEMON=$LINBOSHAREDIR/linbo-torrenthelper.sh
+-
+-# Gracefully exit if the package has been removed.
+-test -x $DAEMON || exit 0
+-
+-. /lib/lsb/init-functions
+-
+-# read defaults
+-source /etc/sysconfig/linbo-bittorrent || exit 1
+-[ "$START_BITTORRENT" = "1" ] || exit 0
+-source /etc/sysconfig/bittorrent || exit 1
+-[ "$START_BTTRACK" = "1" ] || exit 0
+-
+-# reading server ip
+-if [ -s /etc/sysconfig/cranix ]; then
+- . /etc/sysconfig/cranix
+- SERVERIP=${CRANIX_SERVER}
+-fi
+-
+-cd $LINBODIR
+-
+-# check if single image file is given on cmdline
+-if [ -n "$images" -a "$images" != "all" ]; then
+- if [ ! -s "$images" ]; then
+-  echo "$images does not exist!"
+-  exit 1
+- fi
+- omit_killall="yes"
+-else
+- # get all active images from helperfunctions
+- images="$(active_images)"
+- # add additional files and dirs placed below $LINBODIR/torrentadds
+- tadds="$(ls -1 torrentadds/ | grep -v .torrent | sed 's|^|torrentadds/|')"
+- [ -n "$tadds" ] && images="$images $tadds"
+- if [ -z "$images" ]; then
+-  echo "There exist no images yet!"
+-  exit 0
+- fi
+-fi
+-
+-# write client torrent config
+-write_client_config(){
+- echo "MINPORT=$MINPORT"
+- echo "MAX_INITIATE=$MAX_INITIATE"
+- echo "MAX_UPLOAD_RATE=$MAX_UPLOAD_RATE"
+- echo "DOWNLOAD_SLICE_SIZE=$DOWNLOAD_SLICE_SIZE"
+- echo "TIMEOUT=$TIMEOUT"
+-}
+-
+-start(){
+-
+- local RC=0
+- local c=0
+-
+- write_client_config > "$CLIENT_CONFIG"
+-
+- # check and create torrents first
+- local i=""
+- local tfile=""
+- local tname=""
+- for i in $images; do
+-  tfile="$i.torrent"
+-  tname="$(basename $tfile)"
+-  # check torrent file and delete it if it does not match with image
+-  if [ -e "$tfile" ]; then
+-   if ! check_torrent "$i"; then
+-    echo "$i and $tfile do not match!"
+-    rm -f "$tfile"
+-   fi
+-  fi
+-  # create torrent files if necessary
+-  [ ! -e "$tfile" -o "$force" = "force" ] && create_torrent "$i" "$SERVERIP" "$PORT"
+- done
+-
+- # restart tracker
+- systemctl stop bittorrent
+- sleep 1
+- killall bttrack.bittorrent &> /dev/null
+- sleep 1
+- systemctl start bittorrent
+- sleep 1
+- # start torrents
+- for i in $images; do
+-  tfile="$i.torrent"
+-  tname="$(basename $tfile)"
+-
+-  # start torrent daemon for image only if torrent file is present
+-  [ -e "$tfile" ] || continue
+-
+-  # start daemon stuff
+-  echo -n "  - Starting $DESC for" "$i"
+-
+-  if screen -list | grep -qw "$tname"; then
+-   echo
+-   echo "Torrent for $i is already running. Skipped!"
+-   continue
+-  fi
+-
+-  OPTIONS="$tfile \
+-           --minport $MINPORT \
+-           --max_uploads $MAX_UPLOADS \
+-           --max_upload_rate $MAX_UPLOAD_RATE \
+-           --rerequest_interval $REREQUEST_INTERVAL \
+-           --min_peers $MIN_PEERS \
+-           --max_initiate $MAX_INITIATE \
+-           --keepalive_interval $KEEPALIVE_INTERVAL \
+-           --download_slice_size $DOWNLOAD_SLICE_SIZE \
+-           --max_message_length $MAX_MESSAGE_LENGTH \
+-           --timeout_check_interval $TIMEOUT_CHECK_INTERVAL \
+-           --max_rate_period $MAX_RATE_PERIOD \
+-           --display_interval $DISPLAY_INTERVAL \
+-           --max_slice_length $MAX_SLICE_LENGTH \
+-           --check_hashes 0"
+-
+-# following options not supported
+-#           --timeout $TIMEOUT \
+-#           --request_backlog $REQUEST_BACKLOG \
+-#           --upload_rate_fudge $UPLOAD_RATE_FUDGE \
+-#           --saveas $i
+-
+-  screen -dmS "$tname" $DAEMON $OPTIONS
+-  sleep 1
+-  if ! screen -list | grep -qw "$tname"; then
+-   echo -n " "
+-   echo " failed!"
+-  else
+-   RC=0
+-   echo " OK."
+-  fi
+- done
+- return 0
+-}
+-
+-stop(){
+-
+- local i=""
+- local pid=""
+- for i in $images; do
+-  if screen -list | grep -qw "$(basename $i.torrent)"; then
+-    echo -n "  - Stopping $DESC for" "$i"
+-    pid="$(screen -list | grep "$(basename $i.torrent)" | awk -F\. '{ print $1 }' | awk '{ print $1 }')"
+-    kill $pid ; RC="$?"
+-    if [ "$RC" = "0" ]; then
+-      echo " OK." 
+-    else 
+-      echo " failed($RC)!" 
+-    fi
+-  fi
+- done
+- if [ -z "$omit_killall" ]; then
+-  local pids="$(screen -list | grep torrent | awk -F\. '{ print $1 }' | awk '{ print $1 }')"
+-  if [ -n "$pids" ]; then
+-   echo -n "Sending all remaining linbo-bittorrent processes the TERM signal."
+-   kill $pids ; RC="$?"
+-   if [ "$RC" = "0" ]; then 
+-     return 0
+-   else 
+-     return 1
+-   fi
+-  fi
+- fi
+-}
+-
+-status(){
+-   local line=""
+-   local pid=""
+-   local screen=""
+-   local status=""
+-   local c=0
+-   local d=""
+-   screen -wipe | grep '.torrent\b' | while read line; do
+-    let c+=1
+-    pid="$(echo $line | awk -F\. '{ print $1 }' | awk '{ print $1 }')"
+-    screen="$(echo $line | awk '{ print $1 }')"
+-    screen="${screen#*.}"
+-    status="$(echo $line | awk '{ print $2 }')"
+-    d=""
+-    [ $c -lt 100 ] && d=" "
+-    [ $c -lt 10 ] && d="  "
+-    echo -e "  - $d$c\t$pid\t$screen\t$status"
+-   done
+-}
+-
+-case "$action" in
+- start) 
+-    echo "Starting $DESC" "$NAME"
+-    start 
+-    rc_status -v
+-    ;;
+-  stop)
+-  	echo "Stopping $DESC" "$NAME"
+-	stop
+-	rc_status -v
+-	;;
+-  restart|force-reload)
+-  	echo "Restarting $DESC" "$NAME"
+-	stop
+-	sleep 1
+-	start
+-	rc_status -v
+-	;;
+-  status)
+-	echo -n "Checking $DESC" "$NAME"
+-	status
+-	checkproc $DAEMON
+-	rc_status -v
+-	;;
+- *)
+-	 echo "Usage: $0 {status} | {start|stop|restart} [<imagefile>|all] [force]" >&2
+-	 exit 1 ;;
+-esac
+-
+-exit 0
+-
+diff --git a/rpm/linbo-bittorrent.init b/rpm/linbo-bittorrent.init
+deleted file mode 100755
+index 42eef9095..000000000
+--- a/rpm/linbo-bittorrent.init
++++ /dev/null
+@@ -1,271 +0,0 @@
+-#!/bin/sh
+-
+-### BEGIN INIT INFO
+-# Provides:          linbo-bittorrent
+-# Required-Start:    $network $local_fs ldap
+-# Required-Stop:     $network $local_fs
+-# Should-Start:      
+-# Should-Stop:       
+-# Default-Start:     3 5
+-# Default-Stop:      0 1 6
+-# Short-Description: Start a complete bittorrent download
+-# Description:       Starts a complete bittorrent download for LINBO images
+-### END INIT INFO
+-
+-# thomas@linuxmuster.net
+-# 22.03.2015
+-# GPL v3
+-
+-#set -e
+-
+-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+-DESC="BitTorrent service"
+-NAME=linbo-bittorrent
+-PIDFILE=/var/run/$NAME.pid
+-SCRIPTNAME=/etc/init.d/linbo-bittorent
+-
+-# read cmdline
+-action="$1"
+-images="$2"
+-force="$3"
+-
+-# default values
+-MINPORT=6881
+-MAX_UPLOADS=20
+-MAX_UPLOAD_RATE=0
+-REREQUEST_INTERVAL=60
+-MIN_PEERS=20
+-MAX_INITIATE=20
+-KEEPALIVE_INTERVAL=120
+-DOWNLOAD_SLICE_SIZE=131072
+-REQUEST_BACKLOG=5
+-MAX_MESSAGE_LENGTH=8388608
+-TIMEOUT=300
+-TIMEOUT_CHECK_INTERVAL=60
+-MAX_RATE_PERIOD=20
+-UPLOAD_RATE_FUDGE=5
+-DISPLAY_INTERVAL=1
+-MAX_SLICE_LENGTH=131072
+-CLIENT_CONFIG="torrent-client.conf"
+-SERVERIP=10.0.0.2
+-
+-# read necessary functions and constants
+-source /etc/linbo/linbo.conf || exit 1
+-source $ENVDEFAULTS || exit 1
+-source $LINBOSHAREDIR/helperfunctions.sh || exit 1
+-source /lib/lsb/init-functions
+-
+-DAEMON=$LINBOSHAREDIR/linbo-torrenthelper.sh
+-
+-# Gracefully exit if the package has been removed.
+-test -x $DAEMON || exit 0
+-
+-. /lib/lsb/init-functions
+-
+-# read defaults
+-source /etc/sysconfig/linbo-bittorrent || exit 1
+-[ "$START_BITTORRENT" = "1" ] || exit 0
+-source /etc/sysconfig/bittorrent || exit 1
+-[ "$START_BTTRACK" = "1" ] || exit 0
+-
+-# reading server ip
+-if [ -s /etc/sysconfig/schoolserver ]; then
+- . /etc/sysconfig/schoolserver
+- SERVERIP=${SCHOOL_SERVER}
+-fi
+-
+-cd $LINBODIR
+-
+-# check if single image file is given on cmdline
+-if [ -n "$images" -a "$images" != "all" ]; then
+- if [ ! -s "$images" ]; then
+-  echo "$images does not exist!"
+-  exit 1
+- fi
+- omit_killall="yes"
+-else
+- # get all active images from helperfunctions
+- images="$(active_images)"
+- # add additional files and dirs placed below $LINBODIR/torrentadds
+- tadds="$(ls -1 torrentadds/ | grep -v .torrent | sed 's|^|torrentadds/|')"
+- [ -n "$tadds" ] && images="$images $tadds"
+- if [ -z "$images" ]; then
+-  echo "There exist no images yet!"
+-  exit 0
+- fi
+-fi
+-
+-# write client torrent config
+-write_client_config(){
+- echo "MINPORT=$MINPORT"
+- echo "MAX_INITIATE=$MAX_INITIATE"
+- echo "MAX_UPLOAD_RATE=$MAX_UPLOAD_RATE"
+- echo "DOWNLOAD_SLICE_SIZE=$DOWNLOAD_SLICE_SIZE"
+- echo "TIMEOUT=$TIMEOUT"
+-}
+-
+-start(){
+-
+- local RC=0
+- local c=0
+-
+- write_client_config > "$CLIENT_CONFIG"
+-
+- # check and create torrents first
+- local i=""
+- local tfile=""
+- local tname=""
+- for i in $images; do
+-  tfile="$i.torrent"
+-  tname="$(basename $tfile)"
+-  # check torrent file and delete it if it does not match with image
+-  if [ -e "$tfile" ]; then
+-   if ! check_torrent "$i"; then
+-    echo "$i and $tfile do not match!"
+-    rm -f "$tfile"
+-   fi
+-  fi
+-  # create torrent files if necessary
+-  [ ! -e "$tfile" -o "$force" = "force" ] && create_torrent "$i" "$SERVERIP" "$PORT"
+- done
+-
+- # restart tracker
+- /etc/init.d/bittorrent stop
+- sleep 1
+- killall bttrack.bittorrent &> /dev/null
+- sleep 1
+- /etc/init.d/bittorrent start
+- sleep 1
+- # start torrents
+- for i in $images; do
+-  tfile="$i.torrent"
+-  tname="$(basename $tfile)"
+-
+-  # start torrent daemon for image only if torrent file is present
+-  [ -e "$tfile" ] || continue
+-
+-  # start daemon stuff
+-  echo -n "  - Starting $DESC for" "$i"
+-
+-  if screen -list | grep -qw "$tname"; then
+-   echo
+-   echo "Torrent for $i is already running. Skipped!"
+-   continue
+-  fi
+-
+-  OPTIONS="$tfile \
+-           --minport $MINPORT \
+-           --max_uploads $MAX_UPLOADS \
+-           --max_upload_rate $MAX_UPLOAD_RATE \
+-           --rerequest_interval $REREQUEST_INTERVAL \
+-           --min_peers $MIN_PEERS \
+-           --max_initiate $MAX_INITIATE \
+-           --keepalive_interval $KEEPALIVE_INTERVAL \
+-           --download_slice_size $DOWNLOAD_SLICE_SIZE \
+-           --max_message_length $MAX_MESSAGE_LENGTH \
+-           --timeout_check_interval $TIMEOUT_CHECK_INTERVAL \
+-           --max_rate_period $MAX_RATE_PERIOD \
+-           --display_interval $DISPLAY_INTERVAL \
+-           --max_slice_length $MAX_SLICE_LENGTH \
+-           --check_hashes 0"
+-
+-# following options not supported
+-#           --timeout $TIMEOUT \
+-#           --request_backlog $REQUEST_BACKLOG \
+-#           --upload_rate_fudge $UPLOAD_RATE_FUDGE \
+-#           --saveas $i
+-
+-  screen -dmS "$tname" $DAEMON $OPTIONS
+-  sleep 1
+-  if ! screen -list | grep -qw "$tname"; then
+-   echo -n " "
+-   echo " failed!"
+-  else
+-   RC=0
+-   echo " OK."
+-  fi
+- done
+- return 0
+-}
+-
+-stop(){
+-
+- local i=""
+- local pid=""
+- for i in $images; do
+-  if screen -list | grep -qw "$(basename $i.torrent)"; then
+-    echo -n "  - Stopping $DESC for" "$i"
+-    pid="$(screen -list | grep "$(basename $i.torrent)" | awk -F\. '{ print $1 }' | awk '{ print $1 }')"
+-    kill $pid ; RC="$?"
+-    if [ "$RC" = "0" ]; then
+-      echo " OK." 
+-    else 
+-      echo " failed($RC)!" 
+-    fi
+-  fi
+- done
+- if [ -z "$omit_killall" ]; then
+-  local pids="$(screen -list | grep torrent | awk -F\. '{ print $1 }' | awk '{ print $1 }')"
+-  if [ -n "$pids" ]; then
+-   echo -n "Sending all remaining linbo-bittorrent processes the TERM signal."
+-   kill $pids ; RC="$?"
+-   if [ "$RC" = "0" ]; then 
+-     return 0
+-   else 
+-     return 1
+-   fi
+-  fi
+- fi
+-}
+-
+-status(){
+-   local line=""
+-   local pid=""
+-   local screen=""
+-   local status=""
+-   local c=0
+-   local d=""
+-   screen -wipe | grep '.torrent\b' | while read line; do
+-    let c+=1
+-    pid="$(echo $line | awk -F\. '{ print $1 }' | awk '{ print $1 }')"
+-    screen="$(echo $line | awk '{ print $1 }')"
+-    screen="${screen#*.}"
+-    status="$(echo $line | awk '{ print $2 }')"
+-    d=""
+-    [ $c -lt 100 ] && d=" "
+-    [ $c -lt 10 ] && d="  "
+-    echo -e "  - $d$c\t$pid\t$screen\t$status"
+-   done
+-}
+-
+-case "$action" in
+- start) 
+-    echo "Starting $DESC" "$NAME"
+-    start 
+-    rc_status -v
+-    ;;
+-  stop)
+-  	echo "Stopping $DESC" "$NAME"
+-	stop
+-	rc_status -v
+-	;;
+-  restart|force-reload)
+-  	echo "Restarting $DESC" "$NAME"
+-	stop
+-	sleep 1
+-	start
+-	rc_status -v
+-	;;
+-  status)
+-	echo -n "Checking $DESC" "$NAME"
+-	status
+-	checkproc $DAEMON
+-	rc_status -v
+-	;;
+- *)
+-	 echo "Usage: $0 {status} | {start|stop|restart} [<imagefile>|all] [force]" >&2
+-	 exit 1 ;;
+-esac
+-
+-exit 0
+-
+diff --git a/rpm/linbo-bittorrent.service b/rpm/linbo-bittorrent.service
+deleted file mode 100644
+index 11051d1a1..000000000
+--- a/rpm/linbo-bittorrent.service
++++ /dev/null
+@@ -1,15 +0,0 @@
+-[Unit]
+-Description=Starts a complete bittorrent download for LINBO images
+-After=network.target ldap.service
+-
+-[Service]
+-Type=oneshot
+-RemainAfterExit=yes
+-EnvironmentFile=/etc/sysconfig/linbo-bittorrent
+-ExecReload=/usr/sbin/linbo-bittorrent reload
+-ExecStart=/usr/sbin/linbo-bittorrent start
+-ExecStop=/usr/sbin/linbo-bittorrent stop
+-PIDFile=/var/run/linbo-bittorrent.pid
+-
+-[Install]
+-WantedBy=multi-user.target
+diff --git a/rpm/sysconfig.bittorrent b/rpm/sysconfig.bittorrent
+deleted file mode 100644
+index 9f514f85e..000000000
+--- a/rpm/sysconfig.bittorrent
++++ /dev/null
+@@ -1,90 +0,0 @@
+-## Path:	Network/BitTorrent
+-## Description:	Configuration for BitTorrent bttrack daemon
+-
+-## Type:	string
+-## Default:	"1"
+-## ServiceRestart: bittorrent
+-#
+-# Default configuration for bittorrent tracker, bttrack
+-# If you want the bittorrent tracker to run, switch this to 1.
+-# If you change this, you will probably want to change 
+-# ALLOWED_DIR as well, or anyone will be able to track anything
+-# just by pointing the .torrent at your server.
+-#
+-START_BTTRACK="1"
+-
+-## Type:	string
+-## Default:	"/var/lib/bittorrent/bttrack.state"
+-## ServiceRestart: bittorrent
+-#
+-# Set any bttrack option --foo by defining the variable FOO to the argument
+-# you'd like to pass with the --foo option.  See `man bttrack` for a detailed
+-# discussion of the options.
+-#
+-# Persistent state file
+-#
+-DFILE="/var/lib/bittorrent/bttrack.state"
+-
+-## Type:	string
+-## Default:	"80"
+-## ServiceRestart: bittorrent
+-#
+-# Port defaults to 80, which tends to be inconvenient
+-#
+-PORT="6969"
+-
+-## Type:	string
+-## Default:	"/srv/tftp"
+-## ServiceRestart: bittorrent
+-#
+-# Only allow downloads for .torrent files in this directory
+-#
+-ALLOWED_DIR=/srv/tftp
+-
+-## Type:	string
+-## Default:	"bittorrent"
+-## ServiceRestart: bittorrent
+-#
+-# Run under this uid.  Must have access to all files and directories involved,
+-# naturally, but should otherwise have minimal privileges to minimize any
+-# security risk.
+-#
+-DAEMONUSER="bittorrent"
+-
+-# chroot to this directory before starting the daemon.  This can also help keep
+-# the daemon secure, but may interact with all sorts of file locations in
+-# unexpected ways.
+-#DAEMONCHROOT=/var/local/lib/bttrack-sandbox
+-
+-# Move to this directory before starting the daemon.  This may be useful in
+-# conjunction with DAEMONCHROOT.
+-#DAEMONCHDIR=/var/local/lib/bttrack-sandbox
+-
+-## Type:	string
+-## Default:	"5"
+-## ServiceRestart: bittorrent
+-#
+-# Run the daemon at this "nice" priority.  Setting a positive value here will
+-# dissuade the system from giving all its CPU time to bttrack requests from the
+-# network.
+-#
+-DAEMONNICE="5"
+-
+-## Type:	string
+-## Default:	"/var/log/bittorrent/bttrack.log"
+-## ServiceRestart: bittorrent
+-#
+-# Append log output from daemon to this file.  Make sure this log is rotated
+-# from time to time so it doesn't fill up your disk.  The daemon will of course
+-# need write access to the log file.
+-#
+-DAEMONLOGFILE="/var/log/bittorrent/bttrack.log"
+-
+-## Type:	string
+-## Default:	"15"
+-## ServiceRestart: bittorrent
+-#
+-# seconds downloaders should wait between reannouncements (default 1800)
+-# 15 seconds is recommended value for linuxmuster-linbo
+-#
+-REANNOUNCE_INTERVAL="60"
+diff --git a/rpm/sysconfig.linbo-bittorrent b/rpm/sysconfig.linbo-bittorrent
+deleted file mode 100644
+index 8e4cced9f..000000000
+--- a/rpm/sysconfig.linbo-bittorrent
++++ /dev/null
+@@ -1,100 +0,0 @@
+-## Path:	linbo/bittorrent
+-## Description:	Linbo bittorrent configuration
+-#
+-# default start values for LINBO bittorrent server
+-#
+-## Type:	string
+-## Default:	0
+-# start the LINBO bittorrent server (0 | 1)?
+-# to enable set this to "1"
+-#
+-START_BITTORRENT=0
+-
+-## Type:	string
+-## Default:	/etc/linbo/workstations
+-# path to file with workstation data
+-WIMPORTDATA=/etc/linbo/workstations
+-
+-## Type:	string
+-## Default:	6881
+-# set portnum as the minimum port to listen on,
+-# counts up if unavailable (default 6881)
+-MINPORT=6881
+-
+-## Type:	string
+-## Default:	4
+-# only allow num uploads at once per image (default 4)
+-MAX_UPLOADS=4
+-
+-## Type:	string
+-## Default:	0
+-# maximum rate to upload at in kilobytes per image,
+-# 0 means no limit (default 0)
+-MAX_UPLOAD_RATE=0
+-
+-## Type:	string
+-## Default:	60
+-# request more peers every secs seconds (default 300)
+-REREQUEST_INTERVAL=60
+-
+-## Type:	string
+-## Default:	20
+-# do not rerequest if we have num peers already (default 20)
+-MIN_PEERS=20
+-
+-## Type:	string
+-## Default:	40
+-# stop initiating new connections when we have num peers (default 40)
+-MAX_INITIATE=40
+-
+-## Type:	string
+-## Default:	120
+-# pause secs seconds between sending keepalives (default 120)
+-KEEPALIVE_INTERVAL=120
+-
+-## Type:	string
+-## Default:	131072
+-# query for bytes bytes per request (default 32768)
+-DOWNLOAD_SLICE_SIZE=131072
+-
+-## Type:	string
+-## Default:	5
+-# keep num requests in a single pipe at once (default 5)
+-REQUEST_BACKLOG=5
+-
+-## Type:	string
+-## Default:	8388608
+-# set bytes to the maximum length prefix encoding you’ll accept over the wire -
+-# larger  values get the connection dropped (default 8388608)
+-MAX_MESSAGE_LENGTH=8388608
+-
+-## Type:	string
+-## Default:	300
+-# wait secs before closing sockets which nothing has been received on (default 300)
+-TIMEOUT=300
+-
+-## Type:	string
+-## Default:	60
+-# check whether connections have timed out every secs seconds (default 60)
+-TIMEOUT_CHECK_INTERVAL=60
+-
+-## Type:	string
+-## Default:	20
+-# set  secs  to  the  maximum  amount  of  time  to guess the current rate
+-# estimate represents (default 20)
+-MAX_RATE_PERIOD=20
+-
+-## Type:	string
+-## Default:	5
+-# set the time equivalent of writing to kernel-level TCP buffer to secs (default 5)
+-UPLOAD_RATE_FUDGE=5
+-
+-## Type:	string
+-## Default:	1
+-# update displayed information every secs seconds (default 0.1)
+-DISPLAY_INTERVAL=1
+-
+-## Type:	string
+-## Default:	131072
+-# requests from peers larger than bytes bytes are ignored (default 131072)
+-MAX_SLICE_LENGTH=131072

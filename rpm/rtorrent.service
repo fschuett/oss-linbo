@@ -1,0 +1,17 @@
+[Unit]
+Description=rTorrent System Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=rtorrent
+Group=rtorrent
+EnvironmentFile=/etc/sysconfig/rtorrent
+# Modify the next 2 lines to use absolute paths
+ExecStartPre=-/bin/rm -f $HOME/.session/rtorrent.lock
+ExecStart=/usr/bin/rtorrent -o import=$HOME/rtorrent.rc
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
